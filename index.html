@@ -110,7 +110,10 @@
         window.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {
                 e.preventDefault(); // Prevent page scrolling
-                increment();
+                // Anti-cheat: only increment if the key is not being held down (repeated)
+                if (!e.repeat) {
+                    increment();
+                }
             }
         });
     </script>
