@@ -137,11 +137,13 @@
             margin-top: 50px;
             z-index: 1;
             transition: background-color 0.3s, box-shadow 0.3s;
+            /* Ensure all containers have a minimum height to look consistent */
+            min-height: 600px; 
+            box-sizing: border-box;
         }
 
-        /* Special style for blank pages */
+        /* Special style for blank pages to center text */
         .blank-container {
-            min-height: 400px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -434,7 +436,6 @@
                 page.classList.toggle('active', i === index);
             });
             currentPage = index;
-            // Scroll to top when changing pages
             window.scrollTo(0, 0);
         }
 
@@ -476,7 +477,6 @@
         window.addEventListener('mousemove', (e) => {
             mouse.x = e.x;
             mouse.y = e.y;
-            // Check over container only if on main page
             if (currentPage === 1) {
                 const rect = container.getBoundingClientRect();
                 mouse.isOverContainer = (
