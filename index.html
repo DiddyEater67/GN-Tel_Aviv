@@ -13,7 +13,7 @@
         :root {
             /* Dark Mode as Default */
             --bg-color: #1a1a1a;
-            --container-bg: rgba(45, 45, 45, 0.95); /* Slightly transparent to see particles behind */
+            --container-bg: rgba(45, 45, 45, 0.95);
             --text-color: #e0e0e0;
             --h1-color: #ffffff;
             --p-color: #b0b0b0;
@@ -65,15 +65,16 @@
             min-height: 100vh;
         }
 
-        /* Particle Canvas */
+        /* Particle Canvas - Fixed to cover entire viewport background */
         #particleCanvas {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1; /* Ensure it stays behind everything */
+            width: 100vw;
+            height: 100vh;
+            z-index: -1; /* Always behind everything */
             pointer-events: none;
+            display: block;
         }
 
         .container {
@@ -228,11 +229,14 @@
         const canvas = document.getElementById('particleCanvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
-        const particleCount = 40;
+        const particleCount = 80; // Increased count for better spread
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            // Re-init particles on resize to ensure they cover the new area
+            particles = [];
+            createParticles();
         }
 
         window.addEventListener('resize', resizeCanvas);
@@ -247,17 +251,19 @@
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
                 this.size = Math.random() * 3 + 1;
-                this.speedX = (Math.random() - 0.5) * 0.5; // Slow movement
-                this.speedY = (Math.random() - 0.5) * 0.5;
-                this.opacity = Math.random() * 0.5 + 0.1;
+                this.speedX = (Math.random() - 0.5) * 0.4; // Very slow movement
+                this.speedY = (Math.random() - 0.5) * 0.4;
             }
 
             update() {
                 this.x += this.speedX;
                 this.y += this.speedY;
 
-                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
-                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+                // Wrap around edges for a seamless feel
+                if (this.x < 0) this.x = canvas.width;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.y < 0) this.y = canvas.height;
+                if (this.y > canvas.height) this.y = 0;
             }
 
             draw() {
