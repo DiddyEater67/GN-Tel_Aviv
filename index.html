@@ -541,8 +541,9 @@
         let mouse = { x: null, y: null, isOverContainer: false };
 
         let particleColorState = 0;
-        const particleColors = ['#5dade2', '#ec7063', '#52be80'];
-        const colorIcons = ['🟦', '🟥', '🟩'];
+        const particleColors = ['#5dade2', '#ec7063', '#52be80', '#f1c40f', '#9b59b6', 'rainbow'];
+        const colorIcons = ['🟦', '🟥', '🟩', '🟨', '🟪', '🌈'];
+        let rainbowHue = 0;
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -612,7 +613,11 @@
             }
             draw() {
                 ctx.globalAlpha = this.alpha;
-                ctx.fillStyle = particleColors[particleColorState];
+                if (particleColors[particleColorState] === 'rainbow') {
+                    ctx.fillStyle = `hsla(${rainbowHue}, 70%, 60%, ${this.alpha})`;
+                } else {
+                    ctx.fillStyle = particleColors[particleColorState];
+                }
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
@@ -632,6 +637,7 @@
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (particlesEnabled) {
+                rainbowHue = (rainbowHue + 0.5) % 360; // Shift rainbow color slowly
                 particles.forEach(p => { p.update(); p.draw(); });
             }
             requestAnimationFrame(animateParticles);
@@ -652,7 +658,7 @@
         });
 
         particleColorBtn.addEventListener('click', () => {
-            particleColorState = (particleColorState + 1) % 3;
+            particleColorState = (particleColorState + 1) % particleColors.length;
             particleColorBtn.textContent = colorIcons[particleColorState];
             particleColorBtn.blur();
         });
