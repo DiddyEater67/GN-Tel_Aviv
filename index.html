@@ -287,12 +287,11 @@
             align-items: center;
             justify-content: center;
             min-width: 50px;
-            height: 40px; /* Standardize height */
+            height: 40px;
             box-sizing: border-box;
         }
 
         #muteBtn {
-            /* Now standardized to match other control buttons */
             margin: 0;
         }
         #muteBtn:hover {
@@ -416,6 +415,13 @@
         </div>
     </div>
 
+    <!-- Page 3: New Blank Page -->
+    <div id="page3" class="page">
+        <div class="container blank-container">
+            <p>Blank Page - Third Page</p>
+        </div>
+    </div>
+
     <audio id="bgMusic" loop>
         <source src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663553048518/tAzgROgFmGBWgxPG.mp3" type="audio/mpeg">
     </audio>
@@ -423,7 +429,7 @@
     <script>
         // Page Navigation Logic
         let currentPage = 1;
-        const totalPages = 3;
+        const totalPages = 4;
         const pages = document.querySelectorAll('.page');
         const prevPageBtn = document.getElementById('prevPageBtn');
         const nextPageBtn = document.getElementById('nextPageBtn');
