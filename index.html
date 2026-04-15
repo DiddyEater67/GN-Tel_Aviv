@@ -28,7 +28,7 @@
             --input-bg: #3d3d3d;
             --input-text: #ffffff;
             --timer-color: #5dade2;
-            --particle-color: #5dade2;
+            --particle-color: #5dade2; /* Default Blue */
         }
 
         body.light-mode {
@@ -148,7 +148,7 @@
         }
 
         #highScore {
-            color: #f1c40f; /* Gold color for high score */
+            color: #f1c40f;
         }
 
         .timer-display {
@@ -263,7 +263,6 @@
             margin-top: 10px;
         }
 
-        /* Responsive adjustments */
         @media (max-width: 900px) {
             .content-layout {
                 flex-direction: column;
@@ -284,6 +283,7 @@
     <canvas id="particleCanvas"></canvas>
     
     <div class="top-controls">
+        <button id="particleColorBtn" class="control-btn" title="Change Particle Color">🟦</button>
         <button id="particleToggle" class="control-btn" title="Toggle Particles">🔵</button>
         <button id="themeToggle" class="control-btn" title="Toggle Dark Mode">🌙</button>
     </div>
@@ -354,10 +354,16 @@
         const ctx = canvas.getContext('2d');
         const container = document.getElementById('mainContainer');
         const particleToggle = document.getElementById('particleToggle');
+        const particleColorBtn = document.getElementById('particleColorBtn');
         let particles = [];
         const maxParticles = 150;
         let particlesEnabled = true;
         let mouse = { x: null, y: null, isOverContainer: false };
+
+        // Color states: 0: Blue, 1: Red, 2: Green
+        let particleColorState = 0;
+        const particleColors = ['#5dade2', '#ec7063', '#52be80'];
+        const colorIcons = ['🟦', '🟥', '🟩'];
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -417,9 +423,8 @@
                 if (this.y > canvas.height) this.y = 0;
             }
             draw() {
-                const color = getComputedStyle(document.documentElement).getPropertyValue('--particle-color').trim();
                 ctx.globalAlpha = this.alpha;
-                ctx.fillStyle = color;
+                ctx.fillStyle = particleColors[particleColorState];
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
@@ -450,11 +455,18 @@
         particleToggle.addEventListener('click', () => {
             particlesEnabled = !particlesEnabled;
             particleToggle.textContent = particlesEnabled ? '🔵' : '⚫';
+            particleColorBtn.style.display = particlesEnabled ? 'flex' : 'none';
             if (particlesEnabled) {
                 particles = [];
                 createParticles();
             }
             particleToggle.blur();
+        });
+
+        particleColorBtn.addEventListener('click', () => {
+            particleColorState = (particleColorState + 1) % 3;
+            particleColorBtn.textContent = colorIcons[particleColorState];
+            particleColorBtn.blur();
         });
 
         // Background Music Logic
@@ -505,7 +517,6 @@
         const statusMsg = document.getElementById('statusMsg');
         const body = document.body;
 
-        // High Score System
         let highScore = localStorage.getItem('spacebarHighScore') || 0;
         highScoreDisplay.textContent = highScore;
 
