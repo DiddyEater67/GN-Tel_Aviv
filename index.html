@@ -465,16 +465,6 @@
             <h2>Pick a Number Game</h2>
             <p id="gamePrompt">Pick a number through 1 to 100!</p>
             
-            <div class="difficulty-grid">
-                <button class="diff-btn" data-max="50">Beginner (1-50)</button>
-                <button class="diff-btn active" data-max="100">Easy (1-100)</button>
-                <button class="diff-btn" data-max="250">Normal (1-250)</button>
-                <button class="diff-btn" data-max="500">Hard (1-500)</button>
-                <button class="diff-btn" data-max="1000">Very Hard (1-1000)</button>
-                <button class="diff-btn" data-max="100000">Extreme (1-100k)</button>
-                <button class="diff-btn" data-max="1000000">Impossible (1-1M)</button>
-            </div>
-
             <div class="game-ui">
                 <div class="guesses-left">Guesses Left: <span id="guessesLeft">5</span></div>
                 <input type="number" id="guessInput" placeholder="Enter guess">
@@ -483,6 +473,17 @@
                     <button id="gameResetBtn" class="reset-btn">New Game</button>
                 </div>
                 <div id="gameFeedback"></div>
+            </div>
+
+            <!-- Difficulty buttons moved below everything else -->
+            <div class="difficulty-grid">
+                <button class="diff-btn" data-max="50">Beginner (1-50)</button>
+                <button class="diff-btn active" data-max="100">Easy (1-100)</button>
+                <button class="diff-btn" data-max="250">Normal (1-250)</button>
+                <button class="diff-btn" data-max="500">Hard (1-500)</button>
+                <button class="diff-btn" data-max="1000">Very Hard (1-1000)</button>
+                <button class="diff-btn" data-max="100000">Extreme (1-100k)</button>
+                <button class="diff-btn" data-max="1000000">Impossible (1-1M)</button>
             </div>
         </div>
     </div>
