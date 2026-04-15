@@ -28,7 +28,7 @@
             --input-bg: #3d3d3d;
             --input-text: #ffffff;
             --timer-color: #5dade2;
-            --particle-color: #5dade2; /* Default Blue */
+            --particle-color: #5dade2;
         }
 
         body.light-mode {
@@ -80,6 +80,53 @@
             background: transparent;
         }
 
+        /* Navigation Arrows */
+        .nav-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s, opacity 0.3s;
+            opacity: 0.6;
+        }
+
+        .nav-arrow:hover {
+            opacity: 1;
+            background-color: var(--accent-hover);
+        }
+
+        #prevPageBtn { left: 20px; }
+        #nextPageBtn { right: 20px; }
+
+        /* Page Container */
+        .page {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .container {
             width: 95%;
             max-width: 1200px;
@@ -90,6 +137,14 @@
             margin-top: 50px;
             z-index: 1;
             transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        /* Special style for blank pages */
+        .blank-container {
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .content-layout {
@@ -147,9 +202,7 @@
             display: block;
         }
 
-        #highScore {
-            color: #f1c40f;
-        }
+        #highScore { color: #f1c40f; }
 
         .timer-display {
             font-family: 'Digital', 'Courier New', Courier, monospace;
@@ -288,59 +341,79 @@
         <button id="themeToggle" class="control-btn" title="Toggle Dark Mode">🌙</button>
     </div>
 
-    <div class="container" id="mainContainer">
-        <h1>Welcome to GN-Tel_Aviv!</h1>
-        <p>This is a paragraph of text on my very first web page. Tel Aviv.</p>
+    <button id="prevPageBtn" class="nav-arrow" title="Previous Page">←</button>
+    <button id="nextPageBtn" class="nav-arrow" title="Next Page">→</button>
 
-        <div class="content-layout">
-            <div class="side-box" id="leftBox">
-                Hello, welcome to my website! Please, enjoy your stay. I hope you enjoy using it, just as much as I did making it.
-            </div>
+    <!-- Page 0: Blank Left -->
+    <div id="page0" class="page">
+        <div class="container blank-container">
+            <p>Blank Page - Left Side</p>
+        </div>
+    </div>
 
-            <div class="center-content">
-                <div class="clicker-box">
-                    <h2>Spacebar Clicker</h2>
-                    
-                    <div class="settings">
-                        <div class="input-group">
-                            <label for="minInput">Min:</label>
-                            <input type="number" id="minInput" value="0" min="0" max="59">
-                        </div>
-                        <div class="input-group">
-                            <label for="secInput">Sec:</label>
-                            <input type="number" id="secInput" value="10" min="0" max="59">
-                        </div>
-                    </div>
+    <!-- Page 1: Main Page -->
+    <div id="page1" class="page active">
+        <div class="container" id="mainContainer">
+            <h1>Welcome to GN-Tel_Aviv!</h1>
+            <p>This is a paragraph of text on my very first web page. Tel Aviv.</p>
 
-                    <div class="timer-display" id="timer">00:10</div>
-                    
-                    <div class="scores">
-                        <div>
-                            <div class="score-label">Current Score</div>
-                            <span id="counter">0</span>
-                        </div>
-                        <div>
-                            <div class="score-label">High Score</div>
-                            <span id="highScore">0</span>
-                        </div>
-                    </div>
-                    
-                    <button id="clickBtn">Click Me!</button>
-                    <button id="resetBtn">Reset</button>
-                    
-                    <p class="hint">Press <strong>Spacebar</strong> or click the button to count!</p>
-                    <p id="statusMsg" style="margin-top: 10px; font-weight: bold;"></p>
+            <div class="content-layout">
+                <div class="side-box" id="leftBox">
+                    Hello, welcome to my website! Please, enjoy your stay. I hope you enjoy using it, just as much as I did making it.
                 </div>
-                
-                <div class="music-control">
-                    <p id="musicStatus">🎵 Music ready. Interact to start.</p>
-                    <button id="muteBtn">🔊</button>
+
+                <div class="center-content">
+                    <div class="clicker-box">
+                        <h2>Spacebar Clicker</h2>
+                        
+                        <div class="settings">
+                            <div class="input-group">
+                                <label for="minInput">Min:</label>
+                                <input type="number" id="minInput" value="0" min="0" max="59">
+                            </div>
+                            <div class="input-group">
+                                <label for="secInput">Sec:</label>
+                                <input type="number" id="secInput" value="10" min="0" max="59">
+                            </div>
+                        </div>
+
+                        <div class="timer-display" id="timer">00:10</div>
+                        
+                        <div class="scores">
+                            <div>
+                                <div class="score-label">Current Score</div>
+                                <span id="counter">0</span>
+                            </div>
+                            <div>
+                                <div class="score-label">High Score</div>
+                                <span id="highScore">0</span>
+                            </div>
+                        </div>
+                        
+                        <button id="clickBtn">Click Me!</button>
+                        <button id="resetBtn">Reset</button>
+                        
+                        <p class="hint">Press <strong>Spacebar</strong> or click the button to count!</p>
+                        <p id="statusMsg" style="margin-top: 10px; font-weight: bold;"></p>
+                    </div>
+                    
+                    <div class="music-control">
+                        <p id="musicStatus">🎵 Music ready. Interact to start.</p>
+                        <button id="muteBtn">🔊</button>
+                    </div>
+                </div>
+
+                <div class="side-box" id="rightBox">
+                    Idk what to put here. This is just a test.
                 </div>
             </div>
+        </div>
+    </div>
 
-            <div class="side-box" id="rightBox">
-                Idk what to put here. This is just a test.
-            </div>
+    <!-- Page 2: Blank Right -->
+    <div id="page2" class="page">
+        <div class="container blank-container">
+            <p>Blank Page - Right Side</p>
         </div>
     </div>
 
@@ -349,6 +422,34 @@
     </audio>
 
     <script>
+        // Page Navigation Logic
+        let currentPage = 1;
+        const totalPages = 3;
+        const pages = document.querySelectorAll('.page');
+        const prevPageBtn = document.getElementById('prevPageBtn');
+        const nextPageBtn = document.getElementById('nextPageBtn');
+
+        function showPage(index) {
+            pages.forEach((page, i) => {
+                page.classList.toggle('active', i === index);
+            });
+            currentPage = index;
+            // Scroll to top when changing pages
+            window.scrollTo(0, 0);
+        }
+
+        prevPageBtn.addEventListener('click', () => {
+            let next = (currentPage - 1 + totalPages) % totalPages;
+            showPage(next);
+            startMusic();
+        });
+
+        nextPageBtn.addEventListener('click', () => {
+            let next = (currentPage + 1) % totalPages;
+            showPage(next);
+            startMusic();
+        });
+
         // Particle System
         const canvas = document.getElementById('particleCanvas');
         const ctx = canvas.getContext('2d');
@@ -360,7 +461,6 @@
         let particlesEnabled = true;
         let mouse = { x: null, y: null, isOverContainer: false };
 
-        // Color states: 0: Blue, 1: Red, 2: Green
         let particleColorState = 0;
         const particleColors = ['#5dade2', '#ec7063', '#52be80'];
         const colorIcons = ['🟦', '🟥', '🟩'];
@@ -376,11 +476,16 @@
         window.addEventListener('mousemove', (e) => {
             mouse.x = e.x;
             mouse.y = e.y;
-            const rect = container.getBoundingClientRect();
-            mouse.isOverContainer = (
-                e.x >= rect.left && e.x <= rect.right &&
-                e.y >= rect.top && e.y <= rect.bottom
-            );
+            // Check over container only if on main page
+            if (currentPage === 1) {
+                const rect = container.getBoundingClientRect();
+                mouse.isOverContainer = (
+                    e.x >= rect.left && e.x <= rect.right &&
+                    e.y >= rect.top && e.y <= rect.bottom
+                );
+            } else {
+                mouse.isOverContainer = false;
+            }
         });
 
         class Particle {
