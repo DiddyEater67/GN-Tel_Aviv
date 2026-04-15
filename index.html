@@ -19,6 +19,8 @@
             --border-color: #5dade2;
             --hint-color: #777;
             --shadow: rgba(0,0,0,0.4);
+            --input-bg: #3d3d3d;
+            --input-text: #ffffff;
         }
 
         body.light-mode {
@@ -35,6 +37,8 @@
             --border-color: #3498db;
             --hint-color: #888;
             --shadow: rgba(0,0,0,0.1);
+            --input-bg: #ffffff;
+            --input-text: #333;
         }
 
         body {
@@ -76,6 +80,30 @@
             margin: 10px 0;
         }
 
+        .timer-display {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: var(--reset-color);
+        }
+
+        .settings {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="number"] {
+            width: 60px;
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            text-align: center;
+        }
+
         button {
             padding: 10px 25px;
             font-size: 16px;
@@ -90,8 +118,9 @@
             background-color: var(--accent-color);
             color: white;
         }
-        #clickBtn:hover { background-color: var(--accent-hover); }
-        #clickBtn:active { transform: translateY(2px); }
+        #clickBtn:hover:not(:disabled) { background-color: var(--accent-hover); }
+        #clickBtn:active:not(:disabled) { transform: translateY(2px); }
+        #clickBtn:disabled { background-color: #777; cursor: not-allowed; }
 
         #resetBtn {
             background-color: var(--reset-color);
@@ -117,9 +146,6 @@
             color: var(--hint-color);
             margin-top: 10px;
         }
-
-        a { color: var(--accent-color); text-decoration: none; }
-        a:hover { text-decoration: underline; }
     </style>
 </head>
 <body class="dark-mode">
@@ -131,30 +157,98 @@
 
         <div class="clicker-box">
             <h2>Spacebar Clicker</h2>
+            
+            <div class="settings">
+                <label for="timeInput">Set Time (sec):</label>
+                <input type="number" id="timeInput" value="10" min="1">
+            </div>
+
+            <div class="timer-display">Time Left: <span id="timer">10</span>s</div>
+            
             <span id="counter">0</span>
+            
             <button id="clickBtn">Click Me!</button>
             <button id="resetBtn">Reset</button>
+            
             <p class="hint">Press <strong>Spacebar</strong> or click the button to count!</p>
+            <p id="statusMsg" style="margin-top: 10px; font-weight: bold;"></p>
         </div>
     </div>
 
     <script>
         let count = 0;
+        let timeLeft = 10;
+        let timerInterval = null;
+        let isGameRunning = false;
+        let isGameOver = false;
+
         const counterDisplay = document.getElementById('counter');
+        const timerDisplay = document.getElementById('timer');
+        const timeInput = document.getElementById('timeInput');
         const clickBtn = document.getElementById('clickBtn');
         const resetBtn = document.getElementById('resetBtn');
         const themeToggle = document.getElementById('themeToggle');
+        const statusMsg = document.getElementById('statusMsg');
         const body = document.body;
 
-        // Counter Logic
+        // Sound Logic
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playBeep() {
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.5);
+        }
+
+        function startGame() {
+            isGameRunning = true;
+            isGameOver = false;
+            timeLeft = parseInt(timeInput.value) || 10;
+            timerDisplay.textContent = timeLeft;
+            statusMsg.textContent = "Go!";
+            timeInput.disabled = true;
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            isGameRunning = false;
+            isGameOver = true;
+            clickBtn.disabled = true;
+            statusMsg.textContent = "Time's up!";
+            playBeep();
+        }
+
         function increment() {
+            if (isGameOver) return;
+            if (!isGameRunning) startGame();
             count++;
             counterDisplay.textContent = count;
         }
 
         function reset() {
+            clearInterval(timerInterval);
+            isGameRunning = false;
+            isGameOver = false;
             count = 0;
+            timeLeft = parseInt(timeInput.value) || 10;
             counterDisplay.textContent = count;
+            timerDisplay.textContent = timeLeft;
+            clickBtn.disabled = false;
+            timeInput.disabled = false;
+            statusMsg.textContent = "";
         }
 
         clickBtn.addEventListener('click', () => {
@@ -165,6 +259,13 @@
         resetBtn.addEventListener('click', () => {
             reset();
             resetBtn.blur();
+        });
+
+        timeInput.addEventListener('change', () => {
+            if (!isGameRunning) {
+                timeLeft = parseInt(timeInput.value) || 10;
+                timerDisplay.textContent = timeLeft;
+            }
         });
 
         window.addEventListener('keydown', (e) => {
