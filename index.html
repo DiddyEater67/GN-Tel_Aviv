@@ -104,7 +104,10 @@
             background-color: var(--accent-color);
             color: white;
             padding: 8px 15px;
-            font-size: 14px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .hint {
@@ -118,7 +121,7 @@
     </style>
 </head>
 <body>
-    <button id="themeToggle">Toggle Dark Mode</button>
+    <button id="themeToggle">☀️</button>
 
     <div class="container">
         <h1>Welcome to My Website</h1>
@@ -175,6 +178,11 @@
         // Theme Toggle Logic
         themeToggle.addEventListener('click', () => {
             body.classList.toggle('dark-mode');
+            if (body.classList.contains('dark-mode')) {
+                themeToggle.textContent = '🌙';
+            } else {
+                themeToggle.textContent = '☀️';
+            }
             themeToggle.blur();
         });
     </script>
