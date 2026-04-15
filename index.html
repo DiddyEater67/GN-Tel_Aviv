@@ -318,8 +318,9 @@
 
         /* Guessing Game Styles */
         .difficulty-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 10px;
             margin: 20px 0;
             width: 100%;
@@ -333,6 +334,12 @@
             background-color: var(--box-bg);
             border: 1px solid var(--border-color);
             color: var(--text-color);
+            flex: 0 1 calc(33.33% - 10px); /* Three columns by default */
+            min-width: 150px;
+        }
+
+        .diff-btn.full-width {
+            flex: 0 1 calc(50% - 10px); /* Two columns for centered effect */
         }
 
         .diff-btn.active {
@@ -475,15 +482,16 @@
                 <div id="gameFeedback"></div>
             </div>
 
-            <!-- Difficulty buttons moved below everything else -->
+            <!-- Difficulty buttons centered below everything else -->
             <div class="difficulty-grid">
                 <button class="diff-btn" data-max="50">Beginner (1-50)</button>
                 <button class="diff-btn active" data-max="100">Easy (1-100)</button>
                 <button class="diff-btn" data-max="250">Normal (1-250)</button>
                 <button class="diff-btn" data-max="500">Hard (1-500)</button>
                 <button class="diff-btn" data-max="1000">Very Hard (1-1000)</button>
-                <button class="diff-btn" data-max="100000">Extreme (1-100k)</button>
-                <button class="diff-btn" data-max="1000000">Impossible (1-1M)</button>
+                <!-- Centered buttons on the last row -->
+                <button class="diff-btn full-width" data-max="100000">Extreme (1-100k)</button>
+                <button class="diff-btn full-width" data-max="1000000">Impossible (1-1M)</button>
             </div>
         </div>
     </div>
