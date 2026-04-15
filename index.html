@@ -1,3 +1,46 @@
+
+
+Start free trial
+
+Share
+Lite
+I'll update the particle system to increase the count to 150 and make them spawn more quickly. I'll also reduce the push force from the cursor to make the interaction feel more subtle and gentle. I'll provide the updated index.html shortly.
+I increased particles to 150, sped up spawning, and made cursor interactions more subtle, ensuring a smoother, gentle background effect that stays behind the main content.
+
+Lite
+I've updated the index.html file with the following enhancements to the particle system:
+Increased Particle Count: There are now a maximum of 150 particles on screen for a richer background.
+Faster Spawning: Particles now spawn into the scene much quicker (every 20ms).
+Subtle Interaction: The push force from the cursor has been reduced to make the interaction feel more gentle and calm.
+Consistent Rules: Particles still stay behind the main container and do not interact with the cursor when it's over the container area.
+All other features—background ambience, digital blue timer, anti-cheat logic, and dark mode—remain fully functional. Enjoy the updated atmosphere!
+index.html
+Code · 15.94 KB
+View all files in this task
+How was this result?
+Add mute music button under "🎵 Background Ambience Active". Unmuted is 🔊, muted is 🔇.
+Add button to turn on/off particle effects to left of dark/light button. On is 🔵, off is ⚫.
+Lite
+I'll add the mute button for the music and the toggle button for the particle effects as requested. I'll ensure the icons (🔊/🔇 for music and 🔵/⚫ for particles) update correctly based on their state. I'll provide the updated index.html shortly.
+I optimized the particle system with 150 particles, faster spawning, and subtle cursor interactions, ensuring a calm background that stays behind the main content. The next step is adding toggle buttons.
+
+Lite
+I've updated the index.html file with the new controls:
+Music Mute Button: Added a button under the "🎵 Background Ambience Active" text. It toggles between 🔊 (unmuted) and 🔇 (muted).
+Particle Toggle Button: Added a button to the left of the theme toggle (top right). It toggles between 🔵 (particles on) and ⚫ (particles off).
+All Previous Features: The digital blue timer, anti-cheat spacebar logic, calm blue background particles (when enabled), and default dark mode are all preserved.
+The website remains a single, lightweight file. Let me know if you need anything else!
+index.html
+Code · 17.39 KB
+View all files in this task
+Task completed
+How was this result?
+Suggested follow-ups
+
+
+
+
+index.html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -168,24 +211,47 @@
         }
         #resetBtn:hover { background-color: var(--reset-hover); }
 
-        #themeToggle {
+        .top-controls {
             position: absolute;
             top: 20px;
             right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .control-btn {
             background-color: var(--accent-color);
             color: white;
             padding: 8px 15px;
             font-size: 18px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            z-index: 10;
+            justify-content: center;
+            min-width: 50px;
         }
 
         .music-control {
             margin-top: 20px;
             font-size: 0.8em;
             color: var(--hint-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        #muteBtn {
+            background-color: transparent;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 5px 15px;
+            font-size: 14px;
+            margin: 0;
+        }
+        #muteBtn:hover {
+            background-color: var(--accent-color);
+            color: white;
         }
 
         .hint {
@@ -197,7 +263,11 @@
 </head>
 <body class="dark-mode">
     <canvas id="particleCanvas"></canvas>
-    <button id="themeToggle">🌙</button>
+    
+    <div class="top-controls">
+        <button id="particleToggle" class="control-btn" title="Toggle Particles">🔵</button>
+        <button id="themeToggle" class="control-btn" title="Toggle Dark Mode">🌙</button>
+    </div>
 
     <div class="container" id="mainContainer">
         <h1>Welcome to GN-Tel_Aviv!</h1>
@@ -230,6 +300,7 @@
         
         <div class="music-control">
             <p id="musicStatus">🎵 Music ready. Interact to start.</p>
+            <button id="muteBtn">🔊</button>
         </div>
     </div>
 
@@ -242,8 +313,10 @@
         const canvas = document.getElementById('particleCanvas');
         const ctx = canvas.getContext('2d');
         const container = document.getElementById('mainContainer');
+        const particleToggle = document.getElementById('particleToggle');
         let particles = [];
-        const maxParticles = 150; // Increased to 150
+        const maxParticles = 150;
+        let particlesEnabled = true;
         let mouse = { x: null, y: null, isOverContainer: false };
 
         function resizeCanvas() {
@@ -277,18 +350,15 @@
                 this.alpha = Math.random() * 0.4 + 0.1;
             }
             update() {
-                // Interaction Logic with Reduced Push Force
                 if (mouse.x != null && !mouse.isOverContainer) {
                     let dx = mouse.x - this.x;
                     let dy = mouse.y - this.y;
                     let distance = Math.sqrt(dx * dx + dy * dy);
                     let forceRadius = 100;
-                    
                     if (distance < forceRadius) {
                         let force = (forceRadius - distance) / forceRadius;
                         let directionX = dx / distance;
                         let directionY = dy / distance;
-                        // Reduced force multiplier (from 0.5 to 0.2)
                         this.speedX -= directionX * force * 0.2;
                         this.speedY -= directionY * force * 0.2;
                     } else {
@@ -299,10 +369,8 @@
                     this.speedX += (this.baseSpeedX - this.speedX) * 0.05;
                     this.speedY += (this.baseSpeedY - this.speedY) * 0.05;
                 }
-
                 this.x += this.speedX;
                 this.y += this.speedY;
-
                 if (this.x < 0) this.x = canvas.width;
                 if (this.x > canvas.width) this.x = 0;
                 if (this.y < 0) this.y = canvas.height;
@@ -318,29 +386,41 @@
             }
         }
 
-        // Quicker spawning logic
         function createParticles() {
             const interval = setInterval(() => {
-                if (particles.length < maxParticles) {
+                if (particles.length < maxParticles && particlesEnabled) {
                     particles.push(new Particle());
-                } else {
+                } else if (!particlesEnabled || particles.length >= maxParticles) {
                     clearInterval(interval);
                 }
-            }, 20); // Faster spawn interval (20ms)
+            }, 20);
         }
 
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => { p.update(); p.draw(); });
+            if (particlesEnabled) {
+                particles.forEach(p => { p.update(); p.draw(); });
+            }
             requestAnimationFrame(animateParticles);
         }
 
         createParticles();
         animateParticles();
 
+        particleToggle.addEventListener('click', () => {
+            particlesEnabled = !particlesEnabled;
+            particleToggle.textContent = particlesEnabled ? '🔵' : '⚫';
+            if (particlesEnabled) {
+                particles = [];
+                createParticles();
+            }
+            particleToggle.blur();
+        });
+
         // Background Music Logic
         const bgMusic = document.getElementById('bgMusic');
         const musicStatus = document.getElementById('musicStatus');
+        const muteBtn = document.getElementById('muteBtn');
         bgMusic.volume = 0.15;
 
         let musicStarted = false;
@@ -355,6 +435,13 @@
                 });
             }
         }
+
+        muteBtn.addEventListener('click', () => {
+            startMusic();
+            bgMusic.muted = !bgMusic.muted;
+            muteBtn.textContent = bgMusic.muted ? '🔇' : '🔊';
+            muteBtn.blur();
+        });
 
         document.body.addEventListener('click', startMusic, { once: true });
         document.body.addEventListener('keydown', startMusic, { once: true });
@@ -471,3 +558,4 @@
     </script>
 </body>
 </html>
+GN Tel Aviv GitHub Repository Link - Manus
