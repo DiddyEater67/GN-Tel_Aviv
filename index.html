@@ -127,12 +127,28 @@
             border-radius: 8px;
         }
 
-        #counter {
+        .scores {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 10px 0;
+        }
+
+        .score-label {
+            font-size: 0.9em;
+            color: var(--hint-color);
+            margin-bottom: 5px;
+        }
+
+        #counter, #highScore {
             font-size: 48px;
             font-weight: bold;
             color: var(--accent-color);
             display: block;
-            margin: 10px 0;
+        }
+
+        #highScore {
+            color: #f1c40f; /* Gold color for high score */
         }
 
         .timer-display {
@@ -259,7 +275,7 @@
             }
             .center-content {
                 width: 100%;
-                order: -1; /* Keep clicker on top for mobile */
+                order: -1;
             }
         }
     </style>
@@ -298,7 +314,16 @@
 
                     <div class="timer-display" id="timer">00:10</div>
                     
-                    <span id="counter">0</span>
+                    <div class="scores">
+                        <div>
+                            <div class="score-label">Current Score</div>
+                            <span id="counter">0</span>
+                        </div>
+                        <div>
+                            <div class="score-label">High Score</div>
+                            <span id="highScore">0</span>
+                        </div>
+                    </div>
                     
                     <button id="clickBtn">Click Me!</button>
                     <button id="resetBtn">Reset</button>
@@ -470,6 +495,7 @@
         let isGameOver = false;
 
         const counterDisplay = document.getElementById('counter');
+        const highScoreDisplay = document.getElementById('highScore');
         const timerDisplay = document.getElementById('timer');
         const minInput = document.getElementById('minInput');
         const secInput = document.getElementById('secInput');
@@ -478,6 +504,19 @@
         const themeToggle = document.getElementById('themeToggle');
         const statusMsg = document.getElementById('statusMsg');
         const body = document.body;
+
+        // High Score System
+        let highScore = localStorage.getItem('spacebarHighScore') || 0;
+        highScoreDisplay.textContent = highScore;
+
+        function updateHighScore() {
+            if (count > highScore) {
+                highScore = count;
+                localStorage.setItem('spacebarHighScore', highScore);
+                highScoreDisplay.textContent = highScore;
+                statusMsg.textContent = "New High Score! 🎉";
+            }
+        }
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playBeep() {
@@ -529,6 +568,7 @@
             isGameOver = true;
             clickBtn.disabled = true;
             statusMsg.textContent = "Time's up!";
+            updateHighScore();
             playBeep();
         }
 
