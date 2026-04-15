@@ -454,7 +454,6 @@
         // Particle System
         const canvas = document.getElementById('particleCanvas');
         const ctx = canvas.getContext('2d');
-        const container = document.getElementById('mainContainer');
         const particleToggle = document.getElementById('particleToggle');
         const particleColorBtn = document.getElementById('particleColorBtn');
         let particles = [];
@@ -477,15 +476,21 @@
         window.addEventListener('mousemove', (e) => {
             mouse.x = e.x;
             mouse.y = e.y;
-            if (currentPage === 1) {
-                const rect = container.getBoundingClientRect();
-                mouse.isOverContainer = (
-                    e.x >= rect.left && e.x <= rect.right &&
-                    e.y >= rect.top && e.y <= rect.bottom
-                );
-            } else {
-                mouse.isOverContainer = false;
+            
+            // Dynamically find the container on the active page
+            const activePage = document.querySelector('.page.active');
+            if (activePage) {
+                const activeContainer = activePage.querySelector('.container');
+                if (activeContainer) {
+                    const rect = activeContainer.getBoundingClientRect();
+                    mouse.isOverContainer = (
+                        e.x >= rect.left && e.x <= rect.right &&
+                        e.y >= rect.top && e.y <= rect.bottom
+                    );
+                    return;
+                }
             }
+            mouse.isOverContainer = false;
         });
 
         class Particle {
