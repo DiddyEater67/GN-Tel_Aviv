@@ -13,7 +13,7 @@
         :root {
             /* Dark Mode as Default */
             --bg-color: #1a1a1a;
-            --container-bg: #2d2d2d;
+            --container-bg: rgba(45, 45, 45, 0.95); /* Slightly transparent to see particles behind */
             --text-color: #e0e0e0;
             --h1-color: #ffffff;
             --p-color: #b0b0b0;
@@ -26,13 +26,14 @@
             --shadow: rgba(0,0,0,0.4);
             --input-bg: #3d3d3d;
             --input-text: #ffffff;
-            --timer-color: #5dade2; /* Digital Blue */
+            --timer-color: #5dade2;
+            --particle-color: rgba(93, 173, 226, 0.4);
         }
 
         body.light-mode {
             /* Light Mode Variables */
             --bg-color: #f4f4f9;
-            --container-bg: white;
+            --container-bg: rgba(255, 255, 255, 0.95);
             --text-color: #333;
             --h1-color: #2c3e50;
             --p-color: #555;
@@ -46,6 +47,7 @@
             --input-bg: #ffffff;
             --input-text: #333;
             --timer-color: #3498db;
+            --particle-color: rgba(52, 152, 219, 0.2);
         }
 
         body {
@@ -58,15 +60,31 @@
             color: var(--text-color);
             text-align: center;
             transition: background-color 0.3s, color 0.3s;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Particle Canvas */
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Ensure it stays behind everything */
+            pointer-events: none;
         }
 
         .container {
+            position: relative;
             background: var(--container-bg);
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 4px 6px var(--shadow);
             margin-top: 50px;
             transition: background-color 0.3s, box-shadow 0.3s;
+            z-index: 1; /* Stay above particles */
         }
 
         h1 { color: var(--h1-color); }
@@ -161,6 +179,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            z-index: 10;
         }
 
         .hint {
@@ -171,6 +190,7 @@
     </style>
 </head>
 <body class="dark-mode">
+    <canvas id="particleCanvas"></canvas>
     <button id="themeToggle">🌙</button>
 
     <div class="container">
@@ -204,6 +224,70 @@
     </div>
 
     <script>
+        // Particle System
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const particleCount = 40;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = (Math.random() - 0.5) * 0.5; // Slow movement
+                this.speedY = (Math.random() - 0.5) * 0.5;
+                this.opacity = Math.random() * 0.5 + 0.1;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+            }
+
+            draw() {
+                const color = getComputedStyle(document.documentElement).getPropertyValue('--particle-color').trim();
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function createParticles() {
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+
+        createParticles();
+        animateParticles();
+
+        // Game Logic
         let count = 0;
         let totalSeconds = 10;
         let secondsLeft = 10;
@@ -245,7 +329,7 @@
             const m = parseInt(minInput.value) || 0;
             const s = parseInt(secInput.value) || 0;
             totalSeconds = (m * 60) + s;
-            if (totalSeconds <= 0) totalSeconds = 1; // Minimum 1 second
+            if (totalSeconds <= 0) totalSeconds = 1;
             if (!isGameRunning) {
                 secondsLeft = totalSeconds;
                 timerDisplay.textContent = formatTime(secondsLeft);
