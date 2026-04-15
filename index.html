@@ -6,21 +6,7 @@
     <title>GN-Tel_Aviv & Spacebar Clicker</title>
     <style>
         :root {
-            --bg-color: #f4f4f9;
-            --container-bg: white;
-            --text-color: #333;
-            --h1-color: #2c3e50;
-            --p-color: #555;
-            --accent-color: #3498db;
-            --accent-hover: #2980b9;
-            --reset-color: #e74c3c;
-            --reset-hover: #c0392b;
-            --border-color: #3498db;
-            --hint-color: #888;
-            --shadow: rgba(0,0,0,0.1);
-        }
-
-        body.dark-mode {
+            /* Dark Mode as Default */
             --bg-color: #1a1a1a;
             --container-bg: #2d2d2d;
             --text-color: #e0e0e0;
@@ -33,6 +19,22 @@
             --border-color: #5dade2;
             --hint-color: #777;
             --shadow: rgba(0,0,0,0.4);
+        }
+
+        body.light-mode {
+            /* Light Mode Variables */
+            --bg-color: #f4f4f9;
+            --container-bg: white;
+            --text-color: #333;
+            --h1-color: #2c3e50;
+            --p-color: #555;
+            --accent-color: #3498db;
+            --accent-hover: #2980b9;
+            --reset-color: #e74c3c;
+            --reset-hover: #c0392b;
+            --border-color: #3498db;
+            --hint-color: #888;
+            --shadow: rgba(0,0,0,0.1);
         }
 
         body {
@@ -120,8 +122,8 @@
         a:hover { text-decoration: underline; }
     </style>
 </head>
-<body>
-    <button id="themeToggle">☀️</button>
+<body class="dark-mode"> <!-- Added class for consistency, though CSS variables handle it -->
+    <button id="themeToggle">🌙</button>
 
     <div class="container">
         <h1>Welcome to GN-Tel_Aviv!</h1>
@@ -177,11 +179,11 @@
 
         // Theme Toggle Logic
         themeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-            if (body.classList.contains('dark-mode')) {
-                themeToggle.textContent = '🌙';
-            } else {
+            body.classList.toggle('light-mode');
+            if (body.classList.contains('light-mode')) {
                 themeToggle.textContent = '☀️';
+            } else {
+                themeToggle.textContent = '🌙';
             }
             themeToggle.blur();
         });
