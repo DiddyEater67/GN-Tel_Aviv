@@ -229,9 +229,14 @@
         </div>
         
         <div class="music-control">
-            <p>🎵 Background Ambience Active (Very Quiet)</p>
+            <p id="musicStatus">🎵 Music ready. Interact to start.</p>
         </div>
     </div>
+
+    <!-- Hidden audio element for better reliability -->
+    <audio id="bgMusic" loop>
+        <source src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663553048518/tAzgROgFmGBWgxPG.mp3" type="audio/mpeg">
+    </audio>
 
     <script>
         // Particle System
@@ -290,19 +295,27 @@
         createParticles();
         animateParticles();
 
-        // Background Music (Linked to CDN)
-        const bgMusic = new Audio();
-        bgMusic.loop = true;
-        bgMusic.volume = 0.05; // Very quiet
-        bgMusic.src = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663553048518/tAzgROgFmGBWgxPG.mp3';
+        // Background Music Logic
+        const bgMusic = document.getElementById('bgMusic');
+        const musicStatus = document.getElementById('musicStatus');
+        bgMusic.volume = 0.15; // Set volume to 15% (quiet but audible)
 
         let musicStarted = false;
         function startMusic() {
             if (!musicStarted) {
-                bgMusic.play().catch(e => console.log("Music play blocked:", e));
-                musicStarted = true;
+                bgMusic.play().then(() => {
+                    musicStatus.textContent = "🎵 Background Ambience Active";
+                    musicStarted = true;
+                }).catch(e => {
+                    console.log("Music play blocked:", e);
+                    musicStatus.textContent = "⚠️ Click anywhere to enable music";
+                });
             }
         }
+
+        // Handle initial user interaction for audio
+        document.body.addEventListener('click', startMusic, { once: true });
+        document.body.addEventListener('keydown', startMusic, { once: true });
 
         // Game Logic
         let count = 0;
