@@ -233,8 +233,7 @@
             gap: 5px;
         }
 
-        input[type="number"] {
-            width: 60px;
+        input[type="number"], input[type="text"] {
             padding: 8px;
             border-radius: 4px;
             border: 1px solid var(--border-color);
@@ -254,19 +253,19 @@
             margin: 5px;
         }
 
-        #clickBtn {
+        #clickBtn, .game-btn {
             background-color: var(--accent-color);
             color: white;
         }
-        #clickBtn:hover:not(:disabled) { background-color: var(--accent-hover); }
-        #clickBtn:active:not(:disabled) { transform: translateY(2px); }
-        #clickBtn:disabled { background-color: #777; cursor: not-allowed; }
+        #clickBtn:hover:not(:disabled), .game-btn:hover:not(:disabled) { background-color: var(--accent-hover); }
+        #clickBtn:active:not(:disabled), .game-btn:active:not(:disabled) { transform: translateY(2px); }
+        #clickBtn:disabled, .game-btn:disabled { background-color: #777; cursor: not-allowed; }
 
-        #resetBtn {
+        #resetBtn, .reset-btn {
             background-color: var(--reset-color);
             color: white;
         }
-        #resetBtn:hover { background-color: var(--reset-hover); }
+        #resetBtn:hover, .reset-btn:hover { background-color: var(--reset-hover); }
 
         .top-controls {
             position: absolute;
@@ -312,6 +311,55 @@
             font-size: 0.9em;
             color: var(--hint-color);
             margin-top: 10px;
+        }
+
+        /* Guessing Game Styles */
+        .difficulty-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .diff-btn {
+            padding: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            background-color: var(--box-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        .diff-btn.active {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .game-ui {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        #guessInput {
+            width: 200px;
+            font-size: 24px;
+        }
+
+        .guesses-left {
+            font-size: 1.2em;
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        #gameFeedback {
+            font-size: 1.5em;
+            font-weight: bold;
+            min-height: 1.5em;
         }
 
         @media (max-width: 900px) {
@@ -408,10 +456,31 @@
         </div>
     </div>
 
-    <!-- Page 2: Blank Right -->
+    <!-- Page 2: Guessing Game Page -->
     <div id="page2" class="page">
-        <div class="container blank-container">
-            <p>Blank Page - Right Side</p>
+        <div class="container" style="display: flex; flex-direction: column; align-items: center;">
+            <h2>Pick a Number Game</h2>
+            <p id="gamePrompt">Pick a number through 1 to 100!</p>
+            
+            <div class="difficulty-grid">
+                <button class="diff-btn" data-max="50">Beginner (1-50)</button>
+                <button class="diff-btn active" data-max="100">Easy (1-100)</button>
+                <button class="diff-btn" data-max="250">Normal (1-250)</button>
+                <button class="diff-btn" data-max="500">Hard (1-500)</button>
+                <button class="diff-btn" data-max="1000">Very Hard (1-1000)</button>
+                <button class="diff-btn" data-max="100000">Extreme (1-100k)</button>
+                <button class="diff-btn" data-max="1000000">Impossible (1-1M)</button>
+            </div>
+
+            <div class="game-ui">
+                <div class="guesses-left">Guesses Left: <span id="guessesLeft">5</span></div>
+                <input type="number" id="guessInput" placeholder="Enter guess">
+                <div>
+                    <button id="guessBtn" class="game-btn">Submit Guess</button>
+                    <button id="gameResetBtn" class="reset-btn">New Game</button>
+                </div>
+                <div id="gameFeedback"></div>
+            </div>
         </div>
     </div>
 
@@ -610,7 +679,7 @@
         document.body.addEventListener('click', startMusic, { once: true });
         document.body.addEventListener('keydown', startMusic, { once: true });
 
-        // Game Logic
+        // Spacebar Clicker Logic
         let count = 0;
         let totalSeconds = 10;
         let secondsLeft = 10;
@@ -733,6 +802,91 @@
             themeToggle.textContent = body.classList.contains('light-mode') ? '☀️' : '🌙';
             themeToggle.blur();
         });
+
+        // Guessing Game Logic
+        let targetNumber;
+        let guessesLeft = 5;
+        let currentMax = 100;
+        let isNumberGameActive = true;
+
+        const guessInput = document.getElementById('guessInput');
+        const guessBtn = document.getElementById('guessBtn');
+        const gameResetBtn = document.getElementById('gameResetBtn');
+        const gameFeedback = document.getElementById('gameFeedback');
+        const guessesLeftDisplay = document.getElementById('guessesLeft');
+        const gamePrompt = document.getElementById('gamePrompt');
+        const diffBtns = document.querySelectorAll('.diff-btn');
+
+        function initNumberGame() {
+            targetNumber = Math.floor(Math.random() * currentMax) + 1;
+            guessesLeft = 5;
+            isNumberGameActive = true;
+            guessesLeftDisplay.textContent = guessesLeft;
+            gameFeedback.textContent = "";
+            gameFeedback.style.color = "inherit";
+            guessInput.value = "";
+            guessInput.disabled = false;
+            guessBtn.disabled = false;
+            gamePrompt.textContent = `Pick a number through 1 to ${currentMax.toLocaleString()}!`;
+        }
+
+        diffBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                diffBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentMax = parseInt(btn.dataset.max);
+                initNumberGame();
+                startMusic();
+            });
+        });
+
+        function handleGuess() {
+            if (!isNumberGameActive) return;
+            startMusic();
+            
+            const guess = parseInt(guessInput.value);
+            if (isNaN(guess)) {
+                gameFeedback.textContent = "Please enter a valid number!";
+                return;
+            }
+
+            guessesLeft--;
+            guessesLeftDisplay.textContent = guessesLeft;
+
+            if (guess === targetNumber) {
+                gameFeedback.textContent = "Correct! You won! 🎉";
+                gameFeedback.style.color = "#52be80";
+                endNumberGame();
+            } else if (guessesLeft === 0) {
+                gameFeedback.textContent = `Game Over! The number was ${targetNumber}.`;
+                gameFeedback.style.color = "#ec7063";
+                endNumberGame();
+                playBeep();
+            } else if (guess > targetNumber) {
+                gameFeedback.textContent = "Too high!";
+                gameFeedback.style.color = "#f39c12";
+            } else {
+                gameFeedback.textContent = "Too low!";
+                gameFeedback.style.color = "#f39c12";
+            }
+            
+            guessInput.value = "";
+            guessInput.focus();
+        }
+
+        function endNumberGame() {
+            isNumberGameActive = false;
+            guessInput.disabled = true;
+            guessBtn.disabled = true;
+        }
+
+        guessBtn.addEventListener('click', handleGuess);
+        gameResetBtn.addEventListener('click', initNumberGame);
+        guessInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleGuess();
+        });
+
+        initNumberGame();
     </script>
 </body>
 </html>
