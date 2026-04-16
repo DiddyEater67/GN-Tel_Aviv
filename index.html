@@ -350,162 +350,152 @@
             color: white;
         }
 
-        .game-ui {
-            margin-top: 30px;
+        .game-input-area {
+            margin: 20px 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
         }
 
         #guessInput {
-            width: 200px;
+            width: 150px;
             font-size: 24px;
+            padding: 10px;
         }
 
-        .guesses-left {
+        .game-stats {
+            display: flex;
+            gap: 30px;
             font-size: 1.2em;
-            color: var(--accent-color);
-            font-weight: bold;
+            margin-bottom: 10px;
         }
 
         #gameFeedback {
-            font-size: 1.5em;
             font-weight: bold;
-            min-height: 1.5em;
+            min-height: 1.6em;
         }
 
-        @media (max-width: 900px) {
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
             .content-layout {
                 flex-direction: column;
-                align-items: center;
             }
             .side-box {
-                width: 100%;
-                min-height: 200px;
+                order: 2;
             }
             .center-content {
-                width: 100%;
-                order: -1;
+                order: 1;
+            }
+            .nav-arrow {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+            .timer-display {
+                font-size: 48px;
             }
         }
     </style>
 </head>
-<body class="dark-mode">
+<body>
     <canvas id="particleCanvas"></canvas>
-    
+
     <div class="top-controls">
-        <button id="muteBtn" class="control-btn" title="Toggle Music">🔊</button>
-        <button id="particleColorBtn" class="control-btn" title="Change Particle Color">🟦</button>
-        <button id="particleToggle" class="control-btn" title="Toggle Particles">🔵</button>
-        <button id="themeToggle" class="control-btn" title="Toggle Dark Mode">🌙</button>
+        <button id="themeToggle" class="control-btn">🌙</button>
+        <button id="particleToggle" class="control-btn">🔵</button>
+        <button id="particleShapeBtn" class="control-btn">🔵</button>
+        <button id="particleColorBtn" class="control-btn">🟦</button>
+        <button id="muteBtn" class="control-btn">🔊</button>
     </div>
 
-    <button id="prevPageBtn" class="nav-arrow" title="Previous Page">←</button>
-    <button id="nextPageBtn" class="nav-arrow" title="Next Page">→</button>
+    <button id="prevPageBtn" class="nav-arrow">←</button>
+    <button id="nextPageBtn" class="nav-arrow">→</button>
 
-    <!-- Page 0: Blank Left -->
-    <div id="page0" class="page">
-        <div class="container blank-container">
-            <p>Blank Page - Left Side</p>
-        </div>
-    </div>
-
-    <!-- Page 1: Main Page -->
+    <!-- Page 1: Spacebar Clicker -->
     <div id="page1" class="page active">
-        <div class="container" id="mainContainer">
-            <h1>Welcome to GN-Tel_Aviv!</h1>
-            <p>This is a paragraph of text on my very first web page. Tel Aviv.</p>
-
-            <div class="content-layout">
-                <div class="side-box" id="leftBox">
-                    Hello, welcome to my website! Please, enjoy your stay. I hope you enjoy using it, just as much as I did making it.
-                </div>
-
-                <div class="center-content">
-                    <div class="clicker-box">
-                        <h2>Spacebar Clicker</h2>
-                        
-                        <div class="settings">
-                            <div class="input-group">
-                                <label for="minInput">Min:</label>
-                                <input type="number" id="minInput" value="0" min="0" max="59">
-                            </div>
-                            <div class="input-group">
-                                <label for="secInput">Sec:</label>
-                                <input type="number" id="secInput" value="10" min="0" max="59">
-                            </div>
-                        </div>
-
-                        <div class="timer-display" id="timer">00:10</div>
-                        
-                        <div class="scores">
-                            <div>
-                                <div class="score-label">Current Score</div>
-                                <span id="counter">0</span>
-                            </div>
-                            <div>
-                                <div class="score-label">High Score</div>
-                                <span id="highScore">0</span>
-                            </div>
-                        </div>
-                        
-                        <button id="clickBtn">Click Me!</button>
-                        <button id="resetBtn">Reset</button>
-                        
-                        <p class="hint">Press <strong>Spacebar</strong> or click the button to count!</p>
-                        <p id="statusMsg" style="margin-top: 10px; font-weight: bold;"></p>
+        <div class="container">
+            <h1>Spacebar Clicker</h1>
+            <p>How many times can you press the spacebar in the given time?</p>
+            
+            <div class="clicker-box">
+                <div class="timer-display" id="timer">00:10</div>
+                
+                <div class="scores">
+                    <div>
+                        <span class="score-label">Current Score</span>
+                        <span id="counter">0</span>
                     </div>
-                    
-                    <div class="music-control">
-                        <p id="musicStatus">🎵 Music ready. Interact to start.</p>
+                    <div>
+                        <span class="score-label">High Score</span>
+                        <span id="highScore">0</span>
                     </div>
                 </div>
 
-                <div class="side-box" id="rightBox">
-                    Idk what to put here. This is just a test.
+                <div class="settings">
+                    <div class="input-group">
+                        <label>Min:</label>
+                        <input type="number" id="minInput" value="0" min="0" max="59">
+                    </div>
+                    <div class="input-group">
+                        <label>Sec:</label>
+                        <input type="number" id="secInput" value="10" min="0" max="59">
+                    </div>
                 </div>
+
+                <div id="statusMsg" style="height: 20px; margin-bottom: 10px; font-weight: bold; color: var(--accent-color);"></div>
+
+                <button id="clickBtn">Click or Press Space!</button>
+                <button id="resetBtn">Reset Game</button>
             </div>
+
+            <div class="music-control">
+                <span id="musicStatus">🎵 Background Ambience Active</span>
+            </div>
+            
+            <p class="hint">Tip: You can use the spacebar on your keyboard!</p>
         </div>
     </div>
 
-    <!-- Page 2: Guessing Game Page -->
+    <!-- Page 2: Number Guessing Game -->
     <div id="page2" class="page">
-        <div class="container" style="display: flex; flex-direction: column; align-items: center;">
-            <h2>Pick a Number Game</h2>
+        <div class="container">
+            <h1>Number Guessing Game</h1>
             <p id="gamePrompt">Pick a number through 1 to 100!</p>
-            
-            <div class="game-ui">
-                <div class="guesses-left">Guesses Left: <span id="guessesLeft">5</span></div>
-                <input type="number" id="guessInput" placeholder="Enter guess">
+
+            <div class="difficulty-grid">
+                <button class="diff-btn active" data-max="100">Easy (1-100)</button>
+                <button class="diff-btn" data-max="1000">Medium (1-1,000)</button>
+                <button class="diff-btn" data-max="10000">Hard (1-10,000)</button>
+                <button class="diff-btn" data-max="100000">Expert (1-100,000)</button>
+                <button class="diff-btn" data-max="1000000">Master (1-1,000,000)</button>
+                <button class="diff-btn" data-max="10000000">Legend (1-10,000,000)</button>
+                <button class="diff-btn" data-max="100000000">Insane (1-100,000,000)</button>
+                <button class="diff-btn" data-max="1000000000">Impossible (1-1,000,000,000)</button>
+            </div>
+
+            <div class="game-input-area">
+                <div class="game-stats">
+                    <span>Guesses Left: <strong id="guessesLeft">5</strong></span>
+                </div>
+                <input type="number" id="guessInput" placeholder="?">
                 <div>
-                    <button id="guessBtn" class="game-btn">Submit Guess</button>
+                    <button id="guessBtn" class="game-btn">Guess!</button>
                     <button id="gameResetBtn" class="reset-btn">New Game</button>
                 </div>
                 <div id="gameFeedback"></div>
             </div>
-
-            <!-- All difficulty buttons are now the same size and centered -->
-            <div class="difficulty-grid">
-                <button class="diff-btn" data-max="50">Beginner (1-50)</button>
-                <button class="diff-btn active" data-max="100">Easy (1-100)</button>
-                <button class="diff-btn" data-max="250">Normal (1-250)</button>
-                <button class="diff-btn" data-max="500">Hard (1-500)</button>
-                <button class="diff-btn" data-max="1000">Very Hard (1-1000)</button>
-                <button class="diff-btn" data-max="100000">Extreme (1-100k)</button>
-                <button class="diff-btn" data-max="1000000">Impossible (1-1M)</button>
-            </div>
         </div>
     </div>
 
-    <!-- Page 3: New Blank Page -->
+    <!-- Page 3: Blank Page -->
     <div id="page3" class="page">
         <div class="container blank-container">
             <p>Blank Page - Third Page</p>
         </div>
     </div>
 
-    <!-- Page 4: Another Blank Page (New) -->
+    <!-- Page 4: About Page -->
     <div id="page4" class="page">
         <div class="container blank-container">
             <div class="about-text">
@@ -524,9 +514,9 @@
 
     <script>
         // Page Navigation Logic
-        let currentPage = 1;
-        const totalPages = 5;
+        let currentPage = 0;
         const pages = document.querySelectorAll('.page');
+        const totalPages = pages.length;
         const prevPageBtn = document.getElementById('prevPageBtn');
         const nextPageBtn = document.getElementById('nextPageBtn');
 
@@ -555,6 +545,8 @@
         const ctx = canvas.getContext('2d');
         const particleToggle = document.getElementById('particleToggle');
         const particleColorBtn = document.getElementById('particleColorBtn');
+        const particleShapeBtn = document.getElementById('particleShapeBtn');
+        
         let particles = [];
         const maxParticles = 150;
         let particlesEnabled = true;
@@ -566,6 +558,9 @@
         
         let particleModeState = 0; // 0: Default, 1: Fire, 2: Snow, 3: Wind, 4: Rain, 5: Bubbles
         const modeIcons = ['🔵', '🔥', '❄️', '💨', '🌧️', '🫧', '⚫'];
+
+        let particleShapeState = 0; // 0: Circle, 1: Square, 2: Triangle, 3: Star, 4: Diamond, 5: Heart
+        const shapeIcons = ['🔵', '🟦', '🔼', '⭐', '🔷', '❤️'];
         
         let rainbowHue = 0;
 
@@ -697,27 +692,77 @@
                     return;
                 }
 
-                ctx.beginPath();
                 if (particleModeState === 4) { // Rain lines
+                    ctx.beginPath();
                     ctx.lineWidth = 2;
                     ctx.strokeStyle = ctx.fillStyle;
                     ctx.moveTo(this.x, this.y);
                     ctx.lineTo(this.x - this.speedX, this.y - this.speedY);
                     ctx.stroke();
                 } else if (particleModeState === 5) { // Bubbles
+                    ctx.beginPath();
                     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                     ctx.strokeStyle = ctx.fillStyle;
                     ctx.lineWidth = 1;
                     ctx.stroke();
-                    // Add a small highlight to the bubble
                     ctx.beginPath();
                     ctx.arc(this.x - this.size * 0.3, this.y - this.size * 0.3, this.size * 0.1, 0, Math.PI * 2);
                     ctx.fillStyle = "white";
                     ctx.globalAlpha = this.alpha * 0.5;
                     ctx.fill();
                 } else {
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.fill();
+                    this.drawShape();
+                }
+            }
+
+            drawShape() {
+                const s = this.size;
+                switch(particleShapeState) {
+                    case 0: // Circle
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, s, 0, Math.PI * 2);
+                        ctx.fill();
+                        break;
+                    case 1: // Square
+                        ctx.fillRect(this.x - s, this.y - s, s * 2, s * 2);
+                        break;
+                    case 2: // Triangle
+                        ctx.beginPath();
+                        ctx.moveTo(this.x, this.y - s);
+                        ctx.lineTo(this.x + s, this.y + s);
+                        ctx.lineTo(this.x - s, this.y + s);
+                        ctx.closePath();
+                        ctx.fill();
+                        break;
+                    case 3: // Star
+                        ctx.beginPath();
+                        for (let i = 0; i < 5; i++) {
+                            ctx.lineTo(this.x + s * Math.cos((18 + i * 72) * Math.PI / 180), 
+                                     this.y - s * Math.sin((18 + i * 72) * Math.PI / 180));
+                            ctx.lineTo(this.x + (s/2) * Math.cos((54 + i * 72) * Math.PI / 180), 
+                                     this.y - (s/2) * Math.sin((54 + i * 72) * Math.PI / 180));
+                        }
+                        ctx.closePath();
+                        ctx.fill();
+                        break;
+                    case 4: // Diamond
+                        ctx.beginPath();
+                        ctx.moveTo(this.x, this.y - s);
+                        ctx.lineTo(this.x + s, this.y);
+                        ctx.lineTo(this.x, this.y + s);
+                        ctx.lineTo(this.x - s, this.y);
+                        ctx.closePath();
+                        ctx.fill();
+                        break;
+                    case 5: // Heart
+                        ctx.beginPath();
+                        ctx.moveTo(this.x, this.y + s/2);
+                        ctx.bezierCurveTo(this.x, this.y, this.x - s, this.y, this.x - s, this.y - s/2);
+                        ctx.bezierCurveTo(this.x - s, this.y - s*1.2, this.x, this.y - s*1.2, this.x, this.y - s/2);
+                        ctx.bezierCurveTo(this.x, this.y - s*1.2, this.x + s, this.y - s*1.2, this.x + s, this.y - s/2);
+                        ctx.bezierCurveTo(this.x + s, this.y, this.x, this.y, this.x, this.y + s/2);
+                        ctx.fill();
+                        break;
                 }
             }
         }
@@ -735,7 +780,7 @@
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (particlesEnabled) {
-                rainbowHue = (rainbowHue + 0.5) % 360; // Shift rainbow color slowly
+                rainbowHue = (rainbowHue + 0.5) % 360;
                 particles.forEach(p => { p.update(); p.draw(); });
             }
             requestAnimationFrame(animateParticles);
@@ -750,10 +795,12 @@
                 particlesEnabled = false;
                 particleToggle.textContent = modeIcons[6];
                 particleColorBtn.style.display = 'none';
+                particleShapeBtn.style.display = 'none';
             } else {
                 particlesEnabled = true;
                 particleToggle.textContent = modeIcons[particleModeState];
                 particleColorBtn.style.display = 'flex';
+                particleShapeBtn.style.display = 'flex';
                 particles = [];
                 createParticles();
             }
@@ -764,6 +811,12 @@
             particleColorState = (particleColorState + 1) % particleColors.length;
             particleColorBtn.textContent = colorIcons[particleColorState];
             particleColorBtn.blur();
+        });
+
+        particleShapeBtn.addEventListener('click', () => {
+            particleShapeState = (particleShapeState + 1) % shapeIcons.length;
+            particleShapeBtn.textContent = shapeIcons[particleShapeState];
+            particleShapeBtn.blur();
         });
 
         // Background Music Logic
