@@ -466,7 +466,7 @@
 
             <div class="game-input-area">
                 <div class="game-stats">
-                    <span>Guesses Left: <strong id="guessesLeft">5</strong></span>
+                    <span>Guesses Left: <strong id="guessesLeft">8</strong></span>
                 </div>
                 <input type="number" id="guessInput" placeholder="?">
                 <div>
@@ -975,7 +975,7 @@
 
         // Guessing Game Logic
         let targetNumber;
-        let guessesLeft = 5;
+        let guessesLeft = 8;
         let currentMax = 100;
         let isNumberGameActive = true;
 
@@ -989,7 +989,7 @@
 
         function initNumberGame() {
             targetNumber = Math.floor(Math.random() * currentMax) + 1;
-            guessesLeft = 5;
+            guessesLeft = 8;
             isNumberGameActive = true;
             guessesLeftDisplay.textContent = guessesLeft;
             gameFeedback.textContent = "";
