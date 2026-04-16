@@ -564,8 +564,8 @@
         const particleColors = ['#5dade2', '#ec7063', '#52be80', '#f1c40f', '#9b59b6', 'rainbow'];
         const colorIcons = ['🟦', '🟥', '🟩', '🟨', '🟪', '🌈'];
         
-        let particleModeState = 0; // 0: Default, 1: Fire, 2: Snow, 3: Wind, 4: Rain
-        const modeIcons = ['🔵', '🔥', '❄️', '💨', '🌧️', '⚫'];
+        let particleModeState = 0; // 0: Default, 1: Fire, 2: Snow, 3: Wind, 4: Rain, 5: Bubbles
+        const modeIcons = ['🔵', '🔥', '❄️', '💨', '🌧️', '🫧', '⚫'];
         
         let rainbowHue = 0;
 
@@ -604,6 +604,8 @@
                 this.size = Math.random() * 4 + 1;
                 this.baseSpeedX = (Math.random() - 0.5) * 0.4;
                 this.baseSpeedY = (Math.random() - 0.5) * 0.4;
+                this.popping = false;
+                this.popProgress = 0;
                 
                 if (particleModeState === 1) { // Fire
                     this.y = canvas.height + Math.random() * 20;
@@ -621,6 +623,12 @@
                     this.y = -Math.random() * 20;
                     this.baseSpeedY = Math.random() * 5 + 5;
                     this.baseSpeedX = 2; // Diagonal
+                } else if (particleModeState === 5) { // Bubbles
+                    this.y = canvas.height + Math.random() * 50;
+                    this.size = Math.random() * 10 + 2; // Different sizes
+                    this.baseSpeedY = -Math.random() * 1 - 0.5;
+                    this.baseSpeedX = (Math.random() - 0.5) * 0.5;
+                    this.popThreshold = Math.random() * (canvas.height * 0.8); // Pop at random height
                 }
 
                 this.speedX = this.baseSpeedX;
@@ -628,6 +636,12 @@
                 this.alpha = Math.random() * 0.4 + 0.1;
             }
             update() {
+                if (this.popping) {
+                    this.popProgress += 0.1;
+                    if (this.popProgress >= 1) this.init();
+                    return;
+                }
+
                 if (particleModeState === 0 && mouse.x != null && !mouse.isOverContainer) {
                     let dx = mouse.x - this.x;
                     let dy = mouse.y - this.y;
@@ -651,6 +665,10 @@
                 this.x += this.speedX;
                 this.y += this.speedY;
                 
+                if (particleModeState === 5 && this.y < this.popThreshold) {
+                    this.popping = true;
+                }
+
                 if (particleModeState === 0) {
                     if (this.x < 0) this.x = canvas.width;
                     if (this.x > canvas.width) this.x = 0;
@@ -669,6 +687,16 @@
                 } else {
                     ctx.fillStyle = particleColors[particleColorState];
                 }
+                
+                if (this.popping) {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size * (1 + this.popProgress), 0, Math.PI * 2);
+                    ctx.strokeStyle = ctx.fillStyle;
+                    ctx.globalAlpha = this.alpha * (1 - this.popProgress);
+                    ctx.stroke();
+                    return;
+                }
+
                 ctx.beginPath();
                 if (particleModeState === 4) { // Rain lines
                     ctx.lineWidth = 2;
@@ -676,6 +704,17 @@
                     ctx.moveTo(this.x, this.y);
                     ctx.lineTo(this.x - this.speedX, this.y - this.speedY);
                     ctx.stroke();
+                } else if (particleModeState === 5) { // Bubbles
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.strokeStyle = ctx.fillStyle;
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                    // Add a small highlight to the bubble
+                    ctx.beginPath();
+                    ctx.arc(this.x - this.size * 0.3, this.y - this.size * 0.3, this.size * 0.1, 0, Math.PI * 2);
+                    ctx.fillStyle = "white";
+                    ctx.globalAlpha = this.alpha * 0.5;
+                    ctx.fill();
                 } else {
                     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                     ctx.fill();
@@ -707,9 +746,9 @@
 
         particleToggle.addEventListener('click', () => {
             particleModeState = (particleModeState + 1) % modeIcons.length;
-            if (particleModeState === 5) { // Off state
+            if (particleModeState === 6) { // Off state
                 particlesEnabled = false;
-                particleToggle.textContent = modeIcons[5];
+                particleToggle.textContent = modeIcons[6];
                 particleColorBtn.style.display = 'none';
             } else {
                 particlesEnabled = true;
