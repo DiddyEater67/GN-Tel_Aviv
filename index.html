@@ -563,6 +563,10 @@
         let particleColorState = 0;
         const particleColors = ['#5dade2', '#ec7063', '#52be80', '#f1c40f', '#9b59b6', 'rainbow'];
         const colorIcons = ['🟦', '🟥', '🟩', '🟨', '🟪', '🌈'];
+        
+        let particleModeState = 0; // 0: Default, 1: Fire, 2: Snow, 3: Wind, 4: Rain
+        const modeIcons = ['🔵', '🔥', '❄️', '💨', '🌧️', '⚫'];
+        
         let rainbowHue = 0;
 
         function resizeCanvas() {
@@ -600,12 +604,31 @@
                 this.size = Math.random() * 4 + 1;
                 this.baseSpeedX = (Math.random() - 0.5) * 0.4;
                 this.baseSpeedY = (Math.random() - 0.5) * 0.4;
+                
+                if (particleModeState === 1) { // Fire
+                    this.y = canvas.height + Math.random() * 20;
+                    this.baseSpeedY = -Math.random() * 1.5 - 0.5;
+                    this.baseSpeedX = (Math.random() - 0.5) * 0.5;
+                } else if (particleModeState === 2) { // Snow
+                    this.y = -Math.random() * 20;
+                    this.baseSpeedY = Math.random() * 1 + 0.5;
+                    this.baseSpeedX = (Math.random() - 0.5) * 0.5;
+                } else if (particleModeState === 3) { // Wind
+                    this.x = -Math.random() * 20;
+                    this.baseSpeedX = Math.random() * 2 + 1;
+                    this.baseSpeedY = (Math.random() - 0.5) * 0.2;
+                } else if (particleModeState === 4) { // Rain
+                    this.y = -Math.random() * 20;
+                    this.baseSpeedY = Math.random() * 5 + 5;
+                    this.baseSpeedX = 2; // Diagonal
+                }
+
                 this.speedX = this.baseSpeedX;
                 this.speedY = this.baseSpeedY;
                 this.alpha = Math.random() * 0.4 + 0.1;
             }
             update() {
-                if (mouse.x != null && !mouse.isOverContainer) {
+                if (particleModeState === 0 && mouse.x != null && !mouse.isOverContainer) {
                     let dx = mouse.x - this.x;
                     let dy = mouse.y - this.y;
                     let distance = Math.sqrt(dx * dx + dy * dy);
@@ -624,12 +647,20 @@
                     this.speedX += (this.baseSpeedX - this.speedX) * 0.05;
                     this.speedY += (this.baseSpeedY - this.speedY) * 0.05;
                 }
+                
                 this.x += this.speedX;
                 this.y += this.speedY;
-                if (this.x < 0) this.x = canvas.width;
-                if (this.x > canvas.width) this.x = 0;
-                if (this.y < 0) this.y = canvas.height;
-                if (this.y > canvas.height) this.y = 0;
+                
+                if (particleModeState === 0) {
+                    if (this.x < 0) this.x = canvas.width;
+                    if (this.x > canvas.width) this.x = 0;
+                    if (this.y < 0) this.y = canvas.height;
+                    if (this.y > canvas.height) this.y = 0;
+                } else {
+                    if (this.y < -50 || this.y > canvas.height + 50 || this.x < -50 || this.x > canvas.width + 50) {
+                        this.init();
+                    }
+                }
             }
             draw() {
                 ctx.globalAlpha = this.alpha;
@@ -639,8 +670,16 @@
                     ctx.fillStyle = particleColors[particleColorState];
                 }
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
+                if (particleModeState === 4) { // Rain lines
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = ctx.fillStyle;
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(this.x - this.speedX, this.y - this.speedY);
+                    ctx.stroke();
+                } else {
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             }
         }
 
@@ -667,10 +706,15 @@
         animateParticles();
 
         particleToggle.addEventListener('click', () => {
-            particlesEnabled = !particlesEnabled;
-            particleToggle.textContent = particlesEnabled ? '🔵' : '⚫';
-            particleColorBtn.style.display = particlesEnabled ? 'flex' : 'none';
-            if (particlesEnabled) {
+            particleModeState = (particleModeState + 1) % modeIcons.length;
+            if (particleModeState === 5) { // Off state
+                particlesEnabled = false;
+                particleToggle.textContent = modeIcons[5];
+                particleColorBtn.style.display = 'none';
+            } else {
+                particlesEnabled = true;
+                particleToggle.textContent = modeIcons[particleModeState];
+                particleColorBtn.style.display = 'flex';
                 particles = [];
                 createParticles();
             }
