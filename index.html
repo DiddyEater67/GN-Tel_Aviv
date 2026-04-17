@@ -355,12 +355,12 @@
             border-radius: 15px;
             border: 2px solid var(--border-color);
             width: 100%;
-            max-width: 400px;
+            max-width: 450px;
             box-shadow: 0 8px 25px var(--shadow);
         }
 
         .music-info {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .music-title {
@@ -368,6 +368,38 @@
             font-weight: bold;
             color: var(--accent-color);
             margin-bottom: 5px;
+        }
+
+        .progress-container {
+            width: 100%;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #444;
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent-color);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .time-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            color: var(--hint-color);
         }
 
         .music-controls {
@@ -400,6 +432,11 @@
 
         .player-btn:active {
             transform: scale(0.95);
+        }
+
+        .player-btn.active {
+            background: #f1c40f;
+            color: #000;
         }
 
         .volume-container {
@@ -539,11 +576,22 @@
                     <div class="music-title" id="playerTitle">Background Ambience</div>
                     <div id="playerStatus" style="font-size: 0.9em; color: var(--hint-color);">Ready to play</div>
                 </div>
+
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="time-info">
+                        <span id="currentTime">0:00</span>
+                        <span id="duration">0:00</span>
+                    </div>
+                </div>
                 
                 <div class="music-controls">
                     <button class="player-btn" id="prevBtn">⏮️</button>
                     <button class="player-btn" id="playPauseBtn">▶️</button>
                     <button class="player-btn" id="nextBtn">⏭️</button>
+                    <button class="player-btn" id="loopBtn">⏯️</button>
                 </div>
 
                 <div class="volume-container">
@@ -574,7 +622,7 @@
         </div>
     </div>
 
-    <audio id="bgMusic" loop></audio>
+    <audio id="bgMusic"></audio>
 
     <script>
         // Page Navigation Logic
@@ -888,10 +936,15 @@
         const playPauseBtn = document.getElementById('playPauseBtn');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
+        const loopBtn = document.getElementById('loopBtn');
         const volumeSlider = document.getElementById('volumeSlider');
         const playerMuteBtn = document.getElementById('playerMuteBtn');
         const playerTitle = document.getElementById('playerTitle');
         const playerStatus = document.getElementById('playerStatus');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const currentTimeDisplay = document.getElementById('currentTime');
+        const durationDisplay = document.getElementById('duration');
 
         const playlist = [
             { title: "Background Ambience", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553048518/tAzgROgFmGBWgxPG.mp3" },
@@ -899,11 +952,21 @@
         ];
         let currentTrackIndex = 0;
         let musicStarted = false;
+        let isLooping = false;
+
+        function formatMusicTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        }
 
         function loadTrack(index) {
             currentTrackIndex = index;
             bgMusic.src = playlist[index].url;
             playerTitle.textContent = playlist[index].title;
+            progressFill.style.width = '0%';
+            currentTimeDisplay.textContent = "0:00";
             if (musicStarted) {
                 bgMusic.play();
                 updatePlayPauseIcon();
@@ -928,6 +991,32 @@
             }
         }
 
+        bgMusic.addEventListener('timeupdate', () => {
+            const percent = (bgMusic.currentTime / bgMusic.duration) * 100;
+            progressFill.style.width = percent + '%';
+            currentTimeDisplay.textContent = formatMusicTime(bgMusic.currentTime);
+        });
+
+        bgMusic.addEventListener('loadedmetadata', () => {
+            durationDisplay.textContent = formatMusicTime(bgMusic.duration);
+        });
+
+        bgMusic.addEventListener('ended', () => {
+            if (isLooping) {
+                bgMusic.currentTime = 0;
+                bgMusic.play();
+            } else {
+                loadTrack((currentTrackIndex + 1) % playlist.length);
+            }
+        });
+
+        progressBar.addEventListener('click', (e) => {
+            startMusic();
+            const rect = progressBar.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            bgMusic.currentTime = pos * bgMusic.duration;
+        });
+
         playPauseBtn.addEventListener('click', () => {
             startMusic();
             if (bgMusic.paused) {
@@ -949,6 +1038,13 @@
             startMusic();
             loadTrack((currentTrackIndex - 1 + playlist.length) % playlist.length);
             prevBtn.blur();
+        });
+
+        loopBtn.addEventListener('click', () => {
+            isLooping = !isLooping;
+            loopBtn.textContent = isLooping ? '🔁' : '⏯️';
+            loopBtn.classList.toggle('active', isLooping);
+            loopBtn.blur();
         });
 
         volumeSlider.addEventListener('input', (e) => {
