@@ -56,7 +56,7 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             line-height: 1.6;
             margin: 0;
-            padding: 20px;
+            padding: 10px; /* Reduced from 20px */
             background-color: var(--bg-color);
             color: var(--text-color);
             text-align: center;
@@ -134,15 +134,15 @@
             width: 95%;
             max-width: 1200px;
             background: var(--container-bg);
-            padding: 30px;
+            padding: 20px; /* Reduced from 30px */
             border-radius: 12px;
             box-shadow: 0 4px 15px var(--shadow);
-            margin-top: 50px;
+            margin-top: 10px; /* Reduced from 50px */
             z-index: 1;
             transition: background-color 0.3s, box-shadow 0.3s;
             box-sizing: border-box;
             /* Ensure all containers have a minimum height to look consistent */
-            min-height: 800px;
+            min-height: 750px; /* Slightly reduced from 800px */
         }
 
         /* Special style for blank pages to center text */
@@ -187,7 +187,7 @@
         p { color: var(--p-color); }
 
         .clicker-box {
-            margin: 20px 0;
+            margin: 10px 0; /* Reduced from 20px */
             padding: 20px;
             border: 2px dashed var(--border-color);
             border-radius: 8px;
@@ -218,7 +218,7 @@
         .timer-display {
             font-family: 'Digital', 'Courier New', Courier, monospace;
             font-size: 64px;
-            margin-bottom: 20px;
+            margin-bottom: 15px; /* Reduced from 20px */
             color: var(--timer-color);
             background: #000;
             display: inline-block;
@@ -229,7 +229,7 @@
         }
 
         .settings {
-            margin-bottom: 20px;
+            margin-bottom: 15px; /* Reduced from 20px */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -279,7 +279,7 @@
 
         .top-controls {
             position: absolute;
-            top: 20px;
+            top: 10px; /* Reduced from 20px */
             right: 20px;
             display: flex;
             gap: 10px;
@@ -301,7 +301,7 @@
         }
 
         .music-control {
-            margin-top: 20px;
+            margin-top: 15px; /* Reduced from 20px */
             font-size: 0.8em;
             color: var(--hint-color);
             display: flex;
@@ -322,7 +322,7 @@
             flex-wrap: wrap;
             justify-content: center;
             gap: 10px;
-            margin: 20px auto;
+            margin: 15px auto; /* Reduced from 20px */
             width: 100%;
             max-width: 800px;
         }
@@ -427,7 +427,6 @@
     </style>
 </head>
 <body>
-    <canvas id="#particleCanvas"></canvas>
     <canvas id="particleCanvas"></canvas>
 
     <div class="top-controls">
