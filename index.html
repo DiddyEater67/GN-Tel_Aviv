@@ -422,7 +422,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: transform 0.2s, background 0.3s;
+            transition: transform 0.2s, background 0.3s, box-shadow 0.3s;
         }
 
         .player-btn:hover {
@@ -437,6 +437,7 @@
         .player-btn.active {
             background: #f1c40f;
             color: #000;
+            box-shadow: 0 0 15px #f1c40f;
         }
 
         .volume-container {
@@ -466,10 +467,10 @@
     <canvas id="particleCanvas"></canvas>
 
     <div class="top-controls">
-        <button id="particleShapeBtn" class="control-btn">⏺️</button>
-        <button id="particleToggle" class="control-btn">🔵</button>
-        <button id="particleColorBtn" class="control-btn">🟦</button>
-        <button id="themeToggle" class="control-btn">🌙</button>
+        <button id="particleShapeBtn" class="control-btn" title="Toggle Particle Shape">⏺️</button>
+        <button id="particleToggle" class="control-btn" title="Toggle Particle Movement">🔵</button>
+        <button id="particleColorBtn" class="control-btn" title="Toggle Particle Color">🟦</button>
+        <button id="themeToggle" class="control-btn" title="Toggle Theme">🌙</button>
     </div>
 
     <button id="prevPageBtn" class="nav-arrow">❮</button>
@@ -591,7 +592,7 @@
                     <button class="player-btn" id="prevBtn">⏮️</button>
                     <button class="player-btn" id="playPauseBtn">▶️</button>
                     <button class="player-btn" id="nextBtn">⏭️</button>
-                    <button class="player-btn" id="loopBtn">⏯️</button>
+                    <button class="player-btn active" id="loopBtn">🔁</button>
                 </div>
 
                 <div class="volume-container">
@@ -955,7 +956,7 @@
         ];
         let currentTrackIndex = 0;
         let musicStarted = false;
-        let isLooping = false;
+        let isLooping = true;
 
         function formatMusicTime(seconds) {
             if (isNaN(seconds)) return "0:00";
@@ -1045,7 +1046,6 @@
 
         loopBtn.addEventListener('click', () => {
             isLooping = !isLooping;
-            loopBtn.textContent = isLooping ? '🔁' : '⏯️';
             loopBtn.classList.toggle('active', isLooping);
             loopBtn.blur();
         });
