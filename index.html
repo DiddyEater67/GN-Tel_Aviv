@@ -56,7 +56,7 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             line-height: 1.6;
             margin: 0;
-            padding: 10px; /* Reduced from 20px */
+            padding: 10px;
             background-color: var(--bg-color);
             color: var(--text-color);
             text-align: center;
@@ -134,15 +134,14 @@
             width: 95%;
             max-width: 1200px;
             background: var(--container-bg);
-            padding: 20px; /* Reduced from 30px */
+            padding: 20px;
             border-radius: 12px;
             box-shadow: 0 4px 15px var(--shadow);
-            margin-top: 10px; /* Reduced from 50px */
+            margin-top: 10px;
             z-index: 1;
             transition: background-color 0.3s, box-shadow 0.3s;
             box-sizing: border-box;
-            /* Ensure all containers have a minimum height to look consistent */
-            min-height: 750px; /* Slightly reduced from 800px */
+            min-height: 750px;
         }
 
         /* Special style for blank pages to center text */
@@ -162,7 +161,7 @@
         .content-layout {
             display: flex;
             gap: 20px;
-            align-items: stretch; /* Make children same height */
+            align-items: stretch;
             margin-top: 20px;
         }
 
@@ -187,7 +186,7 @@
         p { color: var(--p-color); }
 
         .clicker-box {
-            margin: 10px 0; /* Reduced from 20px */
+            margin: 10px 0;
             padding: 20px;
             border: 2px dashed var(--border-color);
             border-radius: 8px;
@@ -218,7 +217,7 @@
         .timer-display {
             font-family: 'Digital', 'Courier New', Courier, monospace;
             font-size: 64px;
-            margin-bottom: 15px; /* Reduced from 20px */
+            margin-bottom: 15px;
             color: var(--timer-color);
             background: #000;
             display: inline-block;
@@ -229,7 +228,7 @@
         }
 
         .settings {
-            margin-bottom: 15px; /* Reduced from 20px */
+            margin-bottom: 15px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -279,7 +278,7 @@
 
         .top-controls {
             position: absolute;
-            top: 10px; /* Reduced from 20px */
+            top: 10px;
             right: 20px;
             display: flex;
             gap: 10px;
@@ -301,7 +300,7 @@
         }
 
         .music-control {
-            margin-top: 15px; /* Reduced from 20px */
+            margin-top: 15px;
             font-size: 0.8em;
             color: var(--hint-color);
             display: flex;
@@ -322,7 +321,7 @@
             flex-wrap: wrap;
             justify-content: center;
             gap: 10px;
-            margin: 15px auto; /* Reduced from 20px */
+            margin: 15px auto;
             width: 100%;
             max-width: 800px;
         }
@@ -334,7 +333,7 @@
             background-color: var(--box-bg);
             border: 1px solid var(--border-color);
             color: var(--text-color);
-            width: 180px; /* Standardized width */
+            width: 180px;
             box-sizing: border-box;
         }
 
@@ -497,6 +496,7 @@
                 <button class="diff-btn" data-max="5000">Expert (1-5000)</button>
                 <button class="diff-btn" data-max="10000">Master (1-10000)</button>
                 <button class="diff-btn" data-max="100000">Insane (1-100000)</button>
+                <button class="diff-btn" data-max="1000000">Impossible (1-1M)</button>
             </div>
 
             <div class="clicker-box">
@@ -1119,7 +1119,7 @@
             guessInput.value = "";
             guessInput.disabled = false;
             guessBtn.disabled = false;
-            gamePrompt.textContent = `I'm thinking of a number between 1 and ${currentMax}.`;
+            gamePrompt.textContent = `I'm thinking of a number between 1 and ${currentMax.toLocaleString()}.`;
         }
 
         diffBtns.forEach(btn => {
@@ -1150,7 +1150,7 @@
                 gameFeedback.style.color = "#52be80";
                 endNumberGame();
             } else if (guessesLeft === 0) {
-                gameFeedback.textContent = `Game Over! The number was ${targetNumber}.`;
+                gameFeedback.textContent = `Game Over! The number was ${targetNumber.toLocaleString()}.`;
                 gameFeedback.style.color = "#ec7063";
                 endNumberGame();
                 playBeep();
