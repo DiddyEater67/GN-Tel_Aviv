@@ -300,13 +300,6 @@
             box-sizing: border-box;
         }
 
-        #muteBtn {
-            margin: 0;
-        }
-        #muteBtn:hover {
-            background-color: var(--accent-hover);
-        }
-
         .music-control {
             margin-top: 20px;
             font-size: 0.8em;
@@ -345,92 +338,127 @@
             box-sizing: border-box;
         }
 
-        .diff-btn.active {
+        .diff-btn:hover {
             background-color: var(--accent-color);
             color: white;
         }
 
-        .game-input-area {
-            margin: 20px 0;
+        .diff-btn.active {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-hover);
+        }
+
+        /* Music Player Styles */
+        .music-player {
+            background: var(--box-bg);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid var(--border-color);
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 8px 25px var(--shadow);
+        }
+
+        .music-info {
+            margin-bottom: 20px;
+        }
+
+        .music-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 5px;
+        }
+
+        .music-controls {
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
             gap: 15px;
+            margin-bottom: 20px;
         }
 
-        #guessInput {
-            width: 150px;
-            font-size: 24px;
-            padding: 10px;
-        }
-
-        .game-stats {
+        .player-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
             display: flex;
-            gap: 30px;
-            font-size: 1.2em;
-            margin-bottom: 10px;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
         }
 
-        #gameFeedback {
-            font-weight: bold;
-            min-height: 1.6em;
+        .player-btn:hover {
+            background: var(--accent-hover);
+            transform: scale(1.1);
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .content-layout {
-                flex-direction: column;
-            }
-            .side-box {
-                order: 2;
-            }
-            .center-content {
-                order: 1;
-            }
-            .nav-arrow {
-                width: 40px;
-                height: 40px;
-                font-size: 20px;
-            }
-            .timer-display {
-                font-size: 48px;
-            }
+        .player-btn:active {
+            transform: scale(0.95);
+        }
+
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .volume-slider {
+            flex: 1;
+            cursor: pointer;
+            accent-color: var(--accent-color);
+        }
+
+        .mute-toggle {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
         }
     </style>
 </head>
 <body>
+    <canvas id="#particleCanvas"></canvas>
     <canvas id="particleCanvas"></canvas>
 
     <div class="top-controls">
-        <button id="muteBtn" class="control-btn">🔊</button>
-        <button id="particleToggle" class="control-btn">🔵</button>
-        <button id="particleShapeBtn" class="control-btn">⏺️</button>
-        <button id="particleColorBtn" class="control-btn">🟦</button>
         <button id="themeToggle" class="control-btn">🌙</button>
+        <button id="particleToggle" class="control-btn">🔵</button>
+        <button id="particleColorBtn" class="control-btn">🟦</button>
+        <button id="particleShapeBtn" class="control-btn">⏺️</button>
     </div>
 
-    <button id="prevPageBtn" class="nav-arrow">←</button>
-    <button id="nextPageBtn" class="nav-arrow">→</button>
+    <button id="prevPageBtn" class="nav-arrow">❮</button>
+    <button id="nextPageBtn" class="nav-arrow">❯</button>
 
     <!-- Page 1: Spacebar Clicker -->
     <div id="page1" class="page active">
         <div class="container">
-            <h1>Spacebar Clicker</h1>
-            <p>How many times can you press the spacebar in the given time?</p>
+            <h1><strong>Spacebar Clicker</strong></h1>
+            <p>How many times can you click in the given time?</p>
             
             <div class="clicker-box">
-                <div class="timer-display" id="timer">00:10</div>
-                
                 <div class="scores">
                     <div>
-                        <span class="score-label">Current Score</span>
+                        <span class="score-label">CURRENT SCORE</span>
                         <span id="counter">0</span>
                     </div>
                     <div>
-                        <span class="score-label">High Score</span>
+                        <span class="score-label">HIGH SCORE</span>
                         <span id="highScore">0</span>
                     </div>
                 </div>
+
+                <div class="timer-display" id="timer">00:10</div>
 
                 <div class="settings">
                     <div class="input-group">
@@ -443,70 +471,87 @@
                     </div>
                 </div>
 
-                <div id="statusMsg" style="height: 20px; margin-bottom: 10px; font-weight: bold; color: var(--accent-color);"></div>
+                <div id="statusMsg" style="height: 24px; margin-bottom: 10px; font-weight: bold; color: var(--accent-color);"></div>
 
-                <button id="clickBtn">Click or Press Space!</button>
-                <button id="resetBtn">Reset Game</button>
+                <button id="clickBtn">CLICK OR PRESS SPACE</button>
+                <button id="resetBtn">RESET</button>
             </div>
 
             <div class="music-control">
-                <span id="musicStatus">🎵 Background Ambience Active</span>
+                <span id="musicStatus">🎵 Background Ambience Ready</span>
             </div>
             
-            <p class="hint">Tip: You can use the spacebar on your keyboard!</p>
+            <p class="hint">Tip: You can use the spacebar to click!</p>
         </div>
     </div>
 
     <!-- Page 2: Number Guessing Game -->
     <div id="page2" class="page">
         <div class="container">
-            <h1>Number Guessing Game</h1>
-            <p id="gamePrompt">Pick a number through 1 to 100!</p>
-
-
-            <div class="game-input-area">
-                <div class="game-stats">
-                    <span>Guesses Left: <strong id="guessesLeft">8</strong></span>
-                </div>
-                <input type="number" id="guessInput" placeholder="?">
-                <div>
-                    <button id="guessBtn" class="game-btn">Guess!</button>
-                    <button id="gameResetBtn" class="reset-btn">New Game</button>
-                </div>
-                <div id="gameFeedback"></div>
-
+            <h1><strong>Number Guessing Game</strong></h1>
+            <p id="gamePrompt">I'm thinking of a number between 1 and 100.</p>
+            
             <div class="difficulty-grid">
                 <button class="diff-btn active" data-max="100">Easy (1-100)</button>
-                <button class="diff-btn" data-max="1000">Medium (1-1,000)</button>
-                <button class="diff-btn" data-max="10000">Hard (1-10,000)</button>
-                <button class="diff-btn" data-max="100000">Expert (1-100,000)</button>
-                <button class="diff-btn" data-max="1000000">Master (1-1,000,000)</button>
-                <button class="diff-btn" data-max="10000000">Legend (1-10,000,000)</button>
-                <button class="diff-btn" data-max="100000000">Insane (1-100,000,000)</button>
-                <button class="diff-btn" data-max="1000000000">Impossible (1-1,000,000,000)</button>
+                <button class="diff-btn" data-max="500">Medium (1-500)</button>
+                <button class="diff-btn" data-max="1000">Hard (1-1000)</button>
+                <button class="diff-btn" data-max="5000">Expert (1-5000)</button>
+                <button class="diff-btn" data-max="10000">Master (1-10000)</button>
+                <button class="diff-btn" data-max="100000">Insane (1-100000)</button>
             </div>
+
+            <div class="clicker-box">
+                <div class="score-label">GUESSES LEFT</div>
+                <div id="guessesLeft" style="font-size: 48px; font-weight: bold; color: var(--accent-color); margin-bottom: 20px;">8</div>
+
+                <div class="settings">
+                    <input type="number" id="guessInput" placeholder="Enter your guess" style="width: 200px;">
+                    <button id="guessBtn" class="game-btn">GUESS</button>
+                </div>
+
+                <div id="gameFeedback" style="height: 30px; margin: 15px 0; font-weight: bold; font-size: 1.2em;"></div>
+
+                <button id="gameResetBtn" class="reset-btn">NEW GAME</button>
             </div>
+            
+            <p class="hint">Can you find the number before you run out of guesses?</p>
         </div>
     </div>
 
     <!-- Page 3: Blank Page -->
     <div id="page3" class="page">
         <div class="container blank-container">
-            <p>Blank Page - Third Page</p>
+            <p>blank page - third page</p>
         </div>
     </div>
 
-    <!-- Page 4: New Empty Page -->
+    <!-- Page 4: Blank Page -->
     <div id="page4" class="page">
         <div class="container blank-container">
             <p>blank page - fourth page</p>
         </div>
     </div>
 
-    <!-- Page 5: New Empty Page -->
+    <!-- Page 5: Music Player Page -->
     <div id="page5" class="page">
         <div class="container blank-container">
-            <p>Blank page - fifth page</p>
+            <div class="music-player">
+                <div class="music-info">
+                    <div class="music-title" id="playerTitle">Background Ambience</div>
+                    <div id="playerStatus" style="font-size: 0.9em; color: var(--hint-color);">Ready to play</div>
+                </div>
+                
+                <div class="music-controls">
+                    <button class="player-btn" id="prevBtn">⏮️</button>
+                    <button class="player-btn" id="playPauseBtn">▶️</button>
+                    <button class="player-btn" id="nextBtn">⏭️</button>
+                </div>
+
+                <div class="volume-container">
+                    <button class="mute-toggle" id="playerMuteBtn">🔊</button>
+                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="0.15">
+                </div>
+            </div>
         </div>
     </div>
 
@@ -530,9 +575,7 @@
         </div>
     </div>
 
-    <audio id="bgMusic" loop>
-        <source src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663553048518/tAzgROgFmGBWgxPG.mp3" type="audio/mpeg">
-    </audio>
+    <audio id="bgMusic" loop></audio>
 
     <script>
         // Page Navigation Logic
@@ -736,7 +779,6 @@
                     this.drawShape();
                 }
             }
-
             drawShape() {
                 const s = this.size;
                 switch(particleShapeState) {
@@ -841,18 +883,45 @@
             particleShapeBtn.blur();
         });
 
-        // Background Music Logic
+        // Music Player Logic
         const bgMusic = document.getElementById('bgMusic');
         const musicStatus = document.getElementById('musicStatus');
-        const muteBtn = document.getElementById('muteBtn');
-        bgMusic.volume = 0.15;
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const playerMuteBtn = document.getElementById('playerMuteBtn');
+        const playerTitle = document.getElementById('playerTitle');
+        const playerStatus = document.getElementById('playerStatus');
 
+        const playlist = [
+            { title: "Background Ambience", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553048518/tAzgROgFmGBWgxPG.mp3" },
+            { title: "Sugar, We're Goin Down", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/ECrUtINltDvhRIQZ.mp3" }
+        ];
+        let currentTrackIndex = 0;
         let musicStarted = false;
+
+        function loadTrack(index) {
+            currentTrackIndex = index;
+            bgMusic.src = playlist[index].url;
+            playerTitle.textContent = playlist[index].title;
+            if (musicStarted) {
+                bgMusic.play();
+                updatePlayPauseIcon();
+            }
+        }
+
+        function updatePlayPauseIcon() {
+            playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️';
+            playerStatus.textContent = bgMusic.paused ? 'Paused' : 'Playing';
+        }
+
         function startMusic() {
             if (!musicStarted) {
                 bgMusic.play().then(() => {
-                    musicStatus.textContent = "🎵 Background Ambience Active";
+                    musicStatus.textContent = "🎵 Music Active";
                     musicStarted = true;
+                    updatePlayPauseIcon();
                 }).catch(e => {
                     console.log("Music play blocked:", e);
                     musicStatus.textContent = "⚠️ Click anywhere to enable music";
@@ -860,12 +929,45 @@
             }
         }
 
-        muteBtn.addEventListener('click', () => {
+        playPauseBtn.addEventListener('click', () => {
+            startMusic();
+            if (bgMusic.paused) {
+                bgMusic.play();
+            } else {
+                bgMusic.pause();
+            }
+            updatePlayPauseIcon();
+            playPauseBtn.blur();
+        });
+
+        nextBtn.addEventListener('click', () => {
+            startMusic();
+            loadTrack((currentTrackIndex + 1) % playlist.length);
+            nextBtn.blur();
+        });
+
+        prevBtn.addEventListener('click', () => {
+            startMusic();
+            loadTrack((currentTrackIndex - 1 + playlist.length) % playlist.length);
+            prevBtn.blur();
+        });
+
+        volumeSlider.addEventListener('input', (e) => {
+            bgMusic.volume = e.target.value;
+            bgMusic.muted = false;
+            playerMuteBtn.textContent = '🔊';
+        });
+
+        playerMuteBtn.addEventListener('click', () => {
             startMusic();
             bgMusic.muted = !bgMusic.muted;
-            muteBtn.textContent = bgMusic.muted ? '🔇' : '🔊';
-            muteBtn.blur();
+            playerMuteBtn.textContent = bgMusic.muted ? '🔇' : '🔊';
+            playerMuteBtn.blur();
         });
+
+        // Initialize first track
+        loadTrack(0);
+        bgMusic.volume = 0.15;
 
         document.body.addEventListener('click', startMusic, { once: true });
         document.body.addEventListener('keydown', startMusic, { once: true });
@@ -1018,7 +1120,7 @@
             guessInput.value = "";
             guessInput.disabled = false;
             guessBtn.disabled = false;
-            gamePrompt.textContent = `Pick a number through 1 to ${currentMax.toLocaleString()}!`;
+            gamePrompt.textContent = `I'm thinking of a number between 1 and ${currentMax}.`;
         }
 
         diffBtns.forEach(btn => {
