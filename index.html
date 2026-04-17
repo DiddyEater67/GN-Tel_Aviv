@@ -171,11 +171,13 @@
             padding: 20px;
             border-radius: 8px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             font-size: 0.9em;
             color: var(--p-color);
             border: 1px solid rgba(0, 0, 0, 0.1);
+            text-align: left;
         }
 
         .center-content {
@@ -488,6 +490,18 @@
             height: 100%;
             border: none;
         }
+
+        .controls-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-size: 0.85em;
+            line-height: 1.4;
+        }
+
+        .controls-list li {
+            margin-bottom: 4px;
+        }
     </style>
 </head>
 <body>
@@ -588,9 +602,42 @@
             <div class="games-container">
                 <h1><strong>Games Section</strong></h1>
                 <p>Enjoy this featured game from TurboWarp!</p>
-                <div class="game-frame-wrapper">
-                    <iframe class="game-frame" src="https://turbowarp.org/10128407/embed" allowtransparency="true" width="480" height="360" frameborder="0" scrolling="no" allowfullscreen></iframe>
+                
+                <div class="content-layout">
+                    <div class="side-box">
+                        <h3 style="margin-top: 0; color: var(--accent-color);">Controls</h3>
+                        <ul class="controls-list">
+                            <li><strong>[1 to 9]</strong> - Select Item</li>
+                            <li><strong>[Click]</strong> - Place or Mine</li>
+                            <li><strong>[WASD]</strong> - Move / Jump</li>
+                            <li><strong>[E]</strong> - Open/Close Inventory</li>
+                            <li><strong>[E+hover]</strong> - Open/Close Chest, Crafting Table, Door</li>
+                            <li><strong>[Space]</strong> - Drop single tile from stack</li>
+                            <li><strong>[F]</strong> - Eat food</li>
+                            <li><strong>[N]</strong> - Label a sign or chest</li>
+                            <li><strong>[Q]</strong> - Drop item</li>
+                            <li><strong>[P]</strong> - Pause / Unpause</li>
+                            <li><strong>[T]</strong> - Talk / Command</li>
+                            <li><strong>[O]</strong> - Save your game</li>
+                            <li><strong>[M]</strong> - Music / Sounds</li>
+                            <li><strong>[Shift]</strong> - Sprint</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="center-content">
+                        <h2 style="color: var(--h1-color); margin-bottom: 10px;">Paper Minecraft v11.7</h2>
+                        <div class="game-frame-wrapper">
+                            <iframe class="game-frame" src="https://turbowarp.org/10128407/embed?pause=true" allowtransparency="true" width="480" height="360" frameborder="0" scrolling="no" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    
+                    <div class="side-box" style="text-align: center;">
+                        <h3 style="margin-top: 0; color: var(--accent-color);">Credits</h3>
+                        <p>Game made by Griffpatch</p>
+                        <p>Ported by DiddyEater67</p>
+                    </div>
                 </div>
+                
                 <p class="hint">Use the controls within the game to play.</p>
             </div>
         </div>
