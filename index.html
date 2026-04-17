@@ -164,6 +164,7 @@
             align-items: stretch;
             margin-top: 20px;
             width: 100%;
+            position: relative;
         }
 
         .side-box {
@@ -186,6 +187,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            position: relative;
         }
 
         h1 { color: var(--h1-color); margin-top: 0; }
@@ -506,6 +508,35 @@
         .controls-list li {
             margin-bottom: 4px;
         }
+
+        /* Game Switcher Arrows */
+        .game-nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s, opacity 0.3s;
+            opacity: 0.4;
+        }
+
+        .game-nav-arrow:hover {
+            opacity: 1;
+            background-color: var(--accent-hover);
+        }
+
+        #prevGameBtn { left: -60px; }
+        #nextGameBtn { right: -60px; }
     </style>
 </head>
 <body>
@@ -605,44 +636,51 @@
         <div class="container">
             <div class="games-container">
                 <h1><strong>Games Section</strong></h1>
-                <p>Enjoy this featured game from TurboWarp!</p>
+                <p>Enjoy these featured games from TurboWarp!</p>
                 
                 <div class="content-layout">
-                    <div class="side-box">
+                    <button id="prevGameBtn" class="game-nav-arrow">❮</button>
+                    <button id="nextGameBtn" class="game-nav-arrow">❯</button>
+
+                    <div class="side-box" id="gameControlsBox">
                         <h3 style="margin-top: 0; color: var(--accent-color);">Controls</h3>
-                        <ul class="controls-list">
-                            <li><strong>[1 to 9]</strong> - Select Item</li>
-                            <li><strong>[Click]</strong> - Place or Mine</li>
-                            <li><strong>[WASD]</strong> - Move / Jump</li>
-                            <li><strong>[E]</strong> - Open/Close Inventory</li>
-                            <li><strong>[E+hover]</strong> - Open/Close Chest, Crafting Table, Door</li>
-                            <li><strong>[Space]</strong> - Drop single tile from stack</li>
-                            <li><strong>[F]</strong> - Eat food</li>
-                            <li><strong>[N]</strong> - Label a sign or chest</li>
-                            <li><strong>[Q]</strong> - Drop item</li>
-                            <li><strong>[P]</strong> - Pause / Unpause</li>
-                            <li><strong>[T]</strong> - Talk / Command</li>
-                            <li><strong>[O]</strong> - Save your game</li>
-                            <li><strong>[M]</strong> - Music / Sounds</li>
-                            <li><strong>[Shift]</strong> - Sprint</li>
-                        </ul>
+                        <div id="gameControlsContent">
+                            <ul class="controls-list">
+                                <li><strong>[1 to 9]</strong> - Select Item</li>
+                                <li><strong>[Click]</strong> - Place or Mine</li>
+                                <li><strong>[WASD]</strong> - Move / Jump</li>
+                                <li><strong>[E]</strong> - Open/Close Inventory</li>
+                                <li><strong>[E+hover]</strong> - Open/Close Chest, Crafting Table, Door</li>
+                                <li><strong>[Space]</strong> - Drop single tile from stack</li>
+                                <li><strong>[F]</strong> - Eat food</li>
+                                <li><strong>[N]</strong> - Label a sign or chest</li>
+                                <li><strong>[Q]</strong> - Drop item</li>
+                                <li><strong>[P]</strong> - Pause / Unpause</li>
+                                <li><strong>[T]</strong> - Talk / Command</li>
+                                <li><strong>[O]</strong> - Save your game</li>
+                                <li><strong>[M]</strong> - Music / Sounds</li>
+                                <li><strong>[Shift]</strong> - Sprint</li>
+                            </ul>
+                        </div>
                     </div>
                     
                     <div class="center-content">
-                        <h2 style="color: var(--h1-color); margin-bottom: 10px;">Paper Minecraft v11.7</h2>
+                        <h2 id="gameTitle" style="color: var(--h1-color); margin-bottom: 10px;">Paper Minecraft v11.7</h2>
                         <div class="game-frame-wrapper">
-                            <iframe class="game-frame" src="https://turbowarp.org/10128407/embed?addons=pause%2Cfullscreen&fps=60" allowtransparency="true" frameborder="0" scrolling="no" allowfullscreen></iframe>
+                            <iframe id="gameIframe" class="game-frame" src="https://turbowarp.org/10128407/embed?addons=pause%2Cfullscreen&fps=60" allowtransparency="true" frameborder="0" scrolling="no" allowfullscreen></iframe>
                         </div>
                     </div>
                     
                     <div class="side-box" style="text-align: center;">
                         <h3 style="margin-top: 0; color: var(--accent-color);">Credits</h3>
-                        <p>Game made by Griffpatch</p>
-                        <p>Ported by DiddyEater67</p>
+                        <div id="gameCreditsContent">
+                            <p>Game made by Griffpatch</p>
+                            <p>Ported by DiddyEater67</p>
+                        </div>
                     </div>
                 </div>
                 
-                <p class="hint">Use the controls within the game to play.</p>
+                <p class="hint">Use the arrows to switch between games.</p>
             </div>
         </div>
     </div>
@@ -735,6 +773,83 @@
         nextPageBtn.addEventListener('click', () => {
             let next = (currentPage + 1) % totalPages;
             showPage(next);
+            startMusic();
+        });
+
+        // Game Switcher Logic
+        const games = [
+            {
+                title: "Paper Minecraft v11.7",
+                url: "https://turbowarp.org/10128407/embed?addons=pause%2Cfullscreen&fps=60",
+                controls: `
+                    <ul class="controls-list">
+                        <li><strong>[1 to 9]</strong> - Select Item</li>
+                        <li><strong>[Click]</strong> - Place or Mine</li>
+                        <li><strong>[WASD]</strong> - Move / Jump</li>
+                        <li><strong>[E]</strong> - Open/Close Inventory</li>
+                        <li><strong>[E+hover]</strong> - Open/Close Chest, Crafting Table, Door</li>
+                        <li><strong>[Space]</strong> - Drop single tile from stack</li>
+                        <li><strong>[F]</strong> - Eat food</li>
+                        <li><strong>[N]</strong> - Label a sign or chest</li>
+                        <li><strong>[Q]</strong> - Drop item</li>
+                        <li><strong>[P]</strong> - Pause / Unpause</li>
+                        <li><strong>[T]</strong> - Talk / Command</li>
+                        <li><strong>[O]</strong> - Save your game</li>
+                        <li><strong>[M]</strong> - Music / Sounds</li>
+                        <li><strong>[Shift]</strong> - Sprint</li>
+                    </ul>
+                `,
+                credits: `
+                    <p>Game made by Griffpatch</p>
+                    <p>Ported by DiddyEater67</p>
+                `
+            },
+            {
+                title: "World Peace Project",
+                url: "https://turbowarp.org/772985488/embed?addons=pause%25fullscreen&fps=60",
+                controls: `
+                    <div style="font-size: 0.95em; line-height: 1.5;">
+                        <p>I wanted to make a project about world peace :D</p>
+                        <p>▸ <strong>1st button:</strong> Gives you one flag and you select the appropriate country.</p>
+                        <p>▸ <strong>2nd button:</strong> Gives you the name of a country and you select the corresponding flag.</p>
+                        <p>▸ <strong>3rd button:</strong> There is the world map for you to explore! You can click to zoom in.</p>
+                        <p>▸ <strong>4th button:</strong> 4 quotes by famous people that support / supported peace among nations!</p>
+                        <p>It has only one sprite! Because it's made entirely of pen (stamp and actual pen)!</p>
+                    </div>
+                `,
+                credits: `
+                    <p>Game by codeGIO</p>
+                    <p>Ported by DiddyEater67</p>
+                `
+            }
+        ];
+
+        let currentGameIndex = 0;
+        const gameTitle = document.getElementById('gameTitle');
+        const gameIframe = document.getElementById('gameIframe');
+        const gameControlsContent = document.getElementById('gameControlsContent');
+        const gameCreditsContent = document.getElementById('gameCreditsContent');
+        const prevGameBtn = document.getElementById('prevGameBtn');
+        const nextGameBtn = document.getElementById('nextGameBtn');
+
+        function updateGame(index) {
+            const game = games[index];
+            gameTitle.textContent = game.title;
+            gameIframe.src = game.url;
+            gameControlsContent.innerHTML = game.controls;
+            gameCreditsContent.innerHTML = game.credits;
+            currentGameIndex = index;
+        }
+
+        prevGameBtn.addEventListener('click', () => {
+            let next = (currentGameIndex - 1 + games.length) % games.length;
+            updateGame(next);
+            startMusic();
+        });
+
+        nextGameBtn.addEventListener('click', () => {
+            let next = (currentGameIndex + 1) % games.length;
+            updateGame(next);
             startMusic();
         });
 
