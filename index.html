@@ -12,9 +12,9 @@
 
         :root {
             /* Dark Mode as Default */
-            --bg-color: #1a1a1a;
-            --container-bg: rgba(45, 45, 45, 0.9);
-            --box-bg: rgba(30, 30, 30, 0.8);
+            --bg-color: #0a0a0a; /* Darkened for more contrast */
+            --container-bg: rgba(35, 35, 35, 0.7); /* Lowered opacity and slightly darker */
+            --box-bg: rgba(25, 25, 25, 0.6); /* Lowered opacity */
             --text-color: #e0e0e0;
             --h1-color: #ffffff;
             --p-color: #b0b0b0;
@@ -24,8 +24,8 @@
             --reset-hover: #e74c3c;
             --border-color: #5dade2;
             --hint-color: #777;
-            --shadow: rgba(0,0,0,0.4);
-            --input-bg: #3d3d3d;
+            --shadow: rgba(0,0,0,0.6);
+            --input-bg: #2d2d2d;
             --input-text: #ffffff;
             --timer-color: #5dade2;
             --particle-color: #5dade2;
@@ -33,9 +33,9 @@
 
         body.light-mode {
             /* Light Mode Variables */
-            --bg-color: #f4f4f9;
-            --container-bg: rgba(255, 255, 255, 0.9);
-            --box-bg: rgba(220, 220, 220, 0.8);
+            --bg-color: #e0e0e5; /* Slightly darkened for contrast */
+            --container-bg: rgba(255, 255, 255, 0.6); /* Lowered opacity */
+            --box-bg: rgba(240, 240, 240, 0.5); /* Lowered opacity */
             --text-color: #333;
             --h1-color: #2c3e50;
             --p-color: #555;
@@ -45,7 +45,7 @@
             --reset-hover: #c0392b;
             --border-color: #3498db;
             --hint-color: #888;
-            --shadow: rgba(0,0,0,0.1);
+            --shadow: rgba(0,0,0,0.2);
             --input-bg: #ffffff;
             --input-text: #333;
             --timer-color: #3498db;
@@ -88,29 +88,33 @@
             position: fixed;
             top: 50%;
             transform: translateY(-50%);
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            font-size: 24px;
+            background-color: transparent;
+            color: var(--accent-color);
+            border: 2px solid var(--accent-color);
+            border-radius: 12px;
+            width: 60px;
+            height: 80px;
+            font-size: 32px;
             cursor: pointer;
             z-index: 100;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.3s, opacity 0.3s;
-            opacity: 0.6;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0.4;
+            backdrop-filter: blur(4px);
         }
 
         .nav-arrow:hover {
             opacity: 1;
-            background-color: var(--accent-hover);
+            background-color: var(--accent-color);
+            color: white;
+            box-shadow: 0 0 15px var(--accent-color);
+            transform: translateY(-50%) scale(1.05);
         }
 
-        #prevPageBtn { left: 20px; }
-        #nextPageBtn { right: 20px; }
+        #prevPageBtn { left: 30px; }
+        #nextPageBtn { right: 30px; }
 
         /* Page Container */
         .page {
@@ -135,13 +139,15 @@
             max-width: 1400px;
             background: var(--container-bg);
             padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px var(--shadow);
+            border-radius: 24px; /* Increased radius for softer look */
+            box-shadow: 0 8px 32px var(--shadow);
             margin-top: 10px;
             z-index: 1;
             transition: background-color 0.3s, box-shadow 0.3s;
             box-sizing: border-box;
             min-height: 850px;
+            backdrop-filter: blur(12px); /* Added blur for depth */
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         /* Special style for blank pages to center text */
@@ -171,15 +177,16 @@
             flex: 1;
             background: var(--box-bg);
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 16px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             font-size: 0.9em;
             color: var(--p-color);
-            border: 1px solid rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             text-align: left;
+            backdrop-filter: blur(8px);
         }
 
         .center-content {
@@ -197,7 +204,7 @@
             margin: 10px 0;
             padding: 20px;
             border: 2px dashed var(--border-color);
-            border-radius: 8px;
+            border-radius: 16px;
         }
 
         .scores {
@@ -230,7 +237,7 @@
             background: #000;
             display: inline-block;
             padding: 10px 20px;
-            border-radius: 5px;
+            border-radius: 10px;
             border: 3px solid #333;
             text-shadow: 0 0 10px var(--timer-color);
         }
@@ -252,7 +259,7 @@
 
         input[type="number"], input[type="text"] {
             padding: 8px;
-            border-radius: 4px;
+            border-radius: 8px;
             border: 1px solid var(--border-color);
             background-color: var(--input-bg);
             color: var(--input-text);
@@ -265,8 +272,8 @@
             font-size: 16px;
             cursor: pointer;
             border: none;
-            border-radius: 5px;
-            transition: background 0.3s, transform 0.1s;
+            border-radius: 10px;
+            transition: all 0.3s;
             margin: 5px;
         }
 
@@ -274,15 +281,21 @@
             background-color: var(--accent-color);
             color: white;
         }
-        #clickBtn:hover:not(:disabled), .game-btn:hover:not(:disabled) { background-color: var(--accent-hover); }
+        #clickBtn:hover:not(:disabled), .game-btn:hover:not(:disabled) { 
+            background-color: var(--accent-hover);
+            box-shadow: 0 0 15px var(--accent-color);
+        }
         #clickBtn:active:not(:disabled), .game-btn:active:not(:disabled) { transform: translateY(2px); }
-        #clickBtn:disabled, .game-btn:disabled { background-color: #777; cursor: not-allowed; }
+        #clickBtn:disabled, .game-btn:disabled { background-color: #555; cursor: not-allowed; }
 
         #resetBtn, .reset-btn {
             background-color: var(--reset-color);
             color: white;
         }
-        #resetBtn:hover, .reset-btn:hover { background-color: var(--reset-hover); }
+        #resetBtn:hover, .reset-btn:hover { 
+            background-color: var(--reset-hover);
+            box-shadow: 0 0 15px var(--reset-color);
+        }
 
         .top-controls {
             position: absolute;
@@ -305,6 +318,7 @@
             min-width: 50px;
             height: 40px;
             box-sizing: border-box;
+            border-radius: 10px;
         }
 
         .music-control {
@@ -341,154 +355,27 @@
             background-color: var(--box-bg);
             border: 1px solid var(--border-color);
             color: var(--text-color);
-            width: 180px;
-            box-sizing: border-box;
         }
-
-        .diff-btn:hover {
-            background-color: var(--accent-color);
-            color: white;
-        }
-
-        .diff-btn.active {
-            background-color: var(--accent-color);
-            color: white;
-            border-color: var(--accent-hover);
-        }
-
-        /* Music Player Styles */
-        .music-player {
-            background: var(--box-bg);
-            padding: 30px;
-            border-radius: 15px;
-            border: 2px solid var(--border-color);
-            width: 100%;
-            max-width: 450px;
-            box-shadow: 0 8px 25px var(--shadow);
-        }
-
-        .music-info {
-            margin-bottom: 15px;
-        }
-
-        .music-title {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: var(--accent-color);
-            margin-bottom: 5px;
-        }
-
-        .progress-container {
-            width: 100%;
-            margin-bottom: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: #444;
-            border-radius: 3px;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--accent-color);
-            width: 0%;
-            transition: width 0.1s linear;
-        }
-
-        .time-info {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8em;
-            color: var(--hint-color);
-        }
-
-        .music-controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .player-btn {
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: transform 0.2s, background 0.3s, box-shadow 0.3s;
-        }
-
-        .player-btn:hover {
-            background: var(--accent-hover);
-            transform: scale(1.1);
-        }
-
-        .player-btn:active {
-            transform: scale(0.95);
-        }
-
-        .player-btn.active {
-            background: #f1c40f;
-            color: #000;
-            box-shadow: 0 0 15px #f1c40f;
-        }
-
-        .volume-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            width: 100%;
-        }
-
-        .volume-slider {
-            flex: 1;
-            cursor: pointer;
-            accent-color: var(--accent-color);
-        }
-
-        .mute-toggle {
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            padding: 0;
-            margin: 0;
-        }
+        .diff-btn:hover { background-color: var(--accent-hover); color: white; }
+        .diff-btn.active { background-color: var(--accent-color); color: white; }
 
         /* Games Section Styles */
         .games-container {
+            width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 100%;
-            height: 100%;
         }
 
         .game-frame-wrapper {
             width: 100%;
-            max-width: 1200px;
-            height: 750px;
+            aspect-ratio: 4 / 3;
+            max-width: 1000px;
             background: #000;
-            border: 4px solid var(--border-color);
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 10px 30px var(--shadow);
-            margin-top: 20px;
+            border: 2px solid var(--border-color);
+            box-shadow: 0 0 20px var(--shadow);
         }
 
         .game-frame {
@@ -537,6 +424,118 @@
 
         #prevGameBtn { left: -60px; }
         #nextGameBtn { right: -60px; }
+
+        /* Music Player Styles */
+        .music-player {
+            width: 100%;
+            max-width: 500px;
+            background: var(--box-bg);
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .music-info {
+            margin-bottom: 25px;
+        }
+
+        .music-title {
+            font-size: 1.6em;
+            font-weight: bold;
+            color: var(--h1-color);
+            margin-bottom: 5px;
+        }
+
+        .progress-container {
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent-color);
+            width: 0%;
+            border-radius: 4px;
+            transition: width 0.1s linear;
+        }
+
+        .time-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85em;
+            color: var(--hint-color);
+            margin-top: 8px;
+        }
+
+        .player-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .player-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .player-btn:hover {
+            color: var(--accent-color);
+            background: rgba(255, 255, 255, 0.05);
+            transform: scale(1.1);
+        }
+
+        .play-pause {
+            font-size: 40px;
+            color: var(--accent-color);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .play-pause:hover {
+            transform: scale(1.15);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .volume-slider {
+            width: 120px;
+            cursor: pointer;
+            accent-color: var(--accent-color);
+        }
+
+        .playlist-info {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: var(--hint-color);
+        }
     </style>
 </head>
 <body>
@@ -710,17 +709,23 @@
                         <span id="duration">0:00</span>
                     </div>
                 </div>
-                
-                <div class="music-controls">
-                    <button class="player-btn" id="prevBtn">⏮️</button>
-                    <button class="player-btn" id="playPauseBtn">▶️</button>
-                    <button class="player-btn" id="nextBtn">⏭️</button>
-                    <button class="player-btn active" id="loopBtn">🔁</button>
+
+                <div class="player-controls">
+                    <button class="player-btn" id="loopBtn" title="Toggle Loop">🔁</button>
+                    <button class="player-btn" id="prevBtn" title="Previous Track">⏮️</button>
+                    <button class="player-btn play-pause" id="playPauseBtn" title="Play/Pause">▶️</button>
+                    <button class="player-btn" id="nextBtn" title="Next Track">⏭️</button>
+                    <button class="player-btn" id="playerMuteBtn" title="Mute/Unmute">🔊</button>
                 </div>
 
                 <div class="volume-container">
-                    <button class="mute-toggle" id="playerMuteBtn">🔊</button>
-                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="0.15">
+                    <span>🔈</span>
+                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
+                    <span>🔊</span>
+                </div>
+
+                <div class="playlist-info">
+                    Playlist: 5 tracks available
                 </div>
             </div>
         </div>
@@ -730,144 +735,55 @@
     <div id="page6" class="page">
         <div class="container blank-container">
             <div class="about-text">
-                <h1><strong>About</strong></h1>
-                <p>Hello! Welcome to my website! I hope you enjoy this website, just as much as I enjoyed making it for all of you.</p>
-                <p><strong>Credit:</strong></p>
-                <p>DiddyEater67</p>
-                <p>(HM: Neon64)</p>
+                <h1><strong>About GN-Tel_Aviv</strong></h1>
+                <p>GN-Tel_Aviv is a multi-functional web application designed for entertainment and utility. It features a spacebar clicker, number guessing games, and an integrated music player.</p>
+                <p>Built with performance and aesthetics in mind, this application provides a seamless experience for users looking to pass time or enjoy simple interactive games.</p>
+                <p>Created by DiddyEater67.</p>
             </div>
         </div>
     </div>
 
-    <!-- Page 7: Blank Page -->
-    <div id="page7" class="page">
-        <div class="container blank-container">
-            <p>Blank Page - Seventh Page</p>
-        </div>
-    </div>
-
-    <audio id="bgMusic"></audio>
+    <audio id="bgMusic" loop></audio>
 
     <script>
-        // Page Navigation Logic
-        let currentPage = 0;
+        // Core Logic
         const pages = document.querySelectorAll('.page');
-        const totalPages = pages.length;
-        const prevPageBtn = document.getElementById('prevPageBtn');
-        const nextPageBtn = document.getElementById('nextPageBtn');
+        let currentPage = 0;
 
         function showPage(index) {
-            pages.forEach((page, i) => {
-                page.classList.toggle('active', i === index);
+            pages.forEach((p, i) => {
+                p.classList.toggle('active', i === index);
             });
             currentPage = index;
             window.scrollTo(0, 0);
         }
 
-        prevPageBtn.addEventListener('click', () => {
-            let next = (currentPage - 1 + totalPages) % totalPages;
+        document.getElementById('prevPageBtn').addEventListener('click', () => {
+            let next = currentPage - 1;
+            if (next < 0) next = pages.length - 1;
             showPage(next);
-            startMusic();
         });
 
-        nextPageBtn.addEventListener('click', () => {
-            let next = (currentPage + 1) % totalPages;
+        document.getElementById('nextPageBtn').addEventListener('click', () => {
+            let next = (currentPage + 1) % pages.length;
             showPage(next);
-            startMusic();
         });
 
-        // Game Switcher Logic
-        const games = [
-            {
-                title: "Paper Minecraft v11.7",
-                url: "https://turbowarp.org/10128407/embed?addons=pause%2Cfullscreen&fps=60",
-                controls: `
-                    <ul class="controls-list">
-                        <li><strong>[1 to 9]</strong> - Select Item</li>
-                        <li><strong>[Click]</strong> - Place or Mine</li>
-                        <li><strong>[WASD]</strong> - Move / Jump</li>
-                        <li><strong>[E]</strong> - Open/Close Inventory</li>
-                        <li><strong>[E+hover]</strong> - Open/Close Chest, Crafting Table, Door</li>
-                        <li><strong>[Space]</strong> - Drop single tile from stack</li>
-                        <li><strong>[F]</strong> - Eat food</li>
-                        <li><strong>[N]</strong> - Label a sign or chest</li>
-                        <li><strong>[Q]</strong> - Drop item</li>
-                        <li><strong>[P]</strong> - Pause / Unpause</li>
-                        <li><strong>[T]</strong> - Talk / Command</li>
-                        <li><strong>[O]</strong> - Save your game</li>
-                        <li><strong>[M]</strong> - Music / Sounds</li>
-                        <li><strong>[Shift]</strong> - Sprint</li>
-                    </ul>
-                `,
-                credits: `
-                    <p>Game made by Griffpatch</p>
-                    <p>Ported by DiddyEater67</p>
-                `
-            },
-            {
-                title: "World Peace Project",
-                url: "https://turbowarp.org/772985488/embed?addons=pause%2Cfullscreen&fps=60",
-                controls: `
-                    <div style="font-size: 0.95em; line-height: 1.5;">
-                        <p>I wanted to make a project about world peace :D</p>
-                        <p>▸ <strong>1st button:</strong> Gives you one flag and you select the appropriate country.</p>
-                        <p>▸ <strong>2nd button:</strong> Gives you the name of a country and you select the corresponding flag.</p>
-                        <p>▸ <strong>3rd button:</strong> There is the world map for you to explore! You can click to zoom in.</p>
-                        <p>▸ <strong>4th button:</strong> 4 quotes by famous people that support / supported peace among nations!</p>
-                        <p>It has only one sprite! Because it's made entirely of pen (stamp and actual pen)!</p>
-                    </div>
-                `,
-                credits: `
-                    <p>Game by codeGIO</p>
-                    <p>Ported by DiddyEater67</p>
-                `
-            },
-            {
-                title: "Tetris",
-                url: "https://turbowarp.org/451773001/embed?addons=pause%2Cfullscreen&fps=60",
-                controls: `
-                    <div style="font-size: 0.95em; line-height: 1.5;">
-                        <p>➥ <strong>left / right arrow</strong> to move the tetromino (tetris piece)</p>
-                        <p>➥ <strong>up arrow</strong> to rotate the tetromino</p>
-                        <p>➥ if a line is full, it disappears and your score increases</p>
-                        <p>➥ <strong>down arrow</strong> to move the tetromino down</p>
-                        <p>➥ <strong>space</strong> to drop the tetromino</p>
-                    </div>
-                `,
-                credits: `
-                    <p>Game by TimMcCool</p>
-                    <p>Ported by DiddyEater67</p>
-                `
+        // Keyboard navigation for pages
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                document.getElementById('prevPageBtn').click();
+            } else if (e.key === 'ArrowRight') {
+                document.getElementById('nextPageBtn').click();
             }
-        ];
-
-        let currentGameIndex = 0;
-        const gameTitle = document.getElementById('gameTitle');
-        const gameIframe = document.getElementById('gameIframe');
-        const gameControlsContent = document.getElementById('gameControlsContent');
-        const gameCreditsContent = document.getElementById('gameCreditsContent');
-        const prevGameBtn = document.getElementById('prevGameBtn');
-        const nextGameBtn = document.getElementById('nextGameBtn');
-
-        function updateGame(index) {
-            const game = games[index];
-            gameTitle.textContent = game.title;
-            gameIframe.src = game.url;
-            gameControlsContent.innerHTML = game.controls;
-            gameCreditsContent.innerHTML = game.credits;
-            currentGameIndex = index;
-        }
-
-        prevGameBtn.addEventListener('click', () => {
-            let next = (currentGameIndex - 1 + games.length) % games.length;
-            updateGame(next);
-            startMusic();
         });
 
-        nextGameBtn.addEventListener('click', () => {
-            let next = (currentGameIndex + 1) % games.length;
-            updateGame(next);
-            startMusic();
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            themeToggle.textContent = document.body.classList.contains('light-mode') ? '☀️' : '🌙';
+            themeToggle.blur();
         });
 
         // Particle System
@@ -876,23 +792,21 @@
         const particleToggle = document.getElementById('particleToggle');
         const particleColorBtn = document.getElementById('particleColorBtn');
         const particleShapeBtn = document.getElementById('particleShapeBtn');
-        
+
         let particles = [];
-        const maxParticles = 150;
         let particlesEnabled = true;
-        let mouse = { x: null, y: null, isOverContainer: false };
-
-        let particleColorState = 0;
-        const particleColors = ['#5dade2', '#ec7063', '#52be80', '#f1c40f', '#9b59b6', 'rainbow'];
-        const colorIcons = ['🟦', '🟥', '🟩', '🟨', '🟪', '🌈'];
-        
-        let particleModeState = 0; // 0: Default, 1: Fire, 2: Snow, 3: Wind, 4: Rain, 5: Bubbles
-        const modeIcons = ['🔵', '🔥', '❄️', '💨', '🌧️', '🫧', '⚫'];
-
+        let particleModeState = 0; // 0: Normal, 1: Fire, 2: Snow, 3: Wind, 4: Rain, 5: Bubbles, 6: Off
+        let particleColorState = 0; // 0: Theme, 1: White, 2: Rainbow
         let particleShapeState = 0; // 0: Circle, 1: Square, 2: Triangle, 3: Star, 4: Diamond, 5: Heart
-        const shapeIcons = ['⏺️', '⏹️', '🔼', '⭐', '🔷', '❤️'];
-        
         let rainbowHue = 0;
+        const maxParticles = 100;
+
+        const modeIcons = ['🔵', '🔥', '❄️', '💨', '🌧️', '🫧', '🚫'];
+        const colorIcons = ['🟦', '⬜', '🌈'];
+        const shapeIcons = ['⏺️', '⏹️', '🔼', '⭐', '🔷', '❤️'];
+        const particleColors = ['var(--particle-color)', '#ffffff', 'rainbow'];
+
+        let mouse = { x: null, y: null, isOverContainer: false };
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -1007,32 +921,42 @@
             }
             draw() {
                 ctx.globalAlpha = this.alpha;
+                let color;
                 if (particleColors[particleColorState] === 'rainbow') {
-                    ctx.fillStyle = `hsla(${rainbowHue}, 70%, 60%, ${this.alpha})`;
+                    color = `hsla(${rainbowHue}, 70%, 60%, ${this.alpha})`;
+                } else if (particleColors[particleColorState] === 'var(--particle-color)') {
+                    color = getComputedStyle(document.documentElement).getPropertyValue('--particle-color').trim();
                 } else {
-                    ctx.fillStyle = particleColors[particleColorState];
+                    color = particleColors[particleColorState];
                 }
                 
+                ctx.fillStyle = color;
+                
+                // Add Glow Effect
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = color;
+
                 if (this.popping) {
                     ctx.beginPath();
                     ctx.arc(this.x, this.y, this.size * (1 + this.popProgress), 0, Math.PI * 2);
-                    ctx.strokeStyle = ctx.fillStyle;
+                    ctx.strokeStyle = color;
                     ctx.globalAlpha = this.alpha * (1 - this.popProgress);
                     ctx.stroke();
+                    ctx.shadowBlur = 0; // Reset shadow
                     return;
                 }
 
                 if (particleModeState === 4) { // Rain lines
                     ctx.beginPath();
                     ctx.lineWidth = 2;
-                    ctx.strokeStyle = ctx.fillStyle;
+                    ctx.strokeStyle = color;
                     ctx.moveTo(this.x, this.y);
                     ctx.lineTo(this.x - this.speedX, this.y - this.speedY);
                     ctx.stroke();
                 } else if (particleModeState === 5) { // Bubbles
                     ctx.beginPath();
                     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.strokeStyle = ctx.fillStyle;
+                    ctx.strokeStyle = color;
                     ctx.lineWidth = 1;
                     ctx.stroke();
                     ctx.beginPath();
@@ -1043,6 +967,7 @@
                 } else {
                     this.drawShape();
                 }
+                ctx.shadowBlur = 0; // Reset shadow
             }
             drawShape() {
                 const s = this.size;
@@ -1227,234 +1152,207 @@
                 bgMusic.currentTime = 0;
                 bgMusic.play();
             } else {
-                loadTrack((currentTrackIndex + 1) % playlist.length);
+                nextBtn.click();
+            }
+        });
+
+        playPauseBtn.addEventListener('click', () => {
+            if (!musicStarted) {
+                startMusic();
+            } else {
+                if (bgMusic.paused) bgMusic.play();
+                else bgMusic.pause();
+                updatePlayPauseIcon();
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            let next = currentTrackIndex - 1;
+            if (next < 0) next = playlist.length - 1;
+            loadTrack(next);
+        });
+
+        nextBtn.addEventListener('click', () => {
+            let next = (currentTrackIndex + 1) % playlist.length;
+            loadTrack(next);
+        });
+
+        loopBtn.addEventListener('click', () => {
+            isLooping = !isLooping;
+            loopBtn.style.color = isLooping ? 'var(--accent-color)' : 'var(--text-color)';
+            bgMusic.loop = isLooping;
+        });
+
+        volumeSlider.addEventListener('input', (e) => {
+            bgMusic.volume = e.target.value;
+            playerMuteBtn.textContent = bgMusic.volume === 0 ? '🔇' : '🔊';
+        });
+
+        playerMuteBtn.addEventListener('click', () => {
+            if (bgMusic.volume > 0) {
+                bgMusic.dataset.lastVolume = bgMusic.volume;
+                bgMusic.volume = 0;
+                volumeSlider.value = 0;
+                playerMuteBtn.textContent = '🔇';
+            } else {
+                bgMusic.volume = bgMusic.dataset.lastVolume || 0.5;
+                volumeSlider.value = bgMusic.volume;
+                playerMuteBtn.textContent = '🔊';
             }
         });
 
         progressBar.addEventListener('click', (e) => {
-            startMusic();
             const rect = progressBar.getBoundingClientRect();
             const pos = (e.clientX - rect.left) / rect.width;
             bgMusic.currentTime = pos * bgMusic.duration;
         });
 
-        playPauseBtn.addEventListener('click', () => {
-            startMusic();
-            if (bgMusic.paused) {
-                bgMusic.play();
-            } else {
-                bgMusic.pause();
-            }
-            updatePlayPauseIcon();
-            playPauseBtn.blur();
-        });
-
-        nextBtn.addEventListener('click', () => {
-            startMusic();
-            loadTrack((currentTrackIndex + 1) % playlist.length);
-            nextBtn.blur();
-        });
-
-        prevBtn.addEventListener('click', () => {
-            startMusic();
-            loadTrack((currentTrackIndex - 1 + playlist.length) % playlist.length);
-            prevBtn.blur();
-        });
-
-        loopBtn.addEventListener('click', () => {
-            isLooping = !isLooping;
-            loopBtn.classList.toggle('active', isLooping);
-            loopBtn.blur();
-        });
-
-        volumeSlider.addEventListener('input', (e) => {
-            bgMusic.volume = e.target.value;
-            bgMusic.muted = false;
-            playerMuteBtn.textContent = '🔊';
-        });
-
-        playerMuteBtn.addEventListener('click', () => {
-            startMusic();
-            bgMusic.muted = !bgMusic.muted;
-            playerMuteBtn.textContent = bgMusic.muted ? '🔇' : '🔊';
-            playerMuteBtn.blur();
-        });
-
-        // Initialize first track
         loadTrack(0);
-        bgMusic.volume = 0.15;
-
-        document.body.addEventListener('click', startMusic, { once: true });
-        document.body.addEventListener('keydown', startMusic, { once: true });
+        window.addEventListener('click', startMusic, { once: true });
 
         // Spacebar Clicker Logic
-        let count = 0;
-        let totalSeconds = 10;
-        let secondsLeft = 10;
-        let timerInterval = null;
-        let isGameRunning = false;
-        let isGameOver = false;
-
         const counterDisplay = document.getElementById('counter');
         const highScoreDisplay = document.getElementById('highScore');
         const timerDisplay = document.getElementById('timer');
-        const minInput = document.getElementById('minInput');
-        const secInput = document.getElementById('secInput');
         const clickBtn = document.getElementById('clickBtn');
         const resetBtn = document.getElementById('resetBtn');
-        const themeToggle = document.getElementById('themeToggle');
+        const minInput = document.getElementById('minInput');
+        const secInput = document.getElementById('secInput');
         const statusMsg = document.getElementById('statusMsg');
-        const body = document.body;
 
-        let highScore = localStorage.getItem('spacebarHighScore') || 0;
+        let count = 0;
+        let highScore = localStorage.getItem('gn_highScore') || 0;
+        let timeLeft = 10;
+        let timerId = null;
+        let gameActive = false;
+
         highScoreDisplay.textContent = highScore;
 
-        function updateHighScore() {
-            if (count > highScore) {
-                highScore = count;
-                localStorage.setItem('spacebarHighScore', highScore);
-                highScoreDisplay.textContent = highScore;
-                statusMsg.textContent = "New High Score! 🎉";
-            }
-        }
-
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playBeep() {
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
-            gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + 0.5);
-        }
-
-        function formatTime(seconds) {
-            const m = Math.floor(seconds / 60);
-            const s = seconds % 60;
-            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        }
-
-        function updateSettings() {
-            const m = parseInt(minInput.value) || 0;
-            const s = parseInt(secInput.value) || 0;
-            totalSeconds = (m * 60) + s;
-            if (totalSeconds <= 0) totalSeconds = 1;
-            if (!isGameRunning) {
-                secondsLeft = totalSeconds;
-                timerDisplay.textContent = formatTime(secondsLeft);
-            }
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft / 60);
+            const s = timeLeft % 60;
+            timerDisplay.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
         }
 
         function startGame() {
-            updateSettings();
-            isGameRunning = true;
-            isGameOver = false;
-            statusMsg.textContent = "Go!";
+            if (gameActive) return;
+            
+            count = 0;
+            counterDisplay.textContent = count;
+            timeLeft = parseInt(minInput.value) * 60 + parseInt(secInput.value);
+            if (timeLeft <= 0) {
+                alert("Please set a valid time!");
+                return;
+            }
+            
+            gameActive = true;
+            statusMsg.textContent = "GAME IN PROGRESS...";
             minInput.disabled = true;
             secInput.disabled = true;
-            timerInterval = setInterval(() => {
-                secondsLeft--;
-                timerDisplay.textContent = formatTime(secondsLeft);
-                if (secondsLeft <= 0) endGame();
+            
+            updateTimerDisplay();
+            
+            timerId = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                if (timeLeft <= 0) {
+                    endGame();
+                }
             }, 1000);
         }
 
         function endGame() {
-            clearInterval(timerInterval);
-            isGameRunning = false;
-            isGameOver = true;
-            clickBtn.disabled = true;
-            statusMsg.textContent = "Time's up!";
-            updateHighScore();
-            playBeep();
-        }
-
-        function increment() {
-            startMusic();
-            if (isGameOver) return;
-            if (!isGameRunning) startGame();
-            count++;
-            counterDisplay.textContent = count;
-        }
-
-        function reset() {
-            startMusic();
-            clearInterval(timerInterval);
-            isGameRunning = false;
-            isGameOver = false;
-            count = 0;
-            updateSettings();
-            counterDisplay.textContent = count;
-            clickBtn.disabled = false;
+            clearInterval(timerId);
+            gameActive = false;
+            statusMsg.textContent = "TIME'S UP!";
             minInput.disabled = false;
             secInput.disabled = false;
-            statusMsg.textContent = "";
+            
+            if (count > highScore) {
+                highScore = count;
+                localStorage.setItem('gn_highScore', highScore);
+                highScoreDisplay.textContent = highScore;
+                statusMsg.textContent = "NEW HIGH SCORE!";
+            }
         }
 
-        clickBtn.addEventListener('click', () => { increment(); clickBtn.blur(); });
-        resetBtn.addEventListener('click', () => { reset(); resetBtn.blur(); });
-        [minInput, secInput].forEach(input => input.addEventListener('change', updateSettings));
+        function handleClick() {
+            if (!gameActive && timeLeft > 0 && timerId === null) {
+                startGame();
+            }
+            
+            if (gameActive) {
+                count++;
+                counterDisplay.textContent = count;
+            }
+        }
+
+        clickBtn.addEventListener('click', handleClick);
         window.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') {
+            if (e.code === 'Space' && currentPage === 0) {
                 e.preventDefault();
-                if (!e.repeat) increment();
+                handleClick();
+                clickBtn.style.transform = 'translateY(2px)';
+                setTimeout(() => clickBtn.style.transform = 'translateY(0)', 100);
             }
         });
 
-        themeToggle.addEventListener('click', () => {
-            startMusic();
-            body.classList.toggle('light-mode');
-            themeToggle.textContent = body.classList.contains('light-mode') ? '☀️' : '🌙';
-            themeToggle.blur();
+        resetBtn.addEventListener('click', () => {
+            clearInterval(timerId);
+            timerId = null;
+            gameActive = false;
+            count = 0;
+            counterDisplay.textContent = count;
+            timeLeft = parseInt(minInput.value) * 60 + parseInt(secInput.value);
+            updateTimerDisplay();
+            statusMsg.textContent = "";
+            minInput.disabled = false;
+            secInput.disabled = false;
         });
 
-        // Guessing Game Logic
-        let targetNumber;
-        let guessesLeft = 8;
-        let currentMax = 100;
-        let isNumberGameActive = true;
-
+        // Number Guessing Game Logic
         const guessInput = document.getElementById('guessInput');
         const guessBtn = document.getElementById('guessBtn');
         const gameResetBtn = document.getElementById('gameResetBtn');
         const gameFeedback = document.getElementById('gameFeedback');
         const guessesLeftDisplay = document.getElementById('guessesLeft');
-        const gamePrompt = document.getElementById('gamePrompt');
         const diffBtns = document.querySelectorAll('.diff-btn');
+        const gamePrompt = document.getElementById('gamePrompt');
 
-        function initNumberGame() {
-            targetNumber = Math.floor(Math.random() * currentMax) + 1;
-            guessesLeft = 8;
-            isNumberGameActive = true;
+        let targetNumber;
+        let guessesLeft;
+        let maxNumber = 100;
+        let guessingGameActive = true;
+
+        function initGuessingGame() {
+            targetNumber = Math.floor(Math.random() * maxNumber) + 1;
+            guessesLeft = Math.ceil(Math.log2(maxNumber)) + 1;
             guessesLeftDisplay.textContent = guessesLeft;
             gameFeedback.textContent = "";
-            gameFeedback.style.color = "inherit";
+            gameFeedback.style.color = 'var(--text-color)';
             guessInput.value = "";
             guessInput.disabled = false;
             guessBtn.disabled = false;
-            gamePrompt.textContent = `I'm thinking of a number between 1 and ${currentMax.toLocaleString()}.`;
+            guessingGameActive = true;
+            gamePrompt.textContent = `I'm thinking of a number between 1 and ${maxNumber}.`;
         }
 
         diffBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 diffBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                currentMax = parseInt(btn.dataset.max);
-                initNumberGame();
-                startMusic();
+                maxNumber = parseInt(btn.dataset.max);
+                initGuessingGame();
             });
         });
 
-        function handleGuess() {
-            if (!isNumberGameActive) return;
-            startMusic();
+        function makeGuess() {
+            if (!guessingGameActive) return;
             
             const guess = parseInt(guessInput.value);
-            if (isNaN(guess)) {
-                gameFeedback.textContent = "Please enter a valid number!";
+            if (isNaN(guess) || guess < 1 || guess > maxNumber) {
+                gameFeedback.textContent = `Please enter a number between 1 and ${maxNumber}!`;
+                gameFeedback.style.color = 'var(--reset-color)';
                 return;
             }
 
@@ -1462,39 +1360,107 @@
             guessesLeftDisplay.textContent = guessesLeft;
 
             if (guess === targetNumber) {
-                gameFeedback.textContent = "Correct! You won! 🎉";
-                gameFeedback.style.color = "#52be80";
-                endNumberGame();
-            } else if (guessesLeft === 0) {
-                gameFeedback.textContent = `Game Over! The number was ${targetNumber.toLocaleString()}.`;
-                gameFeedback.style.color = "#ec7063";
-                endNumberGame();
-                playBeep();
-            } else if (guess > targetNumber) {
-                gameFeedback.textContent = "Too high!";
-                gameFeedback.style.color = "#f39c12";
+                gameFeedback.textContent = `CORRECT! The number was ${targetNumber}!`;
+                gameFeedback.style.color = '#2ecc71';
+                endGuessingGame(true);
+            } else if (guessesLeft <= 0) {
+                gameFeedback.textContent = `GAME OVER! The number was ${targetNumber}.`;
+                gameFeedback.style.color = 'var(--reset-color)';
+                endGuessingGame(false);
             } else {
-                gameFeedback.textContent = "Too low!";
-                gameFeedback.style.color = "#f39c12";
+                gameFeedback.textContent = guess < targetNumber ? "HIGHER!" : "LOWER!";
+                gameFeedback.style.color = 'var(--accent-color)';
             }
-            
             guessInput.value = "";
             guessInput.focus();
         }
 
-        function endNumberGame() {
-            isNumberGameActive = false;
+        function endGuessingGame(won) {
+            guessingGameActive = false;
             guessInput.disabled = true;
             guessBtn.disabled = true;
         }
 
-        guessBtn.addEventListener('click', handleGuess);
-        gameResetBtn.addEventListener('click', initNumberGame);
-        guessInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleGuess();
+        guessBtn.addEventListener('click', makeGuess);
+        guessInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') makeGuess();
+        });
+        gameResetBtn.addEventListener('click', initGuessingGame);
+
+        initGuessingGame();
+
+        // Game Section Logic
+        const gameIframe = document.getElementById('gameIframe');
+        const gameTitle = document.getElementById('gameTitle');
+        const gameControlsContent = document.getElementById('gameControlsContent');
+        const gameCreditsContent = document.getElementById('gameCreditsContent');
+        const prevGameBtn = document.getElementById('prevGameBtn');
+        const nextGameBtn = document.getElementById('nextGameBtn');
+
+        const games = [
+            {
+                title: "Paper Minecraft v11.7",
+                url: "https://turbowarp.org/10128407/embed?addons=pause%2Cfullscreen&fps=60",
+                credits: "<p>Game made by Griffpatch</p><p>Ported by DiddyEater67</p>",
+                controls: `<ul class="controls-list">
+                    <li><strong>[1 to 9]</strong> - Select Item</li>
+                    <li><strong>[Click]</strong> - Place or Mine</li>
+                    <li><strong>[WASD]</strong> - Move / Jump</li>
+                    <li><strong>[E]</strong> - Open/Close Inventory</li>
+                    <li><strong>[E+hover]</strong> - Open/Close Chest, Crafting Table, Door</li>
+                    <li><strong>[Space]</strong> - Drop single tile from stack</li>
+                    <li><strong>[F]</strong> - Eat food</li>
+                    <li><strong>[N]</strong> - Label a sign or chest</li>
+                    <li><strong>[Q]</strong> - Drop item</li>
+                    <li><strong>[P]</strong> - Pause / Unpause</li>
+                    <li><strong>[T]</strong> - Talk / Command</li>
+                    <li><strong>[O]</strong> - Save your game</li>
+                    <li><strong>[M]</strong> - Music / Sounds</li>
+                    <li><strong>[Shift]</strong> - Sprint</li>
+                </ul>`
+            },
+            {
+                title: "Geometry Dash",
+                url: "https://turbowarp.org/105500895/embed?addons=pause%2Cfullscreen&fps=60",
+                credits: "<p>Original by RobTop Games</p><p>Scratch version by Griffpatch</p>",
+                controls: `<ul class="controls-list">
+                    <li><strong>[Space / Click / Up]</strong> - Jump</li>
+                    <li><strong>[P]</strong> - Pause</li>
+                    <li><strong>[L]</strong> - Toggle Lag Reduction</li>
+                </ul>`
+            },
+            {
+                title: "Terraria",
+                url: "https://turbowarp.org/311806206/embed?addons=pause%2Cfullscreen&fps=60",
+                credits: "<p>Original by Re-Logic</p><p>Scratch version by Griffpatch</p>",
+                controls: `<ul class="controls-list">
+                    <li><strong>[WASD]</strong> - Move</li>
+                    <li><strong>[Click]</strong> - Use Tool / Place</li>
+                    <li><strong>[E]</strong> - Inventory</li>
+                    <li><strong>[1-9]</strong> - Select Item</li>
+                </ul>`
+            }
+        ];
+
+        let currentGameIndex = 0;
+
+        function updateGame() {
+            const game = games[currentGameIndex];
+            gameIframe.src = game.url;
+            gameTitle.textContent = game.title;
+            gameControlsContent.innerHTML = game.controls;
+            gameCreditsContent.innerHTML = game.credits;
+        }
+
+        prevGameBtn.addEventListener('click', () => {
+            currentGameIndex = (currentGameIndex - 1 + games.length) % games.length;
+            updateGame();
         });
 
-        initNumberGame();
+        nextGameBtn.addEventListener('click', () => {
+            currentGameIndex = (currentGameIndex + 1) % games.length;
+            updateGame();
+        });
     </script>
 </body>
 </html>
