@@ -1182,33 +1182,48 @@
             } else {
                 fullscreenBtn.style.display = 'none';
             }
+            
+            // Re-apply mute state to the new iframe
+            applyMuteState();
+        }
+
+        function applyMuteState() {
+            if (gameMuted) {
+                gameIframe.style.opacity = "0.99"; // Tiny change to trigger redraw
+                // We use the 'allow' attribute to block features that might be used for audio
+                gameIframe.setAttribute('allow', 'fullscreen');
+                // For platforms that support it, we try to use the URL parameter without a full reload if possible
+                // but since we can't easily do that without reload, we'll rely on the 'allow' attribute
+                // and a visual cue.
+            } else {
+                gameIframe.style.opacity = "1";
+                gameIframe.setAttribute('allow', 'autoplay; fullscreen');
+            }
         }
 
         gameMuteBtn.addEventListener('click', () => {
             gameMuted = !gameMuted;
             gameMuteBtn.textContent = gameMuted ? "UNMUTE GAME" : "MUTE GAME";
             
-            // Apply mute using CSS filter (silence)
-            // Note: This is a visual/container-level mute that works for iframes
-            // by preventing the browser from outputting audio from this specific element.
-            if (gameMuted) {
-                gameIframe.style.pointerEvents = 'auto'; // Ensure interaction still works
-                // We use a non-standard but effective way to signal the browser to silence the iframe
-                // Many modern browsers support silencing an iframe via the 'muted' attribute if it were a video,
-                // but for general iframes, we can try to use the Web Audio API or simply lower the volume if we had access.
-                // Since we don't have direct cross-origin access, we'll use the most reliable method:
-                // We'll try to use the 'allow' attribute to toggle 'autoplay' and 'microphone' which sometimes triggers a re-evaluation of audio.
-                // However, the most effective way without restart is to use the browser's built-in tab muting or 
-                // if the platform supports it, a postMessage. 
-                // Given the constraints, I will implement a "soft mute" by attempting to use the 'allow' attribute.
-                gameIframe.setAttribute('allow', 'fullscreen');
-            } else {
-                gameIframe.setAttribute('allow', 'autoplay; fullscreen');
-            }
+            // The most reliable way to mute an iframe without restarting is to use the 
+            // 'allow' attribute to remove 'autoplay' and 'microphone' permissions.
+            // While this doesn't always stop already playing audio, it's the best 
+            // non-restarting method for cross-origin iframes.
+            applyMuteState();
             
-            // If the above doesn't work perfectly across all browsers, 
-            // the only 100% reliable way is the URL parameter, but that causes a restart.
-            // To provide the best experience, I'll stick to the non-restarting method.
+            // To make it actually work for most of these games (TurboWarp, KBH), 
+            // we unfortunately DO need to reload with the mute parameter.
+            // I will implement a compromise: only reload if it's a platform we know 
+            // requires the parameter to mute.
+            const game = gamesList[currentGameIndex];
+            if (game.url.includes('turbowarp.org') || game.url.includes('kbhgames.com')) {
+                let url = game.url;
+                if (gameMuted) {
+                    if (url.includes('turbowarp.org')) url += (url.includes('?') ? '&' : '?') + 'mute=true';
+                    else if (url.includes('kbhgames.com')) url += (url.includes('?') ? '&' : '?') + 'mute=1';
+                }
+                gameIframe.src = url;
+            }
         });
 
         fullscreenBtn.addEventListener('click', () => {
