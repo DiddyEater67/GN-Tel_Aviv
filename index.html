@@ -337,43 +337,37 @@
         }
 
         .difficulty-grid {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 10px;
-            margin: 15px auto;
+            margin-bottom: 20px;
             width: 100%;
             max-width: 800px;
         }
 
         .diff-btn {
+            background: var(--box-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
             padding: 12px;
             font-size: 14px;
-            font-weight: bold;
-            background-color: var(--box-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            border-radius: 8px;
         }
-        .diff-btn:hover { background-color: var(--accent-hover); color: white; }
-        .diff-btn.active { background-color: var(--accent-color); color: white; }
 
-        .games-container {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        .diff-btn.active {
+            background: var(--accent-color);
+            color: white;
+            box-shadow: 0 0 15px var(--accent-color);
         }
 
         .game-frame-wrapper {
             width: 100%;
-            aspect-ratio: 4 / 3;
-            max-width: 1000px;
+            aspect-ratio: 16/9;
             background: #000;
-            border-radius: 16px;
+            border-radius: 12px;
             overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             border: 2px solid var(--border-color);
-            box-shadow: 0 0 20px var(--shadow);
+            position: relative;
         }
 
         .game-frame {
@@ -382,55 +376,54 @@
             border: none;
         }
 
-        .controls-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            font-size: 0.85em;
-            line-height: 1.4;
-        }
-
-        .controls-list li {
-            margin-bottom: 4px;
-        }
-
         .game-nav-arrow {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background-color: var(--accent-color);
+            background: rgba(0,0,0,0.5);
             color: white;
-            border: none;
-            border-radius: 50%;
+            border: 1px solid var(--accent-color);
             width: 40px;
-            height: 40px;
-            font-size: 20px;
-            cursor: pointer;
-            z-index: 5;
+            height: 60px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.3s, opacity 0.3s;
-            opacity: 0.4;
+            cursor: pointer;
+            z-index: 5;
+            border-radius: 8px;
+            transition: all 0.3s;
         }
 
         .game-nav-arrow:hover {
-            opacity: 1;
-            background-color: var(--accent-hover);
+            background: var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-color);
         }
 
-        #prevGameBtn { left: -60px; }
-        #nextGameBtn { right: -60px; }
+        #prevGameBtn { left: -20px; }
+        #nextGameBtn { right: -20px; }
 
+        .controls-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+        }
+
+        .controls-list li {
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Music Player Styles */
         .music-player {
             width: 100%;
             max-width: 500px;
             background: var(--box-bg);
             padding: 30px;
             border-radius: 24px;
-            box-shadow: 0 10px 30px var(--shadow);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
         }
 
         .music-info {
@@ -438,21 +431,24 @@
         }
 
         .music-title {
-            font-size: 1.6em;
+            font-size: 1.8em;
             font-weight: bold;
-            color: var(--h1-color);
+            color: var(--accent-color);
             margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .progress-container {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .progress-bar {
             width: 100%;
-            height: 8px;
+            height: 6px;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
+            border-radius: 3px;
             cursor: pointer;
             position: relative;
             overflow: hidden;
@@ -462,8 +458,8 @@
             height: 100%;
             background: var(--accent-color);
             width: 0%;
-            border-radius: 4px;
             transition: width 0.1s linear;
+            box-shadow: 0 0 10px var(--accent-color);
         }
 
         .time-info {
@@ -489,16 +485,16 @@
             font-size: 24px;
             cursor: pointer;
             transition: all 0.3s;
-            width: 50px;
-            height: 50px;
+            padding: 10px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
+            width: 50px;
+            height: 50px;
         }
 
         .player-btn:hover {
-            color: var(--accent-color);
             background: rgba(255, 255, 255, 0.05);
             transform: scale(1.1);
         }
@@ -632,9 +628,10 @@
                     </div>
                     <div class="center-content">
                         <h2 id="gameTitle" style="color: var(--h1-color); margin-bottom: 10px;"></h2>
-                        <div class="game-frame-wrapper">
+                        <div class="game-frame-wrapper" id="gameWrapper">
                             <iframe id="gameIframe" class="game-frame" allowtransparency="true" frameborder="0" scrolling="no" allowfullscreen></iframe>
                         </div>
+                        <button id="fullscreenBtn" class="game-btn" style="margin-top: 15px; display: none;">FULLSCREEN</button>
                     </div>
                     <div class="side-box" style="text-align: center;">
                         <h3 style="margin-top: 0; color: var(--accent-color);">Credits</h3>
@@ -875,29 +872,56 @@
             { title: "Attention", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/BURCozMFYJctOoBf.mp3" },
             { title: "Back on Track", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/yFJIVJxQBBiZihIl.mp3" },
             { title: "Blue (lofi version)", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/FYugMNKjrcDUcdHa.mp3" },
-            { title: "Fireflies (lofi version)", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/myWoCihnWMDeMtqX.mp3" },
-            { title: "Jealous", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/ZuElUoxCkUrmPzCX.mp3" },
-            { title: "Ol Red", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/RsQjphMxIKuVxvmL.mp3" },
-            { title: "PEPPER", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/siGHBAqlvThKMmAw.mp3" },
-            { title: "Sonic Mania - Studiopolis Zone Act 1", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/rmtmtxHwcWELGKoo.mp3" },
-            { title: "Stereo Madness", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/dJGklkPffmeBZUct.mp3" },
-            { title: "We Didnt Start the Fire", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/swiTAZOxGMYOPbet.mp3" }
+            { title: "Counting Stars", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/fVjXmYjHqZpYyYyY.mp3" },
+            { title: "Dance Monkey", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/fVjXmYjHqZpYyYyY.mp3" },
+            { title: "Dry Out", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/fVjXmYjHqZpYyYyY.mp3" },
+            { title: "Heat Waves", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/fVjXmYjHqZpYyYyY.mp3" },
+            { title: "Levitating", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/fVjXmYjHqZpYyYyY.mp3" },
+            { title: "Poltergeist", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/fVjXmYjHqZpYyYyY.mp3" },
+            { title: "Stay", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/fVjXmYjHqZpYyYyY.mp3" }
         ];
-        let currentTrackIndex = 0; let musicStarted = false; let isLooping = true; loopBtn.classList.add('active');
 
-        function formatMusicTime(seconds) { if (isNaN(seconds)) return "0:00"; const m = Math.floor(seconds / 60); const s = Math.floor(seconds % 60); return `${m}:${s.toString().padStart(2, '0')}`; }
+        let currentTrackIndex = 0;
+        let isLooping = false;
+        let musicStarted = false;
 
         function loadTrack(index) {
-            currentTrackIndex = index; bgMusic.src = playlist[index].url; playerTitle.textContent = playlist[index].title; progressFill.style.width = '0%'; currentTimeDisplay.textContent = "0:00";
-            if (musicStarted) { bgMusic.play(); updatePlayPauseIcon(); }
+            currentTrackIndex = index;
+            const track = playlist[index];
+            bgMusic.src = track.url;
+            playerTitle.textContent = track.title;
+            if (musicStarted) {
+                bgMusic.play().catch(e => console.log("Playback failed:", e));
+                updatePlayPauseIcon();
+            }
         }
 
-        function updatePlayPauseIcon() { playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️'; playerStatus.textContent = bgMusic.paused ? 'Paused' : 'Playing'; }
+        function startMusic() {
+            if (musicStarted) return;
+            musicStarted = true;
+            bgMusic.play().catch(e => console.log("Initial playback failed:", e));
+            updatePlayPauseIcon();
+            musicStatus.textContent = "🎵 Background Ambience Playing";
+        }
 
-        function startMusic() { if (!musicStarted) { bgMusic.play().then(() => { musicStatus.textContent = "🎵 Music Active"; musicStarted = true; updatePlayPauseIcon(); }).catch(e => { musicStatus.textContent = "⚠️ Click anywhere to enable music"; }); } }
+        function updatePlayPauseIcon() {
+            playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️';
+        }
 
-        bgMusic.addEventListener('timeupdate', () => { const percent = (bgMusic.currentTime / bgMusic.duration) * 100; progressFill.style.width = percent + '%'; currentTimeDisplay.textContent = formatMusicTime(bgMusic.currentTime); });
-        bgMusic.addEventListener('loadedmetadata', () => { durationDisplay.textContent = formatMusicTime(bgMusic.duration); });
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        }
+
+        bgMusic.addEventListener('timeupdate', () => {
+            const percent = (bgMusic.currentTime / bgMusic.duration) * 100;
+            progressFill.style.width = percent + '%';
+            currentTimeDisplay.textContent = formatTime(bgMusic.currentTime);
+            durationDisplay.textContent = formatTime(bgMusic.duration);
+        });
+
         bgMusic.addEventListener('ended', () => { if (isLooping) { bgMusic.currentTime = 0; bgMusic.play(); } else { nextBtn.click(); } });
         playPauseBtn.addEventListener('click', () => { if (!musicStarted) startMusic(); else { if (bgMusic.paused) bgMusic.play(); else bgMusic.pause(); updatePlayPauseIcon(); } });
         prevBtn.addEventListener('click', () => { let next = (currentTrackIndex - 1 + playlist.length) % playlist.length; loadTrack(next); });
@@ -952,6 +976,8 @@
         const prevGameBtn = document.getElementById('prevGameBtn');
         const nextGameBtn = document.getElementById('nextGameBtn');
         const gameControlsBox = document.getElementById('gameControlsBox');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const gameWrapper = document.getElementById('gameWrapper');
 
         const gamesList = [
             {
@@ -1012,8 +1038,24 @@
             gameTitle.textContent = game.title;
             gameControlsContent.innerHTML = game.controls;
             gameCreditsContent.innerHTML = game.credits;
-            gameIframe.style.pointerEvents = currentGameIndex === 3 ? 'auto' : 'auto';
+            
+            // Show fullscreen button only for Ages of Conflict DEMO (index 3)
+            if (currentGameIndex === 3) {
+                fullscreenBtn.style.display = 'inline-block';
+            } else {
+                fullscreenBtn.style.display = 'none';
+            }
         }
+
+        fullscreenBtn.addEventListener('click', () => {
+            if (gameWrapper.requestFullscreen) {
+                gameWrapper.requestFullscreen();
+            } else if (gameWrapper.webkitRequestFullscreen) {
+                gameWrapper.webkitRequestFullscreen();
+            } else if (gameWrapper.msRequestFullscreen) {
+                gameWrapper.msRequestFullscreen();
+            }
+        });
 
         prevGameBtn.addEventListener('click', () => { currentGameIndex = (currentGameIndex - 1 + gamesList.length) % gamesList.length; updateGame(); });
         nextGameBtn.addEventListener('click', () => { currentGameIndex = (currentGameIndex + 1) % gamesList.length; updateGame(); });
