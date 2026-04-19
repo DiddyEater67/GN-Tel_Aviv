@@ -633,7 +633,10 @@
                         <div class="game-frame-wrapper" id="gameWrapper">
                             <iframe id="gameIframe" class="game-frame" allowtransparency="true" frameborder="0" scrolling="no" allowfullscreen></iframe>
                         </div>
-                        <button id="fullscreenBtn" class="game-btn" style="margin-top: 15px; display: none;">FULLSCREEN</button>
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <button id="gameMuteBtn" class="game-btn">MUTE GAME</button>
+                            <button id="fullscreenBtn" class="game-btn" style="display: none;">FULLSCREEN</button>
+                        </div>
                     </div>
                     <div class="side-box" style="text-align: center;">
                         <h3 style="margin-top: 0; color: var(--accent-color);">Credits</h3>
@@ -1032,6 +1035,9 @@
         const gameControlsBox = document.getElementById('gameControlsBox');
         const fullscreenBtn = document.getElementById('fullscreenBtn');
         const gameWrapper = document.getElementById('gameWrapper');
+        const gameMuteBtn = document.getElementById('gameMuteBtn');
+
+        let gameMuted = false;
 
         const gamesList = [
             {
@@ -1160,13 +1166,22 @@
         let currentGameIndex = 0;
         function updateGame() {
             const game = gamesList[currentGameIndex];
+            let url = game.url;
             
             if (game.isEmulator) {
-                gameIframe.src = `https://www.emulatorjs.com/embed/content.html?game=${game.url}&core=${game.core}`;
-            } else {
-                gameIframe.src = game.url;
+                url = `https://www.emulatorjs.com/embed/content.html?game=${game.url}&core=${game.core}`;
             }
 
+            // Apply mute parameter if supported by the platform
+            if (gameMuted) {
+                if (url.includes('turbowarp.org')) {
+                    url += '&mute=true';
+                } else if (url.includes('kbhgames.com')) {
+                    url += '&mute=1';
+                }
+            }
+
+            gameIframe.src = url;
             gameTitle.textContent = game.title;
             gameControlsContent.innerHTML = game.controls;
             gameCreditsContent.innerHTML = game.credits;
@@ -1177,6 +1192,14 @@
                 fullscreenBtn.style.display = 'none';
             }
         }
+
+        gameMuteBtn.addEventListener('click', () => {
+            gameMuted = !gameMuted;
+            gameMuteBtn.textContent = gameMuted ? "UNMUTE GAME" : "MUTE GAME";
+            
+            // For TurboWarp and some others, we need to reload the iframe to apply mute
+            updateGame();
+        });
 
         fullscreenBtn.addEventListener('click', () => {
             if (gameWrapper.requestFullscreen) {
