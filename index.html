@@ -889,7 +889,7 @@
 
         let currentTrackIndex = 0;
         let isPlaying = false;
-        let isLooping = true;
+        let isLooping = false;
 
         function loadTrack(index) {
             const track = playlist[index];
@@ -983,8 +983,6 @@
 
         loadTrack(currentTrackIndex);
         bgMusic.volume = 0.15;
-        bgMusic.loop = isLooping;
-        updatePlayerUI();
 
         const counterDisplay = document.getElementById('counter');
         const highScoreDisplay = document.getElementById('highScore');
