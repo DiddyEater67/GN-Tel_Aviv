@@ -680,7 +680,7 @@
                     <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="0.15">
                     <span>🔊</span>
                 </div>
-                <div class="playlist-info">Playlist: 11 tracks available</div>
+                <div class="playlist-info">Playlist: 12 tracks available</div>
             </div>
         </div>
     </div>
@@ -870,17 +870,18 @@
         const durationDisplay = document.getElementById('duration');
 
         const playlist = [
-            { title: "All The Small Things", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/MwSAjfnvlNHjpgpy.mp3" },
-            { title: "Attention", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/ZZDZLuXabNQEgALI.mp3" },
-            { title: "Back on Track", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/ICIVihavFqjlOlrE.mp3" },
-            { title: "Blue (lofi version)", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/xtjVwSwjLgSAsSVp.mp3" },
-            { title: "Fireflies (lofi version)", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/TVVsrcTNMalaYGHw.mp3" },
-            { title: "Jealous", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/imuaHklsBKgnMClo.mp3" },
-            { title: "Ol Red", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/RlRcIVboKuOcHKrA.mp3" },
-            { title: "PEPPER", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/JkfccGwtqLtNEhrf.mp3" },
-            { title: "Sonic Mania - Studiopolis Zone Act 1", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/HCFAfRgESYxgMlDX.mp3" },
-            { title: "Stereo Madness", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/iHoNoUpSQQfiCoLT.mp3" },
-            { title: "We Didnt Start the Fire", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/cQalhbTYLsusWFDp.mp3" }
+            { title: "Background Ambience", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/MQZrzPffcSRLLgWr.mp3" },
+            { title: "All The Small Things", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/MQZrzPffcSRLLgWr.mp3" },
+            { title: "Attention", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/BURCozMFYJctOoBf.mp3" },
+            { title: "Back on Track", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/yFJIVJxQBBiZihIl.mp3" },
+            { title: "Blue (lofi version)", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/FYugMNKjrcDUcdHa.mp3" },
+            { title: "Fireflies (lofi version)", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/myWoCihnWMDeMtqX.mp3" },
+            { title: "Jealous", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/ZuElUoxCkUrmPzCX.mp3" },
+            { title: "Ol Red", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/RsQjphMxIKuVxvmL.mp3" },
+            { title: "PEPPER", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/siGHBAqlvThKMmAw.mp3" },
+            { title: "Sonic Mania - Studiopolis Zone Act 1", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/rmtmtxHwcWELGKoo.mp3" },
+            { title: "Stereo Madness", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/dJGklkPffmeBZUct.mp3" },
+            { title: "We Didnt Start the Fire", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/swiTAZOxGMYOPbet.mp3" }
         ];
         let currentTrackIndex = 0; let musicStarted = false; let isLooping = true; loopBtn.classList.add('active');
 
