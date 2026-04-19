@@ -985,7 +985,37 @@
         const fullscreenBtn = document.getElementById('fullscreenBtn');
         const gameWrapper = document.getElementById('gameWrapper');
 
-        const gamesList = [
+        const gamesList = [            {
+                title: "Sonic 1",
+                url: "https://kbhgames.com/wp-content/themes/v1/embed.php?url=%2F%2Ff.kbhgames.com%2Femujs%2Fplay.php%3Fc%3DsegaMD%26f%3Dsonic.gen&canonical=https%3A%2F%2Fkbhgames.com%2Fgame%2Fsonic-the-hedgehog&w=800&h=600&noad=1&pid=25501",
+                credits: `<p>Created by SEGA, ported by DiddyEater67</p>`,
+                controls: `<div style="font-size: 0.95em; line-height: 1.5;"><p>Enter to start</p><p>Z, X, and S to jump</p><p>Arrow keys to move</p></div>`
+            },
+            {
+                title: "Sonic 2",
+                url: "https://kbhgames.com/wp-content/themes/v1/embed.php?url=%2F%2Ff.kbhgames.com%2Femujs%2Fplay.php%3Fc%3DsegaMD%26f%3DSonic%20The%20Hedgehog%202.gen&canonical=https%3A%2F%2Fkbhgames.com%2Fgame%2Fsonic-hedgehog-2&w=800&h=600&noad=1&pid=26428",
+                credits: `<p>Created by SEGA, ported by DiddyEater67</p>`,
+                controls: `<div style="font-size: 0.95em; line-height: 1.5;"><p>Enter to start</p><p>Z, X, and S to jump</p><p>Arrow keys to move</p></div>`
+            },
+            {
+                title: "Sonic CD",
+                url: "https://kbhgames.com/wp-content/themes/v1/embed.php?url=https%3A%2F%2Ff.kbhgames.com%2Fr%2Fsega32%2Fgame2.php%3Fn%3Dsonic-cd-usa-dw0044.zip&canonical=https%3A%2F%2Fkbhgames.com%2Fgame%2Fsonic-cd&w=640&h=480&noad=1&pid=97914",
+                credits: `<p>Created by SEGA, ported by DiddyEater67</p>`,
+                controls: `<p>Controls are shown in-game</p>`
+            },
+            {
+                title: "Sonic 3 & Knuckles",
+                url: "https://kbhgames.com/wp-content/themes/v1/embed.php?url=%2F%2Ff.kbhgames.com%2Femujs%2Fplay.php%3Fc%3DsegaMD%26f%3DSonic%20and%20Knuckles%20Sonic%203.gen&canonical=https%3A%2F%2Fkbhgames.com%2Fgame%2Fsonic-3-and-knuckles-sega&w=800&h=600&noad=1&pid=31225",
+                credits: `<p>Created by SEGA, ported by DiddyEater67</p>`,
+                controls: `<div style="font-size: 0.95em; line-height: 1.5;"><p>Enter to start</p><p>Z, X, and S to jump</p><p>Arrow keys to move</p></div>`
+            },
+            {
+                title: "Sonic 1 Definitive Edition",
+                url: "https://kbhgames.com/wp-content/themes/v1/embed.php?url=%2F%2Ff.kbhgames.com%2Femujs%2Fplay.php%3Fc%3DsegaMD%26f%3Dsonic-1-definitive.bin&canonical=https%3A%2F%2Fkbhgames.com%2Fgame%2Fsonic-1-definitive&w=800&h=600&noad=1&pid=122402",
+                credits: `<p>Created by Inferno, ported by DiddyEater67</p>`,
+                controls: `<div style="font-size: 0.95em; line-height: 1.5;"><p>Enter to start</p><p>Z, X, and S to jump</p><p>Arrow keys to move</p></div>`
+            },
+
             {
                 title: "Paper Minecraft v11.7",
                 url: "https://turbowarp.org/10128407/embed?addons=pause%2Cfullscreen&fps=60",
@@ -1075,7 +1105,7 @@
             gameCreditsContent.innerHTML = game.credits;
             
             // Show fullscreen button only for Ages of Conflict DEMO (index 3)
-            if (currentGameIndex >= 3) {
+            if (currentGameIndex >= 8) {
                 fullscreenBtn.style.display = 'inline-block';
             } else {
                 fullscreenBtn.style.display = 'none';
