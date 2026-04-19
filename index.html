@@ -937,6 +937,7 @@
         const gameCreditsContent = document.getElementById('gameCreditsContent');
         const prevGameBtn = document.getElementById('prevGameBtn');
         const nextGameBtn = document.getElementById('nextGameBtn');
+        const gameControlsBox = document.getElementById('gameControlsBox');
 
         const gamesList = [
             {
@@ -981,6 +982,12 @@
                     <p>➥ <strong>down arrow</strong> to move down</p>
                     <p>➥ <strong>space</strong> to drop</p>
                 </div>`
+            },
+            {
+                title: "Ages of Conflict DEMO",
+                url: "https://html-classic.itch.zone/html/8495606/index.html?v=1732313630",
+                credits: "<p>Created by JoySparkGames</p><p>Ported by DiddyEater67</p>",
+                controls: `<p>Controls are said in-game.</p>`
             }
         ];
 
@@ -991,6 +998,7 @@
             gameTitle.textContent = game.title;
             gameControlsContent.innerHTML = game.controls;
             gameCreditsContent.innerHTML = game.credits;
+            gameIframe.style.pointerEvents = currentGameIndex === 3 ? 'auto' : 'auto';
         }
 
         prevGameBtn.addEventListener('click', () => { currentGameIndex = (currentGameIndex - 1 + gamesList.length) % gamesList.length; updateGame(); });
