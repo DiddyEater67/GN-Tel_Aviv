@@ -889,7 +889,7 @@
 
         let currentTrackIndex = 0;
         let isPlaying = false;
-        let isLooping = false;
+        let isLooping = true;
 
         function loadTrack(index) {
             const track = playlist[index];
@@ -983,6 +983,8 @@
 
         loadTrack(currentTrackIndex);
         bgMusic.volume = 0.15;
+        bgMusic.loop = isLooping;
+        updatePlayerUI();
 
         const counterDisplay = document.getElementById('counter');
         const highScoreDisplay = document.getElementById('highScore');
@@ -1037,20 +1039,6 @@
                 url: "https://www.miniplay.com/embed/super-mario-bros",
                 credits: `<p>Created by Nintendo</p><p>Ported by DiddyEater67</p>`,
                 controls: `<div style="font-size: 0.95em; line-height: 1.5;"><p>Enter to start</p><p>Z to jump</p><p>X to run/second function</p><p>Arrow keys to move</p></div>`
-            },
-            {
-                title: "Super Mario Bros 2",
-                url: "https://www.miniplay.com/embed/super-mario-bros-2",
-                credits: `<p>Created by Nintendo</p><p>Ported by DiddyEater67</p>`,
-                controls: `<div style="font-size: 0.95em; line-height: 1.5;"><p>Enter to start</p><p>Z to jump/pick character</p><p>X to throw</p><p>Arrow keys to move</p></div>`
-            },
-            {
-                title: "Super Mario Bros 3",
-                url: "https://arcadespot.com/game-file/3753/2e066f39c91db1c408ac73276e625b814bf4700aa8c196e6036774624a5132e8/game.nes?t=1776630904",
-                isEmulator: true,
-                core: "nes",
-                credits: `<p>Created by Nintendo</p><p>Ported by DiddyEater67</p>`,
-                controls: `<div style="font-size: 0.95em; line-height: 1.5;"><p>Enter to start</p><p>Z to jump/fly/float/select level</p><p>X to run/secondary function</p><p>Arrow keys to move</p></div>`
             },
             {
                 title: "Super Mario World",
@@ -1183,7 +1171,7 @@
             gameControlsContent.innerHTML = game.controls;
             gameCreditsContent.innerHTML = game.credits;
             
-            if (currentGameIndex >= 12) {
+            if (currentGameIndex >= 10) {
                 fullscreenBtn.style.display = 'inline-block';
             } else {
                 fullscreenBtn.style.display = 'none';
