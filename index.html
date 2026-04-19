@@ -889,7 +889,6 @@
 
         let currentTrackIndex = 0;
         let isLooping = true;
-        playerLoopBtn.classList.add("active");
         let musicStarted = false;
 
         function loadTrack(index) {
@@ -937,7 +936,7 @@
         volumeSlider.addEventListener('input', (e) => { bgMusic.volume = e.target.value; playerMuteBtn.textContent = bgMusic.volume === 0 ? '🔇' : '🔊'; });
         playerMuteBtn.addEventListener('click', () => { if (bgMusic.volume > 0) { bgMusic.dataset.lastVolume = bgMusic.volume; bgMusic.volume = 0; volumeSlider.value = 0; playerMuteBtn.textContent = '🔇'; } else { bgMusic.volume = bgMusic.dataset.lastVolume || 0.5; volumeSlider.value = bgMusic.volume; playerMuteBtn.textContent = '🔊'; } });
         progressBar.addEventListener('click', (e) => { const rect = progressBar.getBoundingClientRect(); const pos = (e.clientX - rect.left) / rect.width; bgMusic.currentTime = pos * bgMusic.duration; });
-        loadTrack(0); window.addEventListener('click', startMusic, { once: true });
+        loadTrack(0); loopBtn.classList.add("active"); window.addEventListener('click', startMusic, { once: true });
 
         const counterDisplay = document.getElementById('counter');
         const highScoreDisplay = document.getElementById('highScore');
