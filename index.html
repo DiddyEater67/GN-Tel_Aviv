@@ -12,9 +12,9 @@
 
         :root {
             /* Dark Mode as Default */
-            --bg-color: #0a0a0a; /* Darkened for more contrast */
-            --container-bg: rgba(35, 35, 35, 0.7); /* Lowered opacity and slightly darker */
-            --box-bg: rgba(25, 25, 25, 0.6); /* Lowered opacity */
+            --bg-color: #0a0a0a;
+            --container-bg: rgba(35, 35, 35, 0.7);
+            --box-bg: rgba(25, 25, 25, 0.6);
             --text-color: #e0e0e0;
             --h1-color: #ffffff;
             --p-color: #b0b0b0;
@@ -33,9 +33,9 @@
 
         body.light-mode {
             /* Light Mode Variables */
-            --bg-color: #e0e0e5; /* Slightly darkened for contrast */
-            --container-bg: rgba(255, 255, 255, 0.6); /* Lowered opacity */
-            --box-bg: rgba(240, 240, 240, 0.5); /* Lowered opacity */
+            --bg-color: #e0e0e5;
+            --container-bg: rgba(255, 255, 255, 0.6);
+            --box-bg: rgba(240, 240, 240, 0.5);
             --text-color: #333;
             --h1-color: #2c3e50;
             --p-color: #555;
@@ -139,18 +139,17 @@
             max-width: 1400px;
             background: var(--container-bg);
             padding: 20px;
-            border-radius: 24px; /* Increased radius for softer look */
+            border-radius: 24px;
             box-shadow: 0 8px 32px var(--shadow);
             margin-top: 10px;
             z-index: 1;
             transition: background-color 0.3s, box-shadow 0.3s;
             box-sizing: border-box;
             min-height: 850px;
-            backdrop-filter: blur(12px); /* Added blur for depth */
+            backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* Special style for blank pages to center text */
         .blank-container {
             display: flex;
             align-items: center;
@@ -337,7 +336,6 @@
             margin-top: 10px;
         }
 
-        /* Guessing Game Styles */
         .difficulty-grid {
             display: flex;
             flex-wrap: wrap;
@@ -355,11 +353,11 @@
             background-color: var(--box-bg);
             border: 1px solid var(--border-color);
             color: var(--text-color);
+            border-radius: 8px;
         }
         .diff-btn:hover { background-color: var(--accent-hover); color: white; }
         .diff-btn.active { background-color: var(--accent-color); color: white; }
 
-        /* Games Section Styles */
         .games-container {
             width: 100%;
             display: flex;
@@ -396,7 +394,6 @@
             margin-bottom: 4px;
         }
 
-        /* Game Switcher Arrows */
         .game-nav-arrow {
             position: absolute;
             top: 50%;
@@ -425,7 +422,6 @@
         #prevGameBtn { left: -60px; }
         #nextGameBtn { right: -60px; }
 
-        /* Music Player Styles */
         .music-player {
             width: 100%;
             max-width: 500px;
@@ -551,12 +547,10 @@
     <button id="prevPageBtn" class="nav-arrow">❮</button>
     <button id="nextPageBtn" class="nav-arrow">❯</button>
 
-    <!-- Page 1: Spacebar Clicker -->
     <div id="page1" class="page active">
         <div class="container">
             <h1><strong>Spacebar Clicker</strong></h1>
             <p>How many times can you click in the given time?</p>
-            
             <div class="clicker-box">
                 <div class="scores">
                     <div>
@@ -568,9 +562,7 @@
                         <span id="highScore">0</span>
                     </div>
                 </div>
-
                 <div class="timer-display" id="timer">00:10</div>
-
                 <div class="settings">
                     <div class="input-group">
                         <label>Min:</label>
@@ -581,27 +573,21 @@
                         <input type="number" id="secInput" value="10" min="0" max="59">
                     </div>
                 </div>
-
                 <div id="statusMsg" style="height: 24px; margin-bottom: 10px; font-weight: bold; color: var(--accent-color);"></div>
-
                 <button id="clickBtn">CLICK OR PRESS SPACE</button>
                 <button id="resetBtn">RESET</button>
             </div>
-
             <div class="music-control">
                 <span id="musicStatus">🎵 Background Ambience Ready</span>
             </div>
-            
             <p class="hint">Tip: You can use the spacebar to click!</p>
         </div>
     </div>
 
-    <!-- Page 2: Number Guessing Game -->
     <div id="page2" class="page">
         <div class="container">
             <h1><strong>Number Guessing Game</strong></h1>
             <p id="gamePrompt">I'm thinking of a number between 1 and 100.</p>
-            
             <div class="difficulty-grid">
                 <button class="diff-btn active" data-max="100">Easy (1-100)</button>
                 <button class="diff-btn" data-max="500">Medium (1-500)</button>
@@ -611,87 +597,54 @@
                 <button class="diff-btn" data-max="100000">Insane (1-100000)</button>
                 <button class="diff-btn" data-max="1000000">Impossible (1-1M)</button>
             </div>
-
             <div class="clicker-box">
                 <div class="score-label">GUESSES LEFT</div>
                 <div id="guessesLeft" style="font-size: 48px; font-weight: bold; color: var(--accent-color); margin-bottom: 20px;">8</div>
-
                 <div class="settings">
                     <input type="number" id="guessInput" placeholder="Enter your guess" style="width: 200px;">
                     <button id="guessBtn" class="game-btn">GUESS</button>
                 </div>
-
                 <div id="gameFeedback" style="height: 30px; margin: 15px 0; font-weight: bold; font-size: 1.2em;"></div>
-
                 <button id="gameResetBtn" class="reset-btn">NEW GAME</button>
             </div>
-            
             <p class="hint">Can you find the number before you run out of guesses?</p>
         </div>
     </div>
 
-    <!-- Page 3: Games Section -->
     <div id="page3" class="page">
         <div class="container">
             <div class="games-container">
                 <h1><strong>Games Section</strong></h1>
                 <p>Enjoy these featured games from TurboWarp!</p>
-                
                 <div class="content-layout">
                     <button id="prevGameBtn" class="game-nav-arrow">❮</button>
                     <button id="nextGameBtn" class="game-nav-arrow">❯</button>
-
                     <div class="side-box" id="gameControlsBox">
                         <h3 style="margin-top: 0; color: var(--accent-color);">Controls</h3>
-                        <div id="gameControlsContent">
-                            <ul class="controls-list">
-                                <li><strong>[1 to 9]</strong> - Select Item</li>
-                                <li><strong>[Click]</strong> - Place or Mine</li>
-                                <li><strong>[WASD]</strong> - Move / Jump</li>
-                                <li><strong>[E]</strong> - Open/Close Inventory</li>
-                                <li><strong>[E+hover]</strong> - Open/Close Chest, Crafting Table, Door</li>
-                                <li><strong>[Space]</strong> - Drop single tile from stack</li>
-                                <li><strong>[F]</strong> - Eat food</li>
-                                <li><strong>[N]</strong> - Label a sign or chest</li>
-                                <li><strong>[Q]</strong> - Drop item</li>
-                                <li><strong>[P]</strong> - Pause / Unpause</li>
-                                <li><strong>[T]</strong> - Talk / Command</li>
-                                <li><strong>[O]</strong> - Save your game</li>
-                                <li><strong>[M]</strong> - Music / Sounds</li>
-                                <li><strong>[Shift]</strong> - Sprint</li>
-                            </ul>
-                        </div>
+                        <div id="gameControlsContent"></div>
                     </div>
-                    
                     <div class="center-content">
-                        <h2 id="gameTitle" style="color: var(--h1-color); margin-bottom: 10px;">Paper Minecraft v11.7</h2>
+                        <h2 id="gameTitle" style="color: var(--h1-color); margin-bottom: 10px;"></h2>
                         <div class="game-frame-wrapper">
-                            <iframe id="gameIframe" class="game-frame" src="https://turbowarp.org/10128407/embed?addons=pause%2Cfullscreen&fps=60" allowtransparency="true" frameborder="0" scrolling="no" allowfullscreen></iframe>
+                            <iframe id="gameIframe" class="game-frame" allowtransparency="true" frameborder="0" scrolling="no" allowfullscreen></iframe>
                         </div>
                     </div>
-                    
                     <div class="side-box" style="text-align: center;">
                         <h3 style="margin-top: 0; color: var(--accent-color);">Credits</h3>
-                        <div id="gameCreditsContent">
-                            <p>Game made by Griffpatch</p>
-                            <p>Ported by DiddyEater67</p>
-                        </div>
+                        <div id="gameCreditsContent"></div>
                     </div>
                 </div>
-                
                 <p class="hint">Use the arrows to switch between games.</p>
             </div>
         </div>
     </div>
 
-    <!-- Page 4: Blank Page -->
     <div id="page4" class="page">
         <div class="container blank-container">
             <p>blank page - fourth page</p>
         </div>
     </div>
 
-    <!-- Page 5: Music Player Page -->
     <div id="page5" class="page">
         <div class="container blank-container">
             <div class="music-player">
@@ -699,7 +652,6 @@
                     <div class="music-title" id="playerTitle">Background Ambience</div>
                     <div id="playerStatus" style="font-size: 0.9em; color: var(--hint-color);">Ready to play</div>
                 </div>
-
                 <div class="progress-container">
                     <div class="progress-bar" id="progressBar">
                         <div class="progress-fill" id="progressFill"></div>
@@ -709,7 +661,6 @@
                         <span id="duration">0:00</span>
                     </div>
                 </div>
-
                 <div class="player-controls">
                     <button class="player-btn" id="loopBtn" title="Toggle Loop">🔁</button>
                     <button class="player-btn" id="prevBtn" title="Previous Track">⏮️</button>
@@ -717,21 +668,16 @@
                     <button class="player-btn" id="nextBtn" title="Next Track">⏭️</button>
                     <button class="player-btn" id="playerMuteBtn" title="Mute/Unmute">🔊</button>
                 </div>
-
                 <div class="volume-container">
                     <span>🔈</span>
-                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
+                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="0.15">
                     <span>🔊</span>
                 </div>
-
-                <div class="playlist-info">
-                    Playlist: 5 tracks available
-                </div>
+                <div class="playlist-info">Playlist: 5 tracks available</div>
             </div>
         </div>
     </div>
 
-    <!-- Page 6: About Page -->
     <div id="page6" class="page">
         <div class="container blank-container">
             <div class="about-text">
@@ -743,42 +689,35 @@
         </div>
     </div>
 
-    <audio id="bgMusic" loop></audio>
+    <audio id="bgMusic"></audio>
 
     <script>
-        // Core Logic
         const pages = document.querySelectorAll('.page');
         let currentPage = 0;
 
         function showPage(index) {
-            pages.forEach((p, i) => {
-                p.classList.toggle('active', i === index);
-            });
+            pages.forEach((p, i) => { p.classList.toggle('active', i === index); });
             currentPage = index;
             window.scrollTo(0, 0);
         }
 
         document.getElementById('prevPageBtn').addEventListener('click', () => {
-            let next = currentPage - 1;
-            if (next < 0) next = pages.length - 1;
+            let next = (currentPage - 1 + pages.length) % pages.length;
             showPage(next);
+            startMusic();
         });
 
         document.getElementById('nextPageBtn').addEventListener('click', () => {
             let next = (currentPage + 1) % pages.length;
             showPage(next);
+            startMusic();
         });
 
-        // Keyboard navigation for pages
         window.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft') {
-                document.getElementById('prevPageBtn').click();
-            } else if (e.key === 'ArrowRight') {
-                document.getElementById('nextPageBtn').click();
-            }
+            if (e.key === 'ArrowLeft') document.getElementById('prevPageBtn').click();
+            else if (e.key === 'ArrowRight') document.getElementById('nextPageBtn').click();
         });
 
-        // Theme Toggle
         const themeToggle = document.getElementById('themeToggle');
         themeToggle.addEventListener('click', () => {
             document.body.classList.toggle('light-mode');
@@ -786,7 +725,6 @@
             themeToggle.blur();
         });
 
-        // Particle System
         const canvas = document.getElementById('particleCanvas');
         const ctx = canvas.getContext('2d');
         const particleToggle = document.getElementById('particleToggle');
@@ -795,9 +733,9 @@
 
         let particles = [];
         let particlesEnabled = true;
-        let particleModeState = 0; // 0: Normal, 1: Fire, 2: Snow, 3: Wind, 4: Rain, 5: Bubbles, 6: Off
-        let particleColorState = 0; // 0: Theme, 1: White, 2: Rainbow
-        let particleShapeState = 0; // 0: Circle, 1: Square, 2: Triangle, 3: Star, 4: Diamond, 5: Heart
+        let particleModeState = 0;
+        let particleColorState = 0;
+        let particleShapeState = 0;
         let rainbowHue = 0;
         const maxParticles = 100;
 
@@ -817,18 +755,13 @@
         resizeCanvas();
 
         window.addEventListener('mousemove', (e) => {
-            mouse.x = e.x;
-            mouse.y = e.y;
-            
+            mouse.x = e.x; mouse.y = e.y;
             const activePage = document.querySelector('.page.active');
             if (activePage) {
                 const activeContainer = activePage.querySelector('.container');
                 if (activeContainer) {
                     const rect = activeContainer.getBoundingClientRect();
-                    mouse.isOverContainer = (
-                        e.x >= rect.left && e.x <= rect.right &&
-                        e.y >= rect.top && e.y <= rect.bottom
-                    );
+                    mouse.isOverContainer = (e.x >= rect.left && e.x <= rect.right && e.y >= rect.top && e.y <= rect.bottom);
                     return;
                 }
             }
@@ -845,235 +778,76 @@
                 this.baseSpeedY = (Math.random() - 0.5) * 0.4;
                 this.popping = false;
                 this.popProgress = 0;
-                
-                if (particleModeState === 1) { // Fire
-                    this.y = canvas.height + Math.random() * 20;
-                    this.baseSpeedY = -Math.random() * 1.5 - 0.5;
-                    this.baseSpeedX = (Math.random() - 0.5) * 0.5;
-                } else if (particleModeState === 2) { // Snow
-                    this.y = -Math.random() * 20;
-                    this.baseSpeedY = Math.random() * 1 + 0.5;
-                    this.baseSpeedX = (Math.random() - 0.5) * 0.5;
-                } else if (particleModeState === 3) { // Wind
-                    this.x = -Math.random() * 20;
-                    this.baseSpeedX = Math.random() * 2 + 1;
-                    this.baseSpeedY = (Math.random() - 0.5) * 0.2;
-                } else if (particleModeState === 4) { // Rain
-                    this.y = -Math.random() * 20;
-                    this.baseSpeedY = Math.random() * 5 + 5;
-                    this.baseSpeedX = 2; // Diagonal
-                } else if (particleModeState === 5) { // Bubbles
-                    this.y = canvas.height + Math.random() * 50;
-                    this.size = Math.random() * 10 + 2; // Different sizes
-                    this.baseSpeedY = -Math.random() * 1 - 0.5;
-                    this.baseSpeedX = (Math.random() - 0.5) * 0.5;
-                    this.popThreshold = Math.random() * (canvas.height * 0.8); // Pop at random height
-                }
-
-                this.speedX = this.baseSpeedX;
-                this.speedY = this.baseSpeedY;
-                this.alpha = Math.random() * 0.4 + 0.1;
+                if (particleModeState === 1) { this.y = canvas.height + Math.random() * 20; this.baseSpeedY = -Math.random() * 1.5 - 0.5; this.baseSpeedX = (Math.random() - 0.5) * 0.5; }
+                else if (particleModeState === 2) { this.y = -Math.random() * 20; this.baseSpeedY = Math.random() * 1 + 0.5; this.baseSpeedX = (Math.random() - 0.5) * 0.5; }
+                else if (particleModeState === 3) { this.x = -Math.random() * 20; this.baseSpeedX = Math.random() * 2 + 1; this.baseSpeedY = (Math.random() - 0.5) * 0.2; }
+                else if (particleModeState === 4) { this.y = -Math.random() * 20; this.baseSpeedY = Math.random() * 5 + 5; this.baseSpeedX = 2; }
+                else if (particleModeState === 5) { this.y = canvas.height + Math.random() * 50; this.size = Math.random() * 10 + 2; this.baseSpeedY = -Math.random() * 1 - 0.5; this.baseSpeedX = (Math.random() - 0.5) * 0.5; this.popThreshold = Math.random() * (canvas.height * 0.8); }
+                this.speedX = this.baseSpeedX; this.speedY = this.baseSpeedY; this.alpha = Math.random() * 0.4 + 0.1;
             }
             update() {
-                if (this.popping) {
-                    this.popProgress += 0.1;
-                    if (this.popProgress >= 1) this.init();
-                    return;
-                }
-
+                if (this.popping) { this.popProgress += 0.1; if (this.popProgress >= 1) this.init(); return; }
                 if (particleModeState === 0 && mouse.x != null && !mouse.isOverContainer) {
-                    let dx = mouse.x - this.x;
-                    let dy = mouse.y - this.y;
-                    let distance = Math.sqrt(dx * dx + dy * dy);
-                    let forceRadius = 100;
-                    if (distance < forceRadius) {
-                        let force = (forceRadius - distance) / forceRadius;
-                        let directionX = dx / distance;
-                        let directionY = dy / distance;
-                        this.speedX -= directionX * force * 0.2;
-                        this.speedY -= directionY * force * 0.2;
-                    } else {
-                        this.speedX += (this.baseSpeedX - this.speedX) * 0.05;
-                        this.speedY += (this.baseSpeedY - this.speedY) * 0.05;
-                    }
-                } else {
-                    this.speedX += (this.baseSpeedX - this.speedX) * 0.05;
-                    this.speedY += (this.baseSpeedY - this.speedY) * 0.05;
-                }
-                
-                this.x += this.speedX;
-                this.y += this.speedY;
-                
-                if (particleModeState === 5 && this.y < this.popThreshold) {
-                    this.popping = true;
-                }
-
-                if (particleModeState === 0) {
-                    if (this.x < 0) this.x = canvas.width;
-                    if (this.x > canvas.width) this.x = 0;
-                    if (this.y < 0) this.y = canvas.height;
-                    if (this.y > canvas.height) this.y = 0;
-                } else {
-                    if (this.y < -50 || this.y > canvas.height + 50 || this.x < -50 || this.x > canvas.width + 50) {
-                        this.init();
-                    }
-                }
+                    let dx = mouse.x - this.x; let dy = mouse.y - this.y; let distance = Math.sqrt(dx * dx + dy * dy); let forceRadius = 100;
+                    if (distance < forceRadius) { let force = (forceRadius - distance) / forceRadius; let directionX = dx / distance; let directionY = dy / distance; this.speedX -= directionX * force * 0.2; this.speedY -= directionY * force * 0.2; }
+                    else { this.speedX += (this.baseSpeedX - this.speedX) * 0.05; this.speedY += (this.baseSpeedY - this.speedY) * 0.05; }
+                } else { this.speedX += (this.baseSpeedX - this.speedX) * 0.05; this.speedY += (this.baseSpeedY - this.speedY) * 0.05; }
+                this.x += this.speedX; this.y += this.speedY;
+                if (particleModeState === 5 && this.y < this.popThreshold) this.popping = true;
+                if (particleModeState === 0) { if (this.x < 0) this.x = canvas.width; if (this.x > canvas.width) this.x = 0; if (this.y < 0) this.y = canvas.height; if (this.y > canvas.height) this.y = 0; }
+                else { if (this.y < -50 || this.y > canvas.height + 50 || this.x < -50 || this.x > canvas.width + 50) this.init(); }
             }
             draw() {
                 ctx.globalAlpha = this.alpha;
                 let color;
-                if (particleColors[particleColorState] === 'rainbow') {
-                    color = `hsla(${rainbowHue}, 70%, 60%, ${this.alpha})`;
-                } else if (particleColors[particleColorState] === 'var(--particle-color)') {
-                    color = getComputedStyle(document.documentElement).getPropertyValue('--particle-color').trim();
-                } else {
-                    color = particleColors[particleColorState];
-                }
-                
-                ctx.fillStyle = color;
-                
-                // Add Glow Effect
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = color;
-
-                if (this.popping) {
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size * (1 + this.popProgress), 0, Math.PI * 2);
-                    ctx.strokeStyle = color;
-                    ctx.globalAlpha = this.alpha * (1 - this.popProgress);
-                    ctx.stroke();
-                    ctx.shadowBlur = 0; // Reset shadow
-                    return;
-                }
-
-                if (particleModeState === 4) { // Rain lines
-                    ctx.beginPath();
-                    ctx.lineWidth = 2;
-                    ctx.strokeStyle = color;
-                    ctx.moveTo(this.x, this.y);
-                    ctx.lineTo(this.x - this.speedX, this.y - this.speedY);
-                    ctx.stroke();
-                } else if (particleModeState === 5) { // Bubbles
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.strokeStyle = color;
-                    ctx.lineWidth = 1;
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.arc(this.x - this.size * 0.3, this.y - this.size * 0.3, this.size * 0.1, 0, Math.PI * 2);
-                    ctx.fillStyle = "white";
-                    ctx.globalAlpha = this.alpha * 0.5;
-                    ctx.fill();
-                } else {
-                    this.drawShape();
-                }
-                ctx.shadowBlur = 0; // Reset shadow
+                if (particleColors[particleColorState] === 'rainbow') color = `hsla(${rainbowHue}, 70%, 60%, ${this.alpha})`;
+                else if (particleColors[particleColorState] === 'var(--particle-color)') color = getComputedStyle(document.documentElement).getPropertyValue('--particle-color').trim();
+                else color = particleColors[particleColorState];
+                ctx.fillStyle = color; ctx.shadowBlur = 10; ctx.shadowColor = color;
+                if (this.popping) { ctx.beginPath(); ctx.arc(this.x, this.y, this.size * (1 + this.popProgress), 0, Math.PI * 2); ctx.strokeStyle = color; ctx.globalAlpha = this.alpha * (1 - this.popProgress); ctx.stroke(); ctx.shadowBlur = 0; return; }
+                if (particleModeState === 4) { ctx.beginPath(); ctx.lineWidth = 2; ctx.strokeStyle = color; ctx.moveTo(this.x, this.y); ctx.lineTo(this.x - this.speedX, this.y - this.speedY); ctx.stroke(); }
+                else if (particleModeState === 5) { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.stroke(); ctx.beginPath(); ctx.arc(this.x - this.size * 0.3, this.y - this.size * 0.3, this.size * 0.1, 0, Math.PI * 2); ctx.fillStyle = "white"; ctx.globalAlpha = this.alpha * 0.5; ctx.fill(); }
+                else this.drawShape();
+                ctx.shadowBlur = 0;
             }
             drawShape() {
                 const s = this.size;
                 switch(particleShapeState) {
-                    case 0: // Circle
-                        ctx.beginPath();
-                        ctx.arc(this.x, this.y, s, 0, Math.PI * 2);
-                        ctx.fill();
-                        break;
-                    case 1: // Square
-                        ctx.fillRect(this.x - s, this.y - s, s * 2, s * 2);
-                        break;
-                    case 2: // Triangle
-                        ctx.beginPath();
-                        ctx.moveTo(this.x, this.y - s);
-                        ctx.lineTo(this.x + s, this.y + s);
-                        ctx.lineTo(this.x - s, this.y + s);
-                        ctx.closePath();
-                        ctx.fill();
-                        break;
-                    case 3: // Star
-                        ctx.beginPath();
-                        for (let i = 0; i < 5; i++) {
-                            ctx.lineTo(this.x + s * Math.cos((18 + i * 72) * Math.PI / 180), 
-                                     this.y - s * Math.sin((18 + i * 72) * Math.PI / 180));
-                            ctx.lineTo(this.x + (s/2) * Math.cos((54 + i * 72) * Math.PI / 180), 
-                                     this.y - (s/2) * Math.sin((54 + i * 72) * Math.PI / 180));
-                        }
-                        ctx.closePath();
-                        ctx.fill();
-                        break;
-                    case 4: // Diamond
-                        ctx.beginPath();
-                        ctx.moveTo(this.x, this.y - s);
-                        ctx.lineTo(this.x + s, this.y);
-                        ctx.lineTo(this.x, this.y + s);
-                        ctx.lineTo(this.x - s, this.y);
-                        ctx.closePath();
-                        ctx.fill();
-                        break;
-                    case 5: // Heart
-                        ctx.beginPath();
-                        ctx.moveTo(this.x, this.y + s/2);
-                        ctx.bezierCurveTo(this.x, this.y, this.x - s, this.y, this.x - s, this.y - s/2);
-                        ctx.bezierCurveTo(this.x - s, this.y - s*1.2, this.x, this.y - s*1.2, this.x, this.y - s/2);
-                        ctx.bezierCurveTo(this.x, this.y - s*1.2, this.x + s, this.y - s*1.2, this.x + s, this.y - s/2);
-                        ctx.bezierCurveTo(this.x + s, this.y, this.x, this.y, this.x, this.y + s/2);
-                        ctx.fill();
-                        break;
+                    case 0: ctx.beginPath(); ctx.arc(this.x, this.y, s, 0, Math.PI * 2); ctx.fill(); break;
+                    case 1: ctx.fillRect(this.x - s, this.y - s, s * 2, s * 2); break;
+                    case 2: ctx.beginPath(); ctx.moveTo(this.x, this.y - s); ctx.lineTo(this.x + s, this.y + s); ctx.lineTo(this.x - s, this.y + s); ctx.closePath(); ctx.fill(); break;
+                    case 3: ctx.beginPath(); for (let i = 0; i < 5; i++) { ctx.lineTo(this.x + s * Math.cos((18 + i * 72) * Math.PI / 180), this.y - s * Math.sin((18 + i * 72) * Math.PI / 180)); ctx.lineTo(this.x + (s/2) * Math.cos((54 + i * 72) * Math.PI / 180), this.y - (s/2) * Math.sin((54 + i * 72) * Math.PI / 180)); } ctx.closePath(); ctx.fill(); break;
+                    case 4: ctx.beginPath(); ctx.moveTo(this.x, this.y - s); ctx.lineTo(this.x + s, this.y); ctx.lineTo(this.x, this.y + s); ctx.lineTo(this.x - s, this.y); ctx.closePath(); ctx.fill(); break;
+                    case 5: ctx.beginPath(); ctx.moveTo(this.x, this.y + s/2); ctx.bezierCurveTo(this.x, this.y, this.x - s, this.y, this.x - s, this.y - s/2); ctx.bezierCurveTo(this.x - s, this.y - s*1.2, this.x, this.y - s*1.2, this.x, this.y - s/2); ctx.bezierCurveTo(this.x, this.y - s*1.2, this.x + s, this.y - s*1.2, this.x + s, this.y - s/2); ctx.bezierCurveTo(this.x + s, this.y, this.x, this.y, this.x, this.y + s/2); ctx.fill(); break;
                 }
             }
         }
 
         function createParticles() {
             const interval = setInterval(() => {
-                if (particles.length < maxParticles && particlesEnabled) {
-                    particles.push(new Particle());
-                } else if (!particlesEnabled || particles.length >= maxParticles) {
-                    clearInterval(interval);
-                }
+                if (particles.length < maxParticles && particlesEnabled) particles.push(new Particle());
+                else if (!particlesEnabled || particles.length >= maxParticles) clearInterval(interval);
             }, 20);
         }
 
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if (particlesEnabled) {
-                rainbowHue = (rainbowHue + 0.5) % 360;
-                particles.forEach(p => { p.update(); p.draw(); });
-            }
+            if (particlesEnabled) { rainbowHue = (rainbowHue + 0.5) % 360; particles.forEach(p => { p.update(); p.draw(); }); }
             requestAnimationFrame(animateParticles);
         }
 
-        createParticles();
-        animateParticles();
+        createParticles(); animateParticles();
 
         particleToggle.addEventListener('click', () => {
             particleModeState = (particleModeState + 1) % modeIcons.length;
-            if (particleModeState === 6) { // Off state
-                particlesEnabled = false;
-                particleToggle.textContent = modeIcons[6];
-                particleColorBtn.style.display = 'none';
-                particleShapeBtn.style.display = 'none';
-            } else {
-                particlesEnabled = true;
-                particleToggle.textContent = modeIcons[particleModeState];
-                particleColorBtn.style.display = 'flex';
-                particleShapeBtn.style.display = 'flex';
-                particles = [];
-                createParticles();
-            }
+            if (particleModeState === 6) { particlesEnabled = false; particleToggle.textContent = modeIcons[6]; particleColorBtn.style.display = 'none'; particleShapeBtn.style.display = 'none'; }
+            else { particlesEnabled = true; particleToggle.textContent = modeIcons[particleModeState]; particleColorBtn.style.display = 'flex'; particleShapeBtn.style.display = 'flex'; particles = []; createParticles(); }
             particleToggle.blur();
         });
 
-        particleColorBtn.addEventListener('click', () => {
-            particleColorState = (particleColorState + 1) % particleColors.length;
-            particleColorBtn.textContent = colorIcons[particleColorState];
-            particleColorBtn.blur();
-        });
+        particleColorBtn.addEventListener('click', () => { particleColorState = (particleColorState + 1) % particleColors.length; particleColorBtn.textContent = colorIcons[particleColorState]; particleColorBtn.blur(); });
+        particleShapeBtn.addEventListener('click', () => { particleShapeState = (particleShapeState + 1) % shapeIcons.length; particleShapeBtn.textContent = shapeIcons[particleShapeState]; particleShapeBtn.blur(); });
 
-        particleShapeBtn.addEventListener('click', () => {
-            particleShapeState = (particleShapeState + 1) % shapeIcons.length;
-            particleShapeBtn.textContent = shapeIcons[particleShapeState];
-            particleShapeBtn.blur();
-        });
-
-        // Music Player Logic
         const bgMusic = document.getElementById('bgMusic');
         const musicStatus = document.getElementById('musicStatus');
         const playPauseBtn = document.getElementById('playPauseBtn');
@@ -1096,121 +870,31 @@
             { title: "Heat Waves (Lofi Version)", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/NbmsKmCeiogrcoTQ.mp3" },
             { title: "It Was A Good Day", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/VQDfMkFmkWUCXNIT.mp3" }
         ];
-        let currentTrackIndex = 0;
-        let musicStarted = false;
-        let isLooping = true;
+        let currentTrackIndex = 0; let musicStarted = false; let isLooping = true;
 
-        function formatMusicTime(seconds) {
-            if (isNaN(seconds)) return "0:00";
-            const m = Math.floor(seconds / 60);
-            const s = Math.floor(seconds % 60);
-            return `${m}:${s.toString().padStart(2, '0')}`;
-        }
+        function formatMusicTime(seconds) { if (isNaN(seconds)) return "0:00"; const m = Math.floor(seconds / 60); const s = Math.floor(seconds % 60); return `${m}:${s.toString().padStart(2, '0')}`; }
 
         function loadTrack(index) {
-            currentTrackIndex = index;
-            bgMusic.src = playlist[index].url;
-            playerTitle.textContent = playlist[index].title;
-            progressFill.style.width = '0%';
-            currentTimeDisplay.textContent = "0:00";
-            if (musicStarted) {
-                bgMusic.play();
-                updatePlayPauseIcon();
-            }
+            currentTrackIndex = index; bgMusic.src = playlist[index].url; playerTitle.textContent = playlist[index].title; progressFill.style.width = '0%'; currentTimeDisplay.textContent = "0:00";
+            if (musicStarted) { bgMusic.play(); updatePlayPauseIcon(); }
         }
 
-        function updatePlayPauseIcon() {
-            playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️';
-            playerStatus.textContent = bgMusic.paused ? 'Paused' : 'Playing';
-        }
+        function updatePlayPauseIcon() { playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️'; playerStatus.textContent = bgMusic.paused ? 'Paused' : 'Playing'; }
 
-        function startMusic() {
-            if (!musicStarted) {
-                bgMusic.play().then(() => {
-                    musicStatus.textContent = "🎵 Music Active";
-                    musicStarted = true;
-                    updatePlayPauseIcon();
-                }).catch(e => {
-                    console.log("Music play blocked:", e);
-                    musicStatus.textContent = "⚠️ Click anywhere to enable music";
-                });
-            }
-        }
+        function startMusic() { if (!musicStarted) { bgMusic.play().then(() => { musicStatus.textContent = "🎵 Music Active"; musicStarted = true; updatePlayPauseIcon(); }).catch(e => { musicStatus.textContent = "⚠️ Click anywhere to enable music"; }); } }
 
-        bgMusic.addEventListener('timeupdate', () => {
-            const percent = (bgMusic.currentTime / bgMusic.duration) * 100;
-            progressFill.style.width = percent + '%';
-            currentTimeDisplay.textContent = formatMusicTime(bgMusic.currentTime);
-        });
+        bgMusic.addEventListener('timeupdate', () => { const percent = (bgMusic.currentTime / bgMusic.duration) * 100; progressFill.style.width = percent + '%'; currentTimeDisplay.textContent = formatMusicTime(bgMusic.currentTime); });
+        bgMusic.addEventListener('loadedmetadata', () => { durationDisplay.textContent = formatMusicTime(bgMusic.duration); });
+        bgMusic.addEventListener('ended', () => { if (isLooping) { bgMusic.currentTime = 0; bgMusic.play(); } else { nextBtn.click(); } });
+        playPauseBtn.addEventListener('click', () => { if (!musicStarted) startMusic(); else { if (bgMusic.paused) bgMusic.play(); else bgMusic.pause(); updatePlayPauseIcon(); } });
+        prevBtn.addEventListener('click', () => { let next = (currentTrackIndex - 1 + playlist.length) % playlist.length; loadTrack(next); });
+        nextBtn.addEventListener('click', () => { let next = (currentTrackIndex + 1) % playlist.length; loadTrack(next); });
+        loopBtn.addEventListener('click', () => { isLooping = !isLooping; loopBtn.style.color = isLooping ? 'var(--accent-color)' : 'var(--text-color)'; });
+        volumeSlider.addEventListener('input', (e) => { bgMusic.volume = e.target.value; playerMuteBtn.textContent = bgMusic.volume === 0 ? '🔇' : '🔊'; });
+        playerMuteBtn.addEventListener('click', () => { if (bgMusic.volume > 0) { bgMusic.dataset.lastVolume = bgMusic.volume; bgMusic.volume = 0; volumeSlider.value = 0; playerMuteBtn.textContent = '🔇'; } else { bgMusic.volume = bgMusic.dataset.lastVolume || 0.5; volumeSlider.value = bgMusic.volume; playerMuteBtn.textContent = '🔊'; } });
+        progressBar.addEventListener('click', (e) => { const rect = progressBar.getBoundingClientRect(); const pos = (e.clientX - rect.left) / rect.width; bgMusic.currentTime = pos * bgMusic.duration; });
+        loadTrack(0); window.addEventListener('click', startMusic, { once: true });
 
-        bgMusic.addEventListener('loadedmetadata', () => {
-            durationDisplay.textContent = formatMusicTime(bgMusic.duration);
-        });
-
-        bgMusic.addEventListener('ended', () => {
-            if (isLooping) {
-                bgMusic.currentTime = 0;
-                bgMusic.play();
-            } else {
-                nextBtn.click();
-            }
-        });
-
-        playPauseBtn.addEventListener('click', () => {
-            if (!musicStarted) {
-                startMusic();
-            } else {
-                if (bgMusic.paused) bgMusic.play();
-                else bgMusic.pause();
-                updatePlayPauseIcon();
-            }
-        });
-
-        prevBtn.addEventListener('click', () => {
-            let next = currentTrackIndex - 1;
-            if (next < 0) next = playlist.length - 1;
-            loadTrack(next);
-        });
-
-        nextBtn.addEventListener('click', () => {
-            let next = (currentTrackIndex + 1) % playlist.length;
-            loadTrack(next);
-        });
-
-        loopBtn.addEventListener('click', () => {
-            isLooping = !isLooping;
-            loopBtn.style.color = isLooping ? 'var(--accent-color)' : 'var(--text-color)';
-            bgMusic.loop = isLooping;
-        });
-
-        volumeSlider.addEventListener('input', (e) => {
-            bgMusic.volume = e.target.value;
-            playerMuteBtn.textContent = bgMusic.volume === 0 ? '🔇' : '🔊';
-        });
-
-        playerMuteBtn.addEventListener('click', () => {
-            if (bgMusic.volume > 0) {
-                bgMusic.dataset.lastVolume = bgMusic.volume;
-                bgMusic.volume = 0;
-                volumeSlider.value = 0;
-                playerMuteBtn.textContent = '🔇';
-            } else {
-                bgMusic.volume = bgMusic.dataset.lastVolume || 0.5;
-                volumeSlider.value = bgMusic.volume;
-                playerMuteBtn.textContent = '🔊';
-            }
-        });
-
-        progressBar.addEventListener('click', (e) => {
-            const rect = progressBar.getBoundingClientRect();
-            const pos = (e.clientX - rect.left) / rect.width;
-            bgMusic.currentTime = pos * bgMusic.duration;
-        });
-
-        loadTrack(0);
-        window.addEventListener('click', startMusic, { once: true });
-
-        // Spacebar Clicker Logic
         const counterDisplay = document.getElementById('counter');
         const highScoreDisplay = document.getElementById('highScore');
         const timerDisplay = document.getElementById('timer');
@@ -1220,97 +904,17 @@
         const secInput = document.getElementById('secInput');
         const statusMsg = document.getElementById('statusMsg');
 
-        let count = 0;
-        let highScore = localStorage.getItem('gn_highScore') || 0;
-        let timeLeft = 10;
-        let timerId = null;
-        let gameActive = false;
-
+        let count = 0; let highScore = localStorage.getItem('gn_highScore') || 0; let timeLeft = 10; let timerId = null; let gameActive = false;
         highScoreDisplay.textContent = highScore;
 
-        function updateTimerDisplay() {
-            const m = Math.floor(timeLeft / 60);
-            const s = timeLeft % 60;
-            timerDisplay.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        }
-
-        function startGame() {
-            if (gameActive) return;
-            
-            count = 0;
-            counterDisplay.textContent = count;
-            timeLeft = parseInt(minInput.value) * 60 + parseInt(secInput.value);
-            if (timeLeft <= 0) {
-                alert("Please set a valid time!");
-                return;
-            }
-            
-            gameActive = true;
-            statusMsg.textContent = "GAME IN PROGRESS...";
-            minInput.disabled = true;
-            secInput.disabled = true;
-            
-            updateTimerDisplay();
-            
-            timerId = setInterval(() => {
-                timeLeft--;
-                updateTimerDisplay();
-                if (timeLeft <= 0) {
-                    endGame();
-                }
-            }, 1000);
-        }
-
-        function endGame() {
-            clearInterval(timerId);
-            gameActive = false;
-            statusMsg.textContent = "TIME'S UP!";
-            minInput.disabled = false;
-            secInput.disabled = false;
-            
-            if (count > highScore) {
-                highScore = count;
-                localStorage.setItem('gn_highScore', highScore);
-                highScoreDisplay.textContent = highScore;
-                statusMsg.textContent = "NEW HIGH SCORE!";
-            }
-        }
-
-        function handleClick() {
-            if (!gameActive && timeLeft > 0 && timerId === null) {
-                startGame();
-            }
-            
-            if (gameActive) {
-                count++;
-                counterDisplay.textContent = count;
-            }
-        }
-
+        function updateTimerDisplay() { const m = Math.floor(timeLeft / 60); const s = timeLeft % 60; timerDisplay.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`; }
+        function startGame() { if (gameActive) return; count = 0; counterDisplay.textContent = count; timeLeft = parseInt(minInput.value) * 60 + parseInt(secInput.value); if (timeLeft <= 0) return; gameActive = true; statusMsg.textContent = "GAME IN PROGRESS..."; minInput.disabled = true; secInput.disabled = true; updateTimerDisplay(); timerId = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) endGame(); }, 1000); }
+        function endGame() { clearInterval(timerId); gameActive = false; statusMsg.textContent = "TIME'S UP!"; minInput.disabled = false; secInput.disabled = false; if (count > highScore) { highScore = count; localStorage.setItem('gn_highScore', highScore); highScoreDisplay.textContent = highScore; statusMsg.textContent = "NEW HIGH SCORE!"; } }
+        function handleClick() { if (!gameActive && timeLeft > 0 && timerId === null) startGame(); if (gameActive) { count++; counterDisplay.textContent = count; } }
         clickBtn.addEventListener('click', handleClick);
-        window.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' && currentPage === 0) {
-                e.preventDefault();
-                handleClick();
-                clickBtn.style.transform = 'translateY(2px)';
-                setTimeout(() => clickBtn.style.transform = 'translateY(0)', 100);
-            }
-        });
+        window.addEventListener('keydown', (e) => { if (e.code === 'Space' && currentPage === 0) { e.preventDefault(); handleClick(); clickBtn.style.transform = 'translateY(2px)'; setTimeout(() => clickBtn.style.transform = 'translateY(0)', 100); } });
+        resetBtn.addEventListener('click', () => { clearInterval(timerId); timerId = null; gameActive = false; count = 0; counterDisplay.textContent = count; timeLeft = parseInt(minInput.value) * 60 + parseInt(secInput.value); updateTimerDisplay(); statusMsg.textContent = ""; minInput.disabled = false; secInput.disabled = false; });
 
-        resetBtn.addEventListener('click', () => {
-            clearInterval(timerId);
-            timerId = null;
-            gameActive = false;
-            count = 0;
-            counterDisplay.textContent = count;
-            timeLeft = parseInt(minInput.value) * 60 + parseInt(secInput.value);
-            updateTimerDisplay();
-            statusMsg.textContent = "";
-            minInput.disabled = false;
-            secInput.disabled = false;
-        });
-
-        // Number Guessing Game Logic
         const guessInput = document.getElementById('guessInput');
         const guessBtn = document.getElementById('guessBtn');
         const gameResetBtn = document.getElementById('gameResetBtn');
@@ -1319,77 +923,15 @@
         const diffBtns = document.querySelectorAll('.diff-btn');
         const gamePrompt = document.getElementById('gamePrompt');
 
-        let targetNumber;
-        let guessesLeft;
-        let maxNumber = 100;
-        let guessingGameActive = true;
+        let targetNumber; let guessesLeft; let maxNumber = 100; let guessingGameActive = true;
 
-        function initGuessingGame() {
-            targetNumber = Math.floor(Math.random() * maxNumber) + 1;
-            guessesLeft = Math.ceil(Math.log2(maxNumber)) + 1;
-            guessesLeftDisplay.textContent = guessesLeft;
-            gameFeedback.textContent = "";
-            gameFeedback.style.color = 'var(--text-color)';
-            guessInput.value = "";
-            guessInput.disabled = false;
-            guessBtn.disabled = false;
-            guessingGameActive = true;
-            gamePrompt.textContent = `I'm thinking of a number between 1 and ${maxNumber}.`;
-        }
-
-        diffBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                diffBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                maxNumber = parseInt(btn.dataset.max);
-                initGuessingGame();
-            });
-        });
-
-        function makeGuess() {
-            if (!guessingGameActive) return;
-            
-            const guess = parseInt(guessInput.value);
-            if (isNaN(guess) || guess < 1 || guess > maxNumber) {
-                gameFeedback.textContent = `Please enter a number between 1 and ${maxNumber}!`;
-                gameFeedback.style.color = 'var(--reset-color)';
-                return;
-            }
-
-            guessesLeft--;
-            guessesLeftDisplay.textContent = guessesLeft;
-
-            if (guess === targetNumber) {
-                gameFeedback.textContent = `CORRECT! The number was ${targetNumber}!`;
-                gameFeedback.style.color = '#2ecc71';
-                endGuessingGame(true);
-            } else if (guessesLeft <= 0) {
-                gameFeedback.textContent = `GAME OVER! The number was ${targetNumber}.`;
-                gameFeedback.style.color = 'var(--reset-color)';
-                endGuessingGame(false);
-            } else {
-                gameFeedback.textContent = guess < targetNumber ? "HIGHER!" : "LOWER!";
-                gameFeedback.style.color = 'var(--accent-color)';
-            }
-            guessInput.value = "";
-            guessInput.focus();
-        }
-
-        function endGuessingGame(won) {
-            guessingGameActive = false;
-            guessInput.disabled = true;
-            guessBtn.disabled = true;
-        }
-
-        guessBtn.addEventListener('click', makeGuess);
-        guessInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') makeGuess();
-        });
-        gameResetBtn.addEventListener('click', initGuessingGame);
-
+        function initGuessingGame() { targetNumber = Math.floor(Math.random() * maxNumber) + 1; guessesLeft = Math.ceil(Math.log2(maxNumber)) + 1; guessesLeftDisplay.textContent = guessesLeft; gameFeedback.textContent = ""; gameFeedback.style.color = 'var(--text-color)'; guessInput.value = ""; guessInput.disabled = false; guessBtn.disabled = false; guessingGameActive = true; gamePrompt.textContent = `I'm thinking of a number between 1 and ${maxNumber}.`; }
+        diffBtns.forEach(btn => { btn.addEventListener('click', () => { diffBtns.forEach(b => b.classList.remove('active')); btn.classList.add('active'); maxNumber = parseInt(btn.dataset.max); initGuessingGame(); }); });
+        function makeGuess() { if (!guessingGameActive) return; const guess = parseInt(guessInput.value); if (isNaN(guess) || guess < 1 || guess > maxNumber) { gameFeedback.textContent = `Please enter a number between 1 and ${maxNumber}!`; gameFeedback.style.color = 'var(--reset-color)'; return; } guessesLeft--; guessesLeftDisplay.textContent = guessesLeft; if (guess === targetNumber) { gameFeedback.textContent = `CORRECT! The number was ${targetNumber}!`; gameFeedback.style.color = '#2ecc71'; endGuessingGame(true); } else if (guessesLeft <= 0) { gameFeedback.textContent = `GAME OVER! The number was ${targetNumber}.`; gameFeedback.style.color = 'var(--reset-color)'; endGuessingGame(false); } else { gameFeedback.textContent = guess < targetNumber ? "HIGHER!" : "LOWER!"; gameFeedback.style.color = 'var(--accent-color)'; } guessInput.value = ""; guessInput.focus(); }
+        function endGuessingGame(won) { guessingGameActive = false; guessInput.disabled = true; guessBtn.disabled = true; }
+        guessBtn.addEventListener('click', makeGuess); guessInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') makeGuess(); }); gameResetBtn.addEventListener('click', initGuessingGame);
         initGuessingGame();
 
-        // Game Section Logic
         const gameIframe = document.getElementById('gameIframe');
         const gameTitle = document.getElementById('gameTitle');
         const gameControlsContent = document.getElementById('gameControlsContent');
@@ -1397,7 +939,7 @@
         const prevGameBtn = document.getElementById('prevGameBtn');
         const nextGameBtn = document.getElementById('nextGameBtn');
 
-        const games = [
+        const gamesList = [
             {
                 title: "Paper Minecraft v11.7",
                 url: "https://turbowarp.org/10128407/embed?addons=pause%2Cfullscreen&fps=60",
@@ -1420,47 +962,41 @@
                 </ul>`
             },
             {
-                title: "Geometry Dash",
-                url: "https://turbowarp.org/105500895/embed?addons=pause%2Cfullscreen&fps=60",
-                credits: "<p>Original by RobTop Games</p><p>Scratch version by Griffpatch</p>",
-                controls: `<ul class="controls-list">
-                    <li><strong>[Space / Click / Up]</strong> - Jump</li>
-                    <li><strong>[P]</strong> - Pause</li>
-                    <li><strong>[L]</strong> - Toggle Lag Reduction</li>
-                </ul>`
+                title: "World Peace Project",
+                url: "https://turbowarp.org/772985488/embed?addons=pause%2Cfullscreen&fps=60",
+                credits: "<p>Game by codeGIO</p><p>Ported by DiddyEater67</p>",
+                controls: `<div style="font-size: 0.95em; line-height: 1.5;">
+                    <p>▸ <strong>1st button:</strong> Gives you one flag and you select the appropriate country.</p>
+                    <p>▸ <strong>2nd button:</strong> Gives you the name of a country and you select the corresponding flag.</p>
+                    <p>▸ <strong>3rd button:</strong> There is the world map for you to explore! You can click to zoom in.</p>
+                    <p>▸ <strong>4th button:</strong> 4 quotes by famous people that support peace!</p>
+                </div>`
             },
             {
-                title: "Terraria",
-                url: "https://turbowarp.org/311806206/embed?addons=pause%2Cfullscreen&fps=60",
-                credits: "<p>Original by Re-Logic</p><p>Scratch version by Griffpatch</p>",
-                controls: `<ul class="controls-list">
-                    <li><strong>[WASD]</strong> - Move</li>
-                    <li><strong>[Click]</strong> - Use Tool / Place</li>
-                    <li><strong>[E]</strong> - Inventory</li>
-                    <li><strong>[1-9]</strong> - Select Item</li>
-                </ul>`
+                title: "Tetris",
+                url: "https://turbowarp.org/451773001/embed?addons=pause%2Cfullscreen&fps=60",
+                credits: "<p>Game by TimMcCool</p><p>Ported by DiddyEater67</p>",
+                controls: `<div style="font-size: 0.95em; line-height: 1.5;">
+                    <p>➥ <strong>left / right arrow</strong> to move</p>
+                    <p>➥ <strong>up arrow</strong> to rotate</p>
+                    <p>➥ <strong>down arrow</strong> to move down</p>
+                    <p>➥ <strong>space</strong> to drop</p>
+                </div>`
             }
         ];
 
         let currentGameIndex = 0;
-
         function updateGame() {
-            const game = games[currentGameIndex];
+            const game = gamesList[currentGameIndex];
             gameIframe.src = game.url;
             gameTitle.textContent = game.title;
             gameControlsContent.innerHTML = game.controls;
             gameCreditsContent.innerHTML = game.credits;
         }
 
-        prevGameBtn.addEventListener('click', () => {
-            currentGameIndex = (currentGameIndex - 1 + games.length) % games.length;
-            updateGame();
-        });
-
-        nextGameBtn.addEventListener('click', () => {
-            currentGameIndex = (currentGameIndex + 1) % games.length;
-            updateGame();
-        });
+        prevGameBtn.addEventListener('click', () => { currentGameIndex = (currentGameIndex - 1 + gamesList.length) % gamesList.length; updateGame(); });
+        nextGameBtn.addEventListener('click', () => { currentGameIndex = (currentGameIndex + 1) % gamesList.length; updateGame(); });
+        updateGame();
     </script>
 </body>
 </html>
