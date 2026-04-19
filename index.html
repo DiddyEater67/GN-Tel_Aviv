@@ -503,6 +503,13 @@
             transform: scale(1.1);
         }
 
+        .player-btn.active {
+            color: var(--accent-color);
+            text-shadow: 0 0 10px var(--accent-color), 0 0 20px var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-color), inset 0 0 10px rgba(93, 173, 226, 0.3);
+            background: rgba(93, 173, 226, 0.1);
+        }
+
         .play-pause {
             font-size: 40px;
             color: var(--accent-color);
@@ -869,7 +876,7 @@
             { title: "Heat Waves (Lofi Version)", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/NbmsKmCeiogrcoTQ.mp3" },
             { title: "It Was A Good Day", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/VQDfMkFmkWUCXNIT.mp3" }
         ];
-        let currentTrackIndex = 0; let musicStarted = false; let isLooping = true;
+        let currentTrackIndex = 0; let musicStarted = false; let isLooping = true; loopBtn.classList.add('active');
 
         function formatMusicTime(seconds) { if (isNaN(seconds)) return "0:00"; const m = Math.floor(seconds / 60); const s = Math.floor(seconds % 60); return `${m}:${s.toString().padStart(2, '0')}`; }
 
@@ -888,7 +895,7 @@
         playPauseBtn.addEventListener('click', () => { if (!musicStarted) startMusic(); else { if (bgMusic.paused) bgMusic.play(); else bgMusic.pause(); updatePlayPauseIcon(); } });
         prevBtn.addEventListener('click', () => { let next = (currentTrackIndex - 1 + playlist.length) % playlist.length; loadTrack(next); });
         nextBtn.addEventListener('click', () => { let next = (currentTrackIndex + 1) % playlist.length; loadTrack(next); });
-        loopBtn.addEventListener('click', () => { isLooping = !isLooping; loopBtn.style.color = isLooping ? 'var(--accent-color)' : 'var(--text-color)'; });
+        loopBtn.addEventListener('click', () => { isLooping = !isLooping; loopBtn.classList.toggle('active', isLooping); });
         volumeSlider.addEventListener('input', (e) => { bgMusic.volume = e.target.value; playerMuteBtn.textContent = bgMusic.volume === 0 ? '🔇' : '🔊'; });
         playerMuteBtn.addEventListener('click', () => { if (bgMusic.volume > 0) { bgMusic.dataset.lastVolume = bgMusic.volume; bgMusic.volume = 0; volumeSlider.value = 0; playerMuteBtn.textContent = '🔇'; } else { bgMusic.volume = bgMusic.dataset.lastVolume || 0.5; volumeSlider.value = bgMusic.volume; playerMuteBtn.textContent = '🔊'; } });
         progressBar.addEventListener('click', (e) => { const rect = progressBar.getBoundingClientRect(); const pos = (e.clientX - rect.left) / rect.width; bgMusic.currentTime = pos * bgMusic.duration; });
