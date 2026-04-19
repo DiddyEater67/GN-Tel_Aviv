@@ -1029,7 +1029,36 @@
                 credits: "<p>Created by JoySparkGames</p><p>Ported by DiddyEater67</p>",
                 controls: `<p>Controls are said in-game.</p>`
             }
-        ];
+        ,
+            {
+                title: "Famidash",
+                url: "https://kbhgames.com/wp-content/themes/v1/embed.php?url=https%3A%2F%2Fhtml-classic.itch.zone%2Fhtml%2F15570771%2Findex.html&canonical=https%3A%2F%2Fkbhgames.com%2Fgame%2Ffamidash-geometry-dash-but-retro&w=512&h=480&noad=1&pid=157604",
+                credits: `<p>Created by Zephyrside, ported by DiddyEater67</p>`,
+                controls: `<div style="font-size: 0.95em; line-height: 1.5;">
+            <p>➥ <strong>X</strong> to jump and select</p>
+            <p>➥ <strong>Z</strong> to go back on menu</p>
+            <p>➥ <strong>Enter</strong> to pause in level</p>
+            <p>➥ <strong>Shift</strong> to return to menu</p>
+        </div>`
+            },
+            {
+                title: "Basket Random",
+                url: "https://script.google.com/macros/s/AKfycbwgLUpgbADEdCFDRp0NnFSr310OUnQMg6zj69o0Tu2UBe_nICkRNiqcBorb5IYBIeLQig/exec",
+                credits: `<p>Created by RHM Interactive, ported by DiddyEater67</p>`,
+                controls: `<p><strong>W</strong> or <strong>Up arrow</strong></p>`
+            },
+            {
+                title: "Soccer Random",
+                url: "https://script.google.com/macros/s/AKfycbwgLUpgbADEdCFDRp0NnFSr310OUnQMg6zj69o0Tu2UBe_nICkRNiqcBorb5IYBIeLQig/exec",
+                credits: `<p>Created by RHM Interactive, ported by DiddyEater67</p>`,
+                controls: `<p><strong>W</strong> or <strong>Up arrow</strong></p>`
+            },
+            {
+                title: "Volley Random",
+                url: "https://script.google.com/macros/s/AKfycbwgLUpgbADEdCFDRp0NnFSr310OUnQMg6zj69o0Tu2UBe_nICkRNiqcBorb5IYBIeLQig/exec",
+                credits: `<p>Created by RHM Interactive, ported by DiddyEater67</p>`,
+                controls: `<p><strong>W</strong> or <strong>Up arrow</strong></p>`
+            }];
 
         let currentGameIndex = 0;
         function updateGame() {
@@ -1040,7 +1069,7 @@
             gameCreditsContent.innerHTML = game.credits;
             
             // Show fullscreen button only for Ages of Conflict DEMO (index 3)
-            if (currentGameIndex === 3) {
+            if (currentGameIndex >= 3) {
                 fullscreenBtn.style.display = 'inline-block';
             } else {
                 fullscreenBtn.style.display = 'none';
