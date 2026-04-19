@@ -986,6 +986,30 @@
         const gameWrapper = document.getElementById('gameWrapper');
 
         const gamesList = [            {
+                title: "Super Mario Bros 1",
+                url: "https://www.emulatorjs.com/loader.html?rom=https://www.smbgames.be/roms/super-mario-bros-1.nes&core=nes",
+                credits: `<p>Created by Nintendo</p><p>Ported by DiddyEater67</p>`,
+                controls: `<div style="font-size: 0.95em; line-height: 1.5;"><p>Enter to start</p><p>Z to jump</p><p>X to run/second function</p><p>Arrow keys to move</p></div>`
+            },
+            {
+                title: "Super Mario Bros 2",
+                url: "https://www.emulatorjs.com/loader.html?rom=https://www.smbgames.be/roms/super-mario-bros-2.nes&core=nes",
+                credits: `<p>Created by Nintendo</p><p>Ported by DiddyEater67</p>`,
+                controls: `<div style="font-size: 0.95em; line-height: 1.5;"><p>Enter to start</p><p>Z to jump/pick character</p><p>X to throw</p><p>Arrow keys to move</p></div>`
+            },
+            {
+                title: "Super Mario Bros 3",
+                url: "https://www.emulatorjs.com/loader.html?rom=https://www.smbgames.be/roms/super-mario-bros-3.nes&core=nes",
+                credits: `<p>Created by Nintendo</p><p>Ported by DiddyEater67</p>`,
+                controls: `<div style="font-size: 0.95em; line-height: 1.5;"><p>Enter to start</p><p>Z to jump/fly/float/select level</p><p>X to run/secondary function</p><p>Arrow keys to move</p></div>`
+            },
+            {
+                title: "Super Mario World",
+                url: "https://www.emulatorjs.com/loader.html?rom=https://www.smbgames.be/roms/super-mario-world.smc&core=snes",
+                credits: `<p>Created by Nintendo</p><p>Ported by DiddyEater67</p>`,
+                controls: `<div style="font-size: 0.95em; line-height: 1.5;"><p>Enter to start</p><p>X to jump</p><p>Z to spinjump/select level</p><p>S to run/secondary function</p><p>Arrow keys to move</p></div>`
+            },
+            {
                 title: "Sonic 1",
                 url: "https://kbhgames.com/wp-content/themes/v1/embed.php?url=%2F%2Ff.kbhgames.com%2Femujs%2Fplay.php%3Fc%3DsegaMD%26f%3Dsonic.gen&canonical=https%3A%2F%2Fkbhgames.com%2Fgame%2Fsonic-the-hedgehog&w=800&h=600&noad=1&pid=25501",
                 credits: `<p>Created by SEGA, ported by DiddyEater67</p>`,
@@ -1105,7 +1129,7 @@
             gameCreditsContent.innerHTML = game.credits;
             
             // Show fullscreen button only for Ages of Conflict DEMO (index 3)
-            if (currentGameIndex >= 8) {
+            if (currentGameIndex >= 12) {
                 fullscreenBtn.style.display = 'inline-block';
             } else {
                 fullscreenBtn.style.display = 'none';
