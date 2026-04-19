@@ -1034,25 +1034,29 @@
         const gamesList = [
             {
                 title: "Super Mario Bros 1",
-                url: "https://www.emulatorjs.com/embed/content.html?game=https://www.smbgames.be/roms/super-mario-bros-1.nes&core=nes",
+                url: "https://www.smbgames.be/original-smb.php",
+                isExternal: true,
                 credits: `<p>Created by Nintendo</p><p>Ported by DiddyEater67</p>`,
                 controls: `<div style="font-size: 0.95em; line-height: 1.5;"><p>Enter to start</p><p>Z to jump</p><p>X to run/second function</p><p>Arrow keys to move</p></div>`
             },
             {
                 title: "Super Mario Bros 2",
-                url: "https://www.emulatorjs.com/embed/content.html?game=https://www.smbgames.be/roms/super-mario-bros-2.nes&core=nes",
+                url: "https://www.smbgames.be/smb-part-2.php",
+                isExternal: true,
                 credits: `<p>Created by Nintendo</p><p>Ported by DiddyEater67</p>`,
                 controls: `<div style="font-size: 0.95em; line-height: 1.5;"><p>Enter to start</p><p>Z to jump/pick character</p><p>X to throw</p><p>Arrow keys to move</p></div>`
             },
             {
                 title: "Super Mario Bros 3",
-                url: "https://www.emulatorjs.com/embed/content.html?game=https://www.smbgames.be/roms/super-mario-bros-3.nes&core=nes",
+                url: "https://www.smbgames.be/smb-part-3.php",
+                isExternal: true,
                 credits: `<p>Created by Nintendo</p><p>Ported by DiddyEater67</p>`,
                 controls: `<div style="font-size: 0.95em; line-height: 1.5;"><p>Enter to start</p><p>Z to jump/fly/float/select level</p><p>X to run/secondary function</p><p>Arrow keys to move</p></div>`
             },
             {
                 title: "Super Mario World",
-                url: "https://www.emulatorjs.com/embed/content.html?game=https://www.smbgames.be/roms/super-mario-world.smc&core=snes",
+                url: "https://www.smbgames.be/super-mario-for-snes.php",
+                isExternal: true,
                 credits: `<p>Created by Nintendo</p><p>Ported by DiddyEater67</p>`,
                 controls: `<div style="font-size: 0.95em; line-height: 1.5;"><p>Enter to start</p><p>X to jump</p><p>Z to spinjump/select level</p><p>S to run/secondary function</p><p>Arrow keys to move</p></div>`
             },
@@ -1170,12 +1174,50 @@
         let currentGameIndex = 0;
         function updateGame() {
             const game = gamesList[currentGameIndex];
-            gameIframe.src = game.url;
+            
+            if (game.isExternal) {
+                // For external pages, we need to extract the iframe content
+                gameIframe.src = 'about:blank';
+                fetch(game.url)
+                    .then(response => response.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const iframe = doc.getElementById('ejs-content-frame');
+                        if (iframe) {
+                            // Reconstruct the emulator URL with parameters
+                            const romUrl = html.match(/EJS_gameUrl\s*=\s*'(.*?)'/)[1];
+                            const core = html.match(/EJS_core\s*=\s*'(.*?)'/)[1];
+                            gameIframe.src = `https://www.emulatorjs.com/embed/content.html?game=${romUrl}&core=${core}`;
+                        } else {
+                            gameIframe.src = game.url;
+                        }
+                    })
+                    .catch(() => {
+                        // Fallback to direct URL if fetch fails (CORS might be an issue)
+                        // In that case, we use the pre-known mapping
+                        const romMap = {
+                            "Super Mario Bros 1": "https://www.smbgames.be/roms/super-mario-bros-1.nes",
+                            "Super Mario Bros 2": "https://www.smbgames.be/roms/super-mario-bros-2.nes",
+                            "Super Mario Bros 3": "https://www.smbgames.be/roms/super-mario-bros-3.nes",
+                            "Super Mario World": "https://www.smbgames.be/roms/super-mario-world.smc"
+                        };
+                        const coreMap = {
+                            "Super Mario Bros 1": "nes",
+                            "Super Mario Bros 2": "nes",
+                            "Super Mario Bros 3": "nes",
+                            "Super Mario World": "snes"
+                        };
+                        gameIframe.src = `https://www.emulatorjs.com/embed/content.html?game=${romMap[game.title]}&core=${coreMap[game.title]}`;
+                    });
+            } else {
+                gameIframe.src = game.url;
+            }
+
             gameTitle.textContent = game.title;
             gameControlsContent.innerHTML = game.controls;
             gameCreditsContent.innerHTML = game.credits;
             
-            // Show fullscreen button only for Ages of Conflict DEMO (index 3)
             if (currentGameIndex >= 12) {
                 fullscreenBtn.style.display = 'inline-block';
             } else {
