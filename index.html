@@ -740,9 +740,9 @@
         const maxParticles = 100;
 
         const modeIcons = ['🔵', '🔥', '❄️', '💨', '🌧️', '🫧', '🚫'];
-        const colorIcons = ['🟦', '⬜', '🌈'];
+        const colorIcons = ['🟦', '🟥', '🟩', '🟨', '🟪', '🌈'];
         const shapeIcons = ['⏺️', '⏹️', '🔼', '⭐', '🔷', '❤️'];
-        const particleColors = ['var(--particle-color)', '#ffffff', 'rainbow'];
+        const particleColors = ['#5dade2', '#e74c3c', '#2ecc71', '#f1c40f', '#9b59b6', 'rainbow'];
 
         let mouse = { x: null, y: null, isOverContainer: false };
 
@@ -801,7 +801,6 @@
                 ctx.globalAlpha = this.alpha;
                 let color;
                 if (particleColors[particleColorState] === 'rainbow') color = `hsla(${rainbowHue}, 70%, 60%, ${this.alpha})`;
-                else if (particleColors[particleColorState] === 'var(--particle-color)') color = getComputedStyle(document.documentElement).getPropertyValue('--particle-color').trim();
                 else color = particleColors[particleColorState];
                 ctx.fillStyle = color; ctx.shadowBlur = 10; ctx.shadowColor = color;
                 if (this.popping) { ctx.beginPath(); ctx.arc(this.x, this.y, this.size * (1 + this.popProgress), 0, Math.PI * 2); ctx.strokeStyle = color; ctx.globalAlpha = this.alpha * (1 - this.popProgress); ctx.stroke(); ctx.shadowBlur = 0; return; }
