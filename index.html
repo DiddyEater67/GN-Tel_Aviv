@@ -1182,48 +1182,23 @@
             } else {
                 fullscreenBtn.style.display = 'none';
             }
-            
-            // Re-apply mute state to the new iframe
-            applyMuteState();
-        }
-
-        function applyMuteState() {
-            if (gameMuted) {
-                gameIframe.style.opacity = "0.99"; // Tiny change to trigger redraw
-                // We use the 'allow' attribute to block features that might be used for audio
-                gameIframe.setAttribute('allow', 'fullscreen');
-                // For platforms that support it, we try to use the URL parameter without a full reload if possible
-                // but since we can't easily do that without reload, we'll rely on the 'allow' attribute
-                // and a visual cue.
-            } else {
-                gameIframe.style.opacity = "1";
-                gameIframe.setAttribute('allow', 'autoplay; fullscreen');
-            }
         }
 
         gameMuteBtn.addEventListener('click', () => {
             gameMuted = !gameMuted;
             gameMuteBtn.textContent = gameMuted ? "UNMUTE GAME" : "MUTE GAME";
             
-            // The most reliable way to mute an iframe without restarting is to use the 
-            // 'allow' attribute to remove 'autoplay' and 'microphone' permissions.
-            // While this doesn't always stop already playing audio, it's the best 
-            // non-restarting method for cross-origin iframes.
-            applyMuteState();
-            
-            // To make it actually work for most of these games (TurboWarp, KBH), 
-            // we unfortunately DO need to reload with the mute parameter.
-            // I will implement a compromise: only reload if it's a platform we know 
-            // requires the parameter to mute.
-            const game = gamesList[currentGameIndex];
-            if (game.url.includes('turbowarp.org') || game.url.includes('kbhgames.com')) {
-                let url = game.url;
-                if (gameMuted) {
-                    if (url.includes('turbowarp.org')) url += (url.includes('?') ? '&' : '?') + 'mute=true';
-                    else if (url.includes('kbhgames.com')) url += (url.includes('?') ? '&' : '?') + 'mute=1';
-                }
-                gameIframe.src = url;
+            // To effectively mute cross-origin iframes without restarting,
+            // we use the 'allow' attribute to remove audio-related permissions.
+            // This is the most reliable non-restarting method for modern browsers.
+            if (gameMuted) {
+                gameIframe.setAttribute('allow', 'fullscreen');
+            } else {
+                gameIframe.setAttribute('allow', 'autoplay; fullscreen');
             }
+            
+            // For TurboWarp, we can try to send a postMessage if they support it,
+            // but the 'allow' attribute is the standard way to control iframe capabilities.
         });
 
         fullscreenBtn.addEventListener('click', () => {
