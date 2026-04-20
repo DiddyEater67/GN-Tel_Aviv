@@ -337,29 +337,29 @@
         }
 
         .difficulty-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 10px;
-            margin-bottom: 20px;
+            margin: 15px auto;
             width: 100%;
+            max-width: 800px;
         }
 
         .diff-btn {
-            background: var(--box-bg);
-            color: var(--text-color);
+            padding: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            background-color: var(--box-bg);
             border: 1px solid var(--border-color);
-            padding: 10px;
-            font-size: 0.9em;
+            color: var(--text-color);
+            border-radius: 8px;
         }
-
-        .diff-btn.active {
-            background: var(--accent-color);
-            color: white;
-        }
+        .diff-btn:hover { background-color: var(--accent-hover); color: white; }
+        .diff-btn.active { background-color: var(--accent-color); color: white; }
 
         .games-container {
             width: 100%;
-            height: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -367,13 +367,13 @@
 
         .game-frame-wrapper {
             width: 100%;
-            aspect-ratio: 4/3;
-            max-height: 600px;
+            aspect-ratio: 4 / 3;
+            max-width: 1000px;
             background: #000;
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
             border: 2px solid var(--border-color);
+            box-shadow: 0 0 20px var(--shadow);
         }
 
         .game-frame {
@@ -382,46 +382,45 @@
             border: none;
         }
 
-        .game-nav-arrow {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: var(--accent-color);
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 5;
-            border: none;
-            transition: all 0.3s;
-            opacity: 0.7;
-        }
-
-        .game-nav-arrow:hover {
-            opacity: 1;
-            transform: translateY(-50%) scale(1.1);
-            box-shadow: 0 0 10px var(--accent-color);
-        }
-
-        #prevGameBtn { left: -20px; }
-        #nextGameBtn { right: -20px; }
-
         .controls-list {
             list-style: none;
             padding: 0;
             margin: 0;
-            width: 100%;
+            font-size: 0.85em;
+            line-height: 1.4;
         }
 
         .controls-list li {
-            margin-bottom: 8px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 4px;
         }
+
+        .game-nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s, opacity 0.3s;
+            opacity: 0.4;
+        }
+
+        .game-nav-arrow:hover {
+            opacity: 1;
+            background-color: var(--accent-hover);
+        }
+
+        #prevGameBtn { left: -60px; }
+        #nextGameBtn { right: -60px; }
 
         .music-player {
             width: 100%;
@@ -429,7 +428,9 @@
             background: var(--box-bg);
             padding: 30px;
             border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
         }
 
         .music-info {
@@ -437,33 +438,32 @@
         }
 
         .music-title {
-            font-size: 1.8em;
+            font-size: 1.6em;
             font-weight: bold;
-            color: var(--accent-color);
+            color: var(--h1-color);
             margin-bottom: 5px;
         }
 
         .progress-container {
-            width: 100%;
             margin-bottom: 20px;
         }
 
         .progress-bar {
             width: 100%;
-            height: 6px;
+            height: 8px;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
+            border-radius: 4px;
             cursor: pointer;
             position: relative;
+            overflow: hidden;
         }
 
         .progress-fill {
             height: 100%;
             background: var(--accent-color);
-            border-radius: 3px;
             width: 0%;
+            border-radius: 4px;
             transition: width 0.1s linear;
-            box-shadow: 0 0 10px var(--accent-color);
         }
 
         .time-info {
@@ -476,10 +476,10 @@
 
         .player-controls {
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             gap: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .player-btn {
@@ -488,15 +488,17 @@
             color: var(--text-color);
             font-size: 24px;
             cursor: pointer;
-            transition: all 0.2s;
-            padding: 10px;
-            border-radius: 50%;
+            transition: all 0.3s;
+            width: 50px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
+            border-radius: 50%;
         }
 
         .player-btn:hover {
+            color: var(--accent-color);
             background: rgba(255, 255, 255, 0.05);
             transform: scale(1.1);
         }
@@ -630,12 +632,8 @@
                     </div>
                     <div class="center-content">
                         <h2 id="gameTitle" style="color: var(--h1-color); margin-bottom: 10px;"></h2>
-                        <div class="game-frame-wrapper" id="gameWrapper">
+                        <div class="game-frame-wrapper">
                             <iframe id="gameIframe" class="game-frame" allowtransparency="true" frameborder="0" scrolling="no" allowfullscreen></iframe>
-                        </div>
-                        <div style="display: flex; gap: 10px; margin-top: 15px;">
-                            <button id="gameMuteBtn" class="game-btn">MUTE GAME</button>
-                            <button id="fullscreenBtn" class="game-btn" style="display: none;">FULLSCREEN</button>
                         </div>
                     </div>
                     <div class="side-box" style="text-align: center;">
@@ -682,7 +680,7 @@
                     <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="0.15">
                     <span>🔊</span>
                 </div>
-                <div class="playlist-info">Playlist: 15 tracks available</div>
+                <div class="playlist-info">Playlist: 12 tracks available</div>
             </div>
         </div>
     </div>
@@ -711,8 +709,8 @@
         }
 
         document.getElementById('prevPageBtn').addEventListener('click', () => {
-            let prev = (currentPage - 1 + pages.length) % pages.length;
-            showPage(prev);
+            let next = (currentPage - 1 + pages.length) % pages.length;
+            showPage(next);
             startMusic();
         });
 
@@ -871,123 +869,44 @@
         const currentTimeDisplay = document.getElementById('currentTime');
         const durationDisplay = document.getElementById('duration');
 
-        
         const playlist = [
-            { title: "Background Ambiance", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553355200/bhfZaCNbdOjmJZEx.mp3" },
-            { title: "Fireflies (lofi version)", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553355200/PrtmltVPXZjrxoZV.mp3" },
-            { title: "All The Small Things", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553355200/rYcMmXqznAogLeYN.mp3" },
-            { title: "Attention", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553355200/czDcjYHErdLXyTpZ.mp3" },
-            { title: "Back on Track", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553355200/XmKzGZfNqWjVpLbR.mp3" },
-            { title: "Base After Base", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553355200/mYvLzXqznAogLeYN.mp3" },
-            { title: "Cant Let Go", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553355200/rYcMmXqznAogLeYN.mp3" },
-            { title: "Dry Out", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553355200/czDcjYHErdLXyTpZ.mp3" },
-            { title: "Jumper", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553355200/XmKzGZfNqWjVpLbR.mp3" },
-            { title: "Polargeist", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553355200/mYvLzXqznAogLeYN.mp3" },
-            { title: "Stereo Madness", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553355200/rYcMmXqznAogLeYN.mp3" },
-            { title: "Theory of Everything", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553355200/czDcjYHErdLXyTpZ.mp3" },
-            { title: "Time Machine", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553355200/XmKzGZfNqWjVpLbR.mp3" },
-            { title: "Cycles", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553355200/mYvLzXqznAogLeYN.mp3" },
-            { title: "xStep", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553355200/rYcMmXqznAogLeYN.mp3" }
+            { title: "Background Ambience", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/MQZrzPffcSRLLgWr.mp3" },
+            { title: "All The Small Things", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/MQZrzPffcSRLLgWr.mp3" },
+            { title: "Attention", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/BURCozMFYJctOoBf.mp3" },
+            { title: "Back on Track", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/yFJIVJxQBBiZihIl.mp3" },
+            { title: "Blue (lofi version)", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/FYugMNKjrcDUcdHa.mp3" },
+            { title: "Fireflies (lofi version)", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/myWoCihnWMDeMtqX.mp3" },
+            { title: "Jealous", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/ZuElUoxCkUrmPzCX.mp3" },
+            { title: "Ol Red", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/RsQjphMxIKuVxvmL.mp3" },
+            { title: "PEPPER", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/siGHBAqlvThKMmAw.mp3" },
+            { title: "Sonic Mania - Studiopolis Zone Act 1", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/rmtmtxHwcWELGKoo.mp3" },
+            { title: "Stereo Madness", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/dJGklkPffmeBZUct.mp3" },
+            { title: "We Didnt Start the Fire", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/swiTAZOxGMYOPbet.mp3" }
         ];
+        let currentTrackIndex = 0; let musicStarted = false; let isLooping = true; loopBtn.classList.add('active');
 
-        let currentTrackIndex = 0;
-        let isPlaying = false;
-        let isLooping = true;
+        function formatMusicTime(seconds) { if (isNaN(seconds)) return "0:00"; const m = Math.floor(seconds / 60); const s = Math.floor(seconds % 60); return `${m}:${s.toString().padStart(2, '0')}`; }
 
         function loadTrack(index) {
-            const track = playlist[index];
-            bgMusic.src = track.url;
-            playerTitle.textContent = track.title;
-            bgMusic.load();
+            currentTrackIndex = index; bgMusic.src = playlist[index].url; playerTitle.textContent = playlist[index].title; progressFill.style.width = '0%'; currentTimeDisplay.textContent = "0:00";
+            if (musicStarted) { bgMusic.play(); updatePlayPauseIcon(); }
         }
 
-        function startMusic() {
-            if (!isPlaying) {
-                bgMusic.play().then(() => {
-                    isPlaying = true;
-                    updatePlayerUI();
-                    musicStatus.textContent = "🎵 Playing: " + playlist[currentTrackIndex].title;
-                }).catch(e => console.log("Autoplay blocked"));
-            }
-        }
+        function updatePlayPauseIcon() { playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️'; playerStatus.textContent = bgMusic.paused ? 'Paused' : 'Playing'; }
 
-        function updatePlayerUI() {
-            playPauseBtn.textContent = isPlaying ? '⏸️' : '▶️';
-            playerStatus.textContent = isPlaying ? 'Now Playing' : 'Paused';
-            loopBtn.classList.toggle('active', isLooping);
-        }
+        function startMusic() { if (!musicStarted) { bgMusic.play().then(() => { musicStatus.textContent = "🎵 Music Active"; musicStarted = true; updatePlayPauseIcon(); }).catch(e => { musicStatus.textContent = "⚠️ Click anywhere to enable music"; }); } }
 
-        playPauseBtn.addEventListener('click', () => {
-            if (isPlaying) { bgMusic.pause(); isPlaying = false; }
-            else { bgMusic.play(); isPlaying = true; }
-            updatePlayerUI();
-        });
-
-        prevBtn.addEventListener('click', () => {
-            currentTrackIndex = (currentTrackIndex - 1 + playlist.length) % playlist.length;
-            loadTrack(currentTrackIndex);
-            if (isPlaying) bgMusic.play();
-            updatePlayerUI();
-        });
-
-        nextBtn.addEventListener('click', () => {
-            currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
-            loadTrack(currentTrackIndex);
-            if (isPlaying) bgMusic.play();
-            updatePlayerUI();
-        });
-
-        loopBtn.addEventListener('click', () => {
-            isLooping = !isLooping;
-            bgMusic.loop = isLooping;
-            updatePlayerUI();
-        });
-
-        volumeSlider.addEventListener('input', (e) => {
-            bgMusic.volume = e.target.value;
-            playerMuteBtn.textContent = bgMusic.volume === 0 ? '🔇' : '🔊';
-        });
-
-        playerMuteBtn.addEventListener('click', () => {
-            if (bgMusic.volume > 0) {
-                bgMusic.dataset.lastVolume = bgMusic.volume;
-                bgMusic.volume = 0;
-                volumeSlider.value = 0;
-                playerMuteBtn.textContent = '🔇';
-            } else {
-                bgMusic.volume = bgMusic.dataset.lastVolume || 0.15;
-                volumeSlider.value = bgMusic.volume;
-                playerMuteBtn.textContent = '🔊';
-            }
-        });
-
-        bgMusic.addEventListener('timeupdate', () => {
-            const progress = (bgMusic.currentTime / bgMusic.duration) * 100;
-            progressFill.style.width = progress + '%';
-            currentTimeDisplay.textContent = formatTime(bgMusic.currentTime);
-            if (!isNaN(bgMusic.duration)) durationDisplay.textContent = formatTime(bgMusic.duration);
-        });
-
-        bgMusic.addEventListener('ended', () => {
-            if (!isLooping) nextBtn.click();
-        });
-
-        progressBar.addEventListener('click', (e) => {
-            const rect = progressBar.getBoundingClientRect();
-            const pos = (e.clientX - rect.left) / rect.width;
-            bgMusic.currentTime = pos * bgMusic.duration;
-        });
-
-        function formatTime(seconds) {
-            const mins = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${mins}:${secs.toString().padStart(2, '0')}`;
-        }
-
-        loadTrack(currentTrackIndex);
-        bgMusic.volume = 0.15;
-        bgMusic.loop = isLooping;
-        updatePlayerUI();
+        bgMusic.addEventListener('timeupdate', () => { const percent = (bgMusic.currentTime / bgMusic.duration) * 100; progressFill.style.width = percent + '%'; currentTimeDisplay.textContent = formatMusicTime(bgMusic.currentTime); });
+        bgMusic.addEventListener('loadedmetadata', () => { durationDisplay.textContent = formatMusicTime(bgMusic.duration); });
+        bgMusic.addEventListener('ended', () => { if (isLooping) { bgMusic.currentTime = 0; bgMusic.play(); } else { nextBtn.click(); } });
+        playPauseBtn.addEventListener('click', () => { if (!musicStarted) startMusic(); else { if (bgMusic.paused) bgMusic.play(); else bgMusic.pause(); updatePlayPauseIcon(); } });
+        prevBtn.addEventListener('click', () => { let next = (currentTrackIndex - 1 + playlist.length) % playlist.length; loadTrack(next); });
+        nextBtn.addEventListener('click', () => { let next = (currentTrackIndex + 1) % playlist.length; loadTrack(next); });
+        loopBtn.addEventListener('click', () => { isLooping = !isLooping; loopBtn.classList.toggle('active', isLooping); });
+        volumeSlider.addEventListener('input', (e) => { bgMusic.volume = e.target.value; playerMuteBtn.textContent = bgMusic.volume === 0 ? '🔇' : '🔊'; });
+        playerMuteBtn.addEventListener('click', () => { if (bgMusic.volume > 0) { bgMusic.dataset.lastVolume = bgMusic.volume; bgMusic.volume = 0; volumeSlider.value = 0; playerMuteBtn.textContent = '🔇'; } else { bgMusic.volume = bgMusic.dataset.lastVolume || 0.5; volumeSlider.value = bgMusic.volume; playerMuteBtn.textContent = '🔊'; } });
+        progressBar.addEventListener('click', (e) => { const rect = progressBar.getBoundingClientRect(); const pos = (e.clientX - rect.left) / rect.width; bgMusic.currentTime = pos * bgMusic.duration; });
+        loadTrack(0); window.addEventListener('click', startMusic, { once: true });
 
         const counterDisplay = document.getElementById('counter');
         const highScoreDisplay = document.getElementById('highScore');
@@ -1033,56 +952,8 @@
         const prevGameBtn = document.getElementById('prevGameBtn');
         const nextGameBtn = document.getElementById('nextGameBtn');
         const gameControlsBox = document.getElementById('gameControlsBox');
-        const fullscreenBtn = document.getElementById('fullscreenBtn');
-        const gameWrapper = document.getElementById('gameWrapper');
-        const gameMuteBtn = document.getElementById('gameMuteBtn');
-
-        let gameMuted = false;
 
         const gamesList = [
-            {
-                title: "Super Mario Bros 1",
-                url: "https://www.miniplay.com/embed/super-mario-bros",
-                credits: `<p>Created by Nintendo</p><p>Ported by DiddyEater67</p>`,
-                controls: `<div style="font-size: 0.95em; line-height: 1.5;"><p>Enter to start</p><p>Z to jump</p><p>X to run/second function</p><p>Arrow keys to move</p></div>`
-            },
-            {
-                title: "Super Mario World",
-                url: "https://www.miniplay.com/embed/super-mario-world-online",
-                credits: `<p>Created by Nintendo</p><p>Ported by DiddyEater67</p>`,
-                controls: `<div style="font-size: 0.95em; line-height: 1.5;"><p>Enter to start</p><p>X to jump</p><p>Z to spinjump/select level</p><p>S to run/secondary function</p><p>Arrow keys to move</p></div>`
-            },
-            {
-                title: "Sonic 1",
-                url: "https://kbhgames.com/wp-content/themes/v1/embed.php?url=%2F%2Ff.kbhgames.com%2Femujs%2Fplay.php%3Fc%3DsegaMD%26f%3Dsonic.gen&canonical=https%3A%2F%2Fkbhgames.com%2Fgame%2Fsonic-the-hedgehog&w=800&h=600&noad=1&pid=25501",
-                credits: `<p>Created by SEGA, ported by DiddyEater67</p>`,
-                controls: `<div style="font-size: 0.95em; line-height: 1.5;"><p>Enter to start</p><p>Z, X, and S to jump</p><p>Arrow keys to move</p></div>`
-            },
-            {
-                title: "Sonic 2",
-                url: "https://kbhgames.com/wp-content/themes/v1/embed.php?url=%2F%2Ff.kbhgames.com%2Femujs%2Fplay.php%3Fc%3DsegaMD%26f%3DSonic%20The%20Hedgehog%202.gen&canonical=https%3A%2F%2Fkbhgames.com%2Fgame%2Fsonic-hedgehog-2&w=800&h=600&noad=1&pid=26428",
-                credits: `<p>Created by SEGA, ported by DiddyEater67</p>`,
-                controls: `<div style="font-size: 0.95em; line-height: 1.5;"><p>Enter to start</p><p>Z, X, and S to jump</p><p>Arrow keys to move</p></div>`
-            },
-            {
-                title: "Sonic CD",
-                url: "https://kbhgames.com/wp-content/themes/v1/embed.php?url=https%3A%2F%2Ff.kbhgames.com%2Fr%2Fsega32%2Fgame2.php%3Fn%3Dsonic-cd-usa-dw0044.zip&canonical=https%3A%2F%2Fkbhgames.com%2Fgame%2Fsonic-cd&w=640&h=480&noad=1&pid=97914",
-                credits: `<p>Created by SEGA, ported by DiddyEater67</p>`,
-                controls: `<p>Controls are shown in-game</p>`
-            },
-            {
-                title: "Sonic 3 & Knuckles",
-                url: "https://kbhgames.com/wp-content/themes/v1/embed.php?url=%2F%2Ff.kbhgames.com%2Femujs%2Fplay.php%3Fc%3DsegaMD%26f%3DSonic%20and%20Knuckles%20Sonic%203.gen&canonical=https%3A%2F%2Fkbhgames.com%2Fgame%2Fsonic-3-and-knuckles-sega&w=800&h=600&noad=1&pid=31225",
-                credits: `<p>Created by SEGA, ported by DiddyEater67</p>`,
-                controls: `<div style="font-size: 0.95em; line-height: 1.5;"><p>Enter to start</p><p>Z, X, and S to jump</p><p>Arrow keys to move</p></div>`
-            },
-            {
-                title: "Sonic 1 Definitive Edition",
-                url: "https://kbhgames.com/wp-content/themes/v1/embed.php?url=%2F%2Ff.kbhgames.com%2Femujs%2Fplay.php%3Fc%3DsegaMD%26f%3Dsonic-1-definitive.bin&canonical=https%3A%2F%2Fkbhgames.com%2Fgame%2Fsonic-1-definitive&w=800&h=600&noad=1&pid=122402",
-                credits: `<p>Created by Inferno, ported by DiddyEater67</p>`,
-                controls: `<div style="font-size: 0.95em; line-height: 1.5;"><p>Enter to start</p><p>Z, X, and S to jump</p><p>Arrow keys to move</p></div>`
-            },
-
             {
                 title: "Paper Minecraft v11.7",
                 url: "https://turbowarp.org/10128407/embed?addons=pause%2Cfullscreen&fps=60",
@@ -1132,84 +1003,17 @@
                 credits: "<p>Created by JoySparkGames</p><p>Ported by DiddyEater67</p>",
                 controls: `<p>Controls are said in-game.</p>`
             }
-        ,
-            {
-                title: "Famidash",
-                url: "https://kbhgames.com/wp-content/themes/v1/embed.php?url=https%3A%2F%2Fhtml-classic.itch.zone%2Fhtml%2F15570771%2Findex.html&canonical=https%3A%2F%2Fkbhgames.com%2Fgame%2Ffamidash-geometry-dash-but-retro&w=512&h=480&noad=1&pid=157604",
-                credits: `<p>Created by Zephyrside, ported by DiddyEater67</p>`,
-                controls: `<div style="font-size: 0.95em; line-height: 1.5;">
-            <p>➥ <strong>X</strong> to jump and select</p>
-            <p>➥ <strong>Z</strong> to go back on menu</p>
-            <p>➥ <strong>Enter</strong> to pause in level</p>
-            <p>➥ <strong>Shift</strong> to return to menu</p>
-        </div>`
-            },
-            {
-                title: "Basket Random",
-                url: "https://files.twoplayergames.org/files/games/other/Basket_Random/index.html",
-                credits: `<p>Created by RHM Interactive, ported by DiddyEater67</p>`,
-                controls: `<p><strong>W</strong> or <strong>Up arrow</strong></p>`
-            },
-            {
-                title: "Soccer Random",
-                url: "https://files.twoplayergames.org/files/games/other/Soccer_Random/index.html",
-                credits: `<p>Created by RHM Interactive, ported by DiddyEater67</p>`,
-                controls: `<p><strong>W</strong> or <strong>Up arrow</strong></p>`
-            },
-            {
-                title: "Volley Random",
-                url: "https://files.twoplayergames.org/files/games/o1/Volley_random/index.html",
-                credits: `<p>Created by RHM Interactive, ported by DiddyEater67</p>`,
-                controls: `<p><strong>W</strong> or <strong>Up arrow</strong></p>`
-            }];
+        ];
 
         let currentGameIndex = 0;
         function updateGame() {
             const game = gamesList[currentGameIndex];
-            let url = game.url;
-            
-            if (game.isEmulator) {
-                url = `https://www.emulatorjs.com/embed/content.html?game=${game.url}&core=${game.core}`;
-            }
-
-            gameIframe.src = url;
+            gameIframe.src = game.url;
             gameTitle.textContent = game.title;
             gameControlsContent.innerHTML = game.controls;
             gameCreditsContent.innerHTML = game.credits;
-            
-            if (currentGameIndex >= 10) {
-                fullscreenBtn.style.display = 'inline-block';
-            } else {
-                fullscreenBtn.style.display = 'none';
-            }
+            gameIframe.style.pointerEvents = currentGameIndex === 3 ? 'auto' : 'auto';
         }
-
-        gameMuteBtn.addEventListener('click', () => {
-            gameMuted = !gameMuted;
-            gameMuteBtn.textContent = gameMuted ? "UNMUTE GAME" : "MUTE GAME";
-            
-            // To effectively mute cross-origin iframes without restarting,
-            // we use the 'allow' attribute to remove audio-related permissions.
-            // This is the most reliable non-restarting method for modern browsers.
-            if (gameMuted) {
-                gameIframe.setAttribute('allow', 'fullscreen');
-            } else {
-                gameIframe.setAttribute('allow', 'autoplay; fullscreen');
-            }
-            
-            // For TurboWarp, we can try to send a postMessage if they support it,
-            // but the 'allow' attribute is the standard way to control iframe capabilities.
-        });
-
-        fullscreenBtn.addEventListener('click', () => {
-            if (gameWrapper.requestFullscreen) {
-                gameWrapper.requestFullscreen();
-            } else if (gameWrapper.webkitRequestFullscreen) {
-                gameWrapper.webkitRequestFullscreen();
-            } else if (gameWrapper.msRequestFullscreen) {
-                gameWrapper.msRequestFullscreen();
-            }
-        });
 
         prevGameBtn.addEventListener('click', () => { currentGameIndex = (currentGameIndex - 1 + gamesList.length) % gamesList.length; updateGame(); });
         nextGameBtn.addEventListener('click', () => { currentGameIndex = (currentGameIndex + 1) % gamesList.length; updateGame(); });
