@@ -374,12 +374,19 @@
             overflow: hidden;
             border: 2px solid var(--border-color);
             box-shadow: 0 0 20px var(--shadow);
+            position: relative;
         }
 
         .game-frame {
             width: 100%;
             height: 100%;
             border: none;
+        }
+
+        #emulator-container {
+            width: 100%;
+            height: 100%;
+            background: #000;
         }
 
         .game-nav-arrow {
@@ -605,6 +612,7 @@
                         <h2 id="gameTitle" style="color: var(--h1-color); margin-bottom: 10px;"></h2>
                         <div class="game-frame-wrapper">
                             <iframe id="gameIframe" class="game-frame" allowtransparency="true" frameborder="0" scrolling="no" allowfullscreen></iframe>
+                            <div id="emulator-container" style="display: none;"></div>
                         </div>
                     </div>
                     <div class="side-box" style="text-align: center;">
@@ -911,6 +919,7 @@
         initGuessingGame();
 
         const gameIframe = document.getElementById('gameIframe');
+        const emulatorContainer = document.getElementById('emulator-container');
         const gameTitle = document.getElementById('gameTitle');
         const gameControlsContent = document.getElementById('gameControlsContent');
         const gameCreditsContent = document.getElementById('gameCreditsContent');
@@ -919,7 +928,17 @@
 
         const gamesList = [
             {
+                title: "EmulatorJS Placeholder",
+                type: "emulator",
+                credits: "<p>Framework by EmulatorJS</p><p>Integrated by DiddyEater67</p>",
+                controls: `<div style="font-size: 0.95em; line-height: 1.5;">
+                    <p>▸ <strong>Ready for ROMs:</strong> This is a placeholder for EmulatorJS.</p>
+                    <p>▸ <strong>Controls:</strong> Will vary based on the system loaded.</p>
+                </div>`
+            },
+            {
                 title: "Paper Minecraft v11.7",
+                type: "iframe",
                 url: "https://turbowarp.org/10128407/embed?addons=pause%2Cfullscreen&fps=60",
                 credits: "<p>Game made by Griffpatch</p><p>Ported by DiddyEater67</p>",
                 controls: `<ul class="controls-list">
@@ -941,6 +960,7 @@
             },
             {
                 title: "World Peace Project",
+                type: "iframe",
                 url: "https://turbowarp.org/772985488/embed?addons=pause%2Cfullscreen&fps=60",
                 credits: "<p>Game by codeGIO</p><p>Ported by DiddyEater67</p>",
                 controls: `<div style="font-size: 0.95em; line-height: 1.5;">
@@ -952,6 +972,7 @@
             },
             {
                 title: "Tetris",
+                type: "iframe",
                 url: "https://turbowarp.org/451773001/embed?addons=pause%2Cfullscreen&fps=60",
                 credits: "<p>Game by TimMcCool</p><p>Ported by DiddyEater67</p>",
                 controls: `<div style="font-size: 0.95em; line-height: 1.5;">
@@ -964,12 +985,37 @@
         ];
 
         let currentGameIndex = 0;
+        let emulatorLoaded = false;
+
+        function loadEmulator() {
+            if (emulatorLoaded) return;
+            const script = document.createElement('script');
+            script.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
+            script.onload = () => {
+                window.EJS_player = '#emulator-container';
+                window.EJS_core = 'nes'; // Default core
+                window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
+                window.EJS_gameUrl = ''; // Placeholder
+                emulatorLoaded = true;
+            };
+            document.body.appendChild(script);
+        }
+
         function updateGame() {
             const game = gamesList[currentGameIndex];
-            gameIframe.src = game.url;
             gameTitle.textContent = game.title;
             gameControlsContent.innerHTML = game.controls;
             gameCreditsContent.innerHTML = game.credits;
+
+            if (game.type === 'emulator') {
+                gameIframe.style.display = 'none';
+                emulatorContainer.style.display = 'block';
+                loadEmulator();
+            } else {
+                emulatorContainer.style.display = 'none';
+                gameIframe.style.display = 'block';
+                gameIframe.src = game.url;
+            }
         }
 
         prevGameBtn.addEventListener('click', () => { currentGameIndex = (currentGameIndex - 1 + gamesList.length) % gamesList.length; updateGame(); });
