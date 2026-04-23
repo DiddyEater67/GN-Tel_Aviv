@@ -556,7 +556,7 @@
                 <button id="resetBtn">RESET</button>
             </div>
             <div class="music-control">
-                <span id="musicStatus">🎵 Music Player Empty</span>
+                <span id="musicStatus">🎵 Music Player Ready</span>
             </div>
             <p class="hint">Tip: You can use the spacebar to click!</p>
         </div>
@@ -627,8 +627,8 @@
         <div class="container blank-container">
             <div class="music-player">
                 <div class="music-info">
-                    <div class="music-title" id="playerTitle">No Tracks Loaded</div>
-                    <div id="playerStatus" style="font-size: 0.9em; color: var(--hint-color);">Playlist is empty</div>
+                    <div class="music-title" id="playerTitle">Loading Playlist...</div>
+                    <div id="playerStatus" style="font-size: 0.9em; color: var(--hint-color);">Ready to play</div>
                 </div>
                 <div class="progress-container">
                     <div class="progress-bar" id="progressBar">
@@ -651,7 +651,7 @@
                     <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="0.15">
                     <span>🔊</span>
                 </div>
-                <div class="playlist-info">Playlist: 0 tracks available</div>
+                <div class="playlist-info" id="playlistCount">Playlist: 15 tracks available</div>
             </div>
         </div>
     </div>
@@ -840,7 +840,23 @@
         const currentTimeDisplay = document.getElementById('currentTime');
         const durationDisplay = document.getElementById('duration');
 
-        const playlist = [];
+        const playlist = [
+            { title: "Default Background Ambiance", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/VjoxrzwMYdrlCMeB.mp3" },
+            { title: "Blue (lofi version)", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/maNfxacLZpKQOlYX.mp3" },
+            { title: "Collision Chaos Bad Future", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/CVxWbjCGTKVxWtGV.mp3" },
+            { title: "Collision Chaos", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/injKwGtYpugkafRu.mp3" },
+            { title: "Do Sum", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/OXUofCnxMApIYLtF.mp3" },
+            { title: "Fireflies (lofi version)", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/yezfcvKvYcYXscbR.mp3" },
+            { title: "Five Nights at Freddys 1 Song", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/FbPCSDHqIeUMpJgw.mp3" },
+            { title: "Heat Waves (lofi version)", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/HHybEYVftkaNIPEt.mp3" },
+            { title: "It Was A Good Day", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/SfFnFGkzGENGZNxB.mp3" },
+            { title: "Jealous", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/YdSLSXZpmkULWqHr.mp3" },
+            { title: "Ol Red", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/MaIWGIfAnukgKzNp.mp3" },
+            { title: "PEPPER", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/UgcjUlnBzwFbFaFU.mp3" },
+            { title: "Star Light Zone", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/ITSDWqLcVEPawZTh.mp3" },
+            { title: "Studiopolis Zone Act 1", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/PThmhCcrMFZiLFOH.mp3" },
+            { title: "Sugar Were Goin Down", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/tfmqGurmZQhkpTRw.mp3" }
+        ];
 
         let currentTrackIndex = 0; let isLooping = false; let musicStarted = false;
         function loadTrack(index) { if (playlist.length === 0) return; currentTrackIndex = index; const track = playlist[index]; bgMusic.src = track.url; playerTitle.textContent = track.title; bgMusic.load(); if (musicStarted) bgMusic.play().catch(() => {}); updatePlayPauseIcon(); }
