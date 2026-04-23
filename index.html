@@ -972,8 +972,24 @@
 
         const gamesList = [
             {
+                title: "Super Mario Bros. (Autoload)",
+                type: "emulator",
+                autoload: true,
+                core: "nes",
+                romUrl: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/ROMS/Super%20Mario%20Bros.%20(World).nes",
+                credits: "<p>Game by Nintendo</p><p>Framework by EmulatorJS</p>",
+                controls: `<div style="font-size: 0.95em; line-height: 1.5;">
+                    <p>▸ <strong>Arrows:</strong> Move Mario</p>
+                    <p>▸ <strong>Z:</strong> Jump (A Button)</p>
+                    <p>▸ <strong>X:</strong> Run/Fireball (B Button)</p>
+                    <p>▸ <strong>Enter:</strong> Start</p>
+                    <p>▸ <strong>Shift:</strong> Select</p>
+                </div>`
+            },
+            {
                 title: "EmulatorJS ROM Loader",
                 type: "emulator",
+                autoload: false,
                 credits: "<p>Framework by EmulatorJS</p><p>Integrated by DiddyEater67</p>",
                 controls: `<div style="font-size: 0.95em; line-height: 1.5;">
                     <p>▸ <strong>Load ROM:</strong> Select a system and upload your ROM file.</p>
@@ -1040,12 +1056,44 @@
             if (game.type === 'emulator') {
                 gameIframe.style.display = 'none';
                 emulatorContainer.style.display = 'block';
-                emulatorSetup.style.display = 'flex';
+                
+                if (game.autoload) {
+                    emulatorSetup.style.display = 'none';
+                    startEmulator(game.core, game.romUrl);
+                } else {
+                    emulatorSetup.style.display = 'flex';
+                }
             } else {
                 emulatorContainer.style.display = 'none';
                 emulatorSetup.style.display = 'none';
                 gameIframe.style.display = 'block';
                 gameIframe.src = game.url;
+            }
+        }
+
+        function startEmulator(core, romUrl) {
+            // Set global EJS variables
+            window.EJS_player = '#emulator-container';
+            window.EJS_core = core;
+            window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
+            window.EJS_gameUrl = romUrl;
+            
+            // Ensure emulator container is focused for input
+            emulatorContainer.tabIndex = 0;
+            emulatorContainer.focus();
+
+            if (!emulatorScriptLoaded) {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
+                script.onload = () => { 
+                    emulatorScriptLoaded = true;
+                    setTimeout(() => { emulatorContainer.focus(); }, 500);
+                };
+                document.body.appendChild(script);
+            } else {
+                // For subsequent loads, we might need a refresh or more complex logic
+                // For now, we'll assume first-time load per session or refresh.
+                console.log("Emulator script already loaded. Refreshing might be needed for new ROM.");
             }
         }
 
@@ -1063,33 +1111,9 @@
             
             reader.onload = (e) => {
                 const romData = e.target.result;
+                const romBlobUrl = URL.createObjectURL(new Blob([romData]));
                 emulatorSetup.style.display = 'none';
-                
-                // Set global EJS variables
-                window.EJS_player = '#emulator-container';
-                window.EJS_core = coreSelect.value;
-                window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
-                window.EJS_gameUrl = URL.createObjectURL(new Blob([romData]));
-                
-                // Ensure emulator container is focused for input
-                emulatorContainer.tabIndex = 0;
-                emulatorContainer.focus();
-
-                if (!emulatorScriptLoaded) {
-                    const script = document.createElement('script');
-                    script.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
-                    script.onload = () => { 
-                        emulatorScriptLoaded = true;
-                        // Force focus again after script load
-                        setTimeout(() => {
-                            emulatorContainer.focus();
-                        }, 500);
-                    };
-                    document.body.appendChild(script);
-                } else {
-                    // If script already loaded, we refresh to reset the state for a new ROM
-                    location.reload();
-                }
+                startEmulator(coreSelect.value, romBlobUrl);
             };
             reader.readAsArrayBuffer(file);
         });
