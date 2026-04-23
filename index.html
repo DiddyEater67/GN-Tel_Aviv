@@ -556,7 +556,7 @@
                 <button id="resetBtn">RESET</button>
             </div>
             <div class="music-control">
-                <span id="musicStatus">🎵 Background Ambience Ready</span>
+                <span id="musicStatus">🎵 Music Player Empty</span>
             </div>
             <p class="hint">Tip: You can use the spacebar to click!</p>
         </div>
@@ -627,8 +627,8 @@
         <div class="container blank-container">
             <div class="music-player">
                 <div class="music-info">
-                    <div class="music-title" id="playerTitle">Background Ambience</div>
-                    <div id="playerStatus" style="font-size: 0.9em; color: var(--hint-color);">Ready to play</div>
+                    <div class="music-title" id="playerTitle">No Tracks Loaded</div>
+                    <div id="playerStatus" style="font-size: 0.9em; color: var(--hint-color);">Playlist is empty</div>
                 </div>
                 <div class="progress-container">
                     <div class="progress-bar" id="progressBar">
@@ -651,7 +651,7 @@
                     <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="0.15">
                     <span>🔊</span>
                 </div>
-                <div class="playlist-info">Playlist: 12 tracks available</div>
+                <div class="playlist-info">Playlist: 0 tracks available</div>
             </div>
         </div>
     </div>
@@ -840,34 +840,21 @@
         const currentTimeDisplay = document.getElementById('currentTime');
         const durationDisplay = document.getElementById('duration');
 
-        const playlist = [
-            { title: "Background Ambience", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/MQZrzPffcSRLLgWr.mp3" },
-            { title: "All The Small Things", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/MQZrzPffcSRLLgWr.mp3" },
-            { title: "Attention", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/BURCozMFYJctOoBf.mp3" },
-            { title: "Back on Track", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/yFJIVJxQBBiZihIl.mp3" },
-            { title: "Blue (lofi version)", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/FYugMNKjrcDUcdHa.mp3" },
-            { title: "Circles", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/LpXpZpZpZpZpZpZp.mp3" },
-            { title: "Closer", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/LpXpZpZpZpZpZpZp.mp3" },
-            { title: "Counting Stars", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/LpXpZpZpZpZpZpZp.mp3" },
-            { title: "Dance Monkey", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/LpXpZpZpZpZpZpZp.mp3" },
-            { title: "Don't Start Now", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/LpXpZpZpZpZpZpZp.mp3" },
-            { title: "Heat Waves", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/LpXpZpZpZpZpZpZp.mp3" },
-            { title: "Levitating", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/LpXpZpZpZpZpZpZp.mp3" }
-        ];
+        const playlist = [];
 
         let currentTrackIndex = 0; let isLooping = false; let musicStarted = false;
-        function loadTrack(index) { currentTrackIndex = index; const track = playlist[index]; bgMusic.src = track.url; playerTitle.textContent = track.title; bgMusic.load(); if (musicStarted) bgMusic.play().catch(() => {}); updatePlayPauseIcon(); }
+        function loadTrack(index) { if (playlist.length === 0) return; currentTrackIndex = index; const track = playlist[index]; bgMusic.src = track.url; playerTitle.textContent = track.title; bgMusic.load(); if (musicStarted) bgMusic.play().catch(() => {}); updatePlayPauseIcon(); }
         function updatePlayPauseIcon() { playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️'; }
-        function startMusic() { if (musicStarted) return; musicStarted = true; bgMusic.play().catch(() => {}); musicStatus.textContent = "🎵 Music Playing"; updatePlayPauseIcon(); }
-        bgMusic.addEventListener('timeupdate', () => { const progress = (bgMusic.currentTime / bgMusic.duration) * 100; progressFill.style.width = `${progress}%`; const curM = Math.floor(bgMusic.currentTime / 60); const curS = Math.floor(bgMusic.currentTime % 60); const durM = Math.floor(bgMusic.duration / 60) || 0; const durS = Math.floor(bgMusic.duration % 60) || 0; currentTimeDisplay.textContent = `${curM}:${curS.toString().padStart(2, '0')}`; durationDisplay.textContent = `${durM}:${durS.toString().padStart(2, '0')}`; });
-        bgMusic.addEventListener('ended', () => { if (isLooping) { bgMusic.currentTime = 0; bgMusic.play(); } else { nextBtn.click(); } });
-        playPauseBtn.addEventListener('click', () => { if (!musicStarted) startMusic(); else { if (bgMusic.paused) bgMusic.play(); else bgMusic.pause(); updatePlayPauseIcon(); } });
-        prevBtn.addEventListener('click', () => { let next = (currentTrackIndex - 1 + playlist.length) % playlist.length; loadTrack(next); });
-        nextBtn.addEventListener('click', () => { let next = (currentTrackIndex + 1) % playlist.length; loadTrack(next); });
+        function startMusic() { if (musicStarted || playlist.length === 0) return; musicStarted = true; bgMusic.play().catch(() => {}); musicStatus.textContent = "🎵 Music Playing"; updatePlayPauseIcon(); }
+        bgMusic.addEventListener('timeupdate', () => { if (playlist.length === 0) return; const progress = (bgMusic.currentTime / bgMusic.duration) * 100; progressFill.style.width = `${progress}%`; const curM = Math.floor(bgMusic.currentTime / 60); const curS = Math.floor(bgMusic.currentTime % 60); const durM = Math.floor(bgMusic.duration / 60) || 0; const durS = Math.floor(bgMusic.duration % 60) || 0; currentTimeDisplay.textContent = `${curM}:${curS.toString().padStart(2, '0')}`; durationDisplay.textContent = `${durM}:${durS.toString().padStart(2, '0')}`; });
+        bgMusic.addEventListener('ended', () => { if (playlist.length === 0) return; if (isLooping) { bgMusic.currentTime = 0; bgMusic.play(); } else { nextBtn.click(); } });
+        playPauseBtn.addEventListener('click', () => { if (playlist.length === 0) return; if (!musicStarted) startMusic(); else { if (bgMusic.paused) bgMusic.play(); else bgMusic.pause(); updatePlayPauseIcon(); } });
+        prevBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex - 1 + playlist.length) % playlist.length; loadTrack(next); });
+        nextBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex + 1) % playlist.length; loadTrack(next); });
         loopBtn.addEventListener('click', () => { isLooping = !isLooping; loopBtn.classList.toggle('active', isLooping); });
         volumeSlider.addEventListener('input', (e) => { bgMusic.volume = e.target.value; playerMuteBtn.textContent = bgMusic.volume === 0 ? '🔇' : '🔊'; });
         playerMuteBtn.addEventListener('click', () => { if (bgMusic.volume > 0) { bgMusic.dataset.lastVolume = bgMusic.volume; bgMusic.volume = 0; volumeSlider.value = 0; playerMuteBtn.textContent = '🔇'; } else { bgMusic.volume = bgMusic.dataset.lastVolume || 0.5; volumeSlider.value = bgMusic.volume; playerMuteBtn.textContent = '🔊'; } });
-        progressBar.addEventListener('click', (e) => { const rect = progressBar.getBoundingClientRect(); const pos = (e.clientX - rect.left) / rect.width; bgMusic.currentTime = pos * bgMusic.duration; });
+        progressBar.addEventListener('click', (e) => { if (playlist.length === 0) return; const rect = progressBar.getBoundingClientRect(); const pos = (e.clientX - rect.left) / rect.width; bgMusic.currentTime = pos * bgMusic.duration; });
         loadTrack(0); window.addEventListener('click', startMusic, { once: true });
 
         const counterDisplay = document.getElementById('counter');
