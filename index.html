@@ -256,7 +256,7 @@
             gap: 5px;
         }
 
-        input[type="number"], input[type="text"] {
+        input[type="number"], input[type="text"], select {
             padding: 8px;
             border-radius: 8px;
             border: 1px solid var(--border-color);
@@ -387,6 +387,23 @@
             width: 100%;
             height: 100%;
             background: #000;
+        }
+
+        #emulator-setup {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.8);
+            z-index: 10;
+            color: white;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
         .game-nav-arrow {
@@ -613,6 +630,27 @@
                         <div class="game-frame-wrapper">
                             <iframe id="gameIframe" class="game-frame" allowtransparency="true" frameborder="0" scrolling="no" allowfullscreen></iframe>
                             <div id="emulator-container" style="display: none;"></div>
+                            <div id="emulator-setup" style="display: none;">
+                                <h3>EmulatorJS ROM Loader</h3>
+                                <div style="margin-bottom: 15px;">
+                                    <label>Select System: </label>
+                                    <select id="ejs-core-select">
+                                        <option value="nes">NES</option>
+                                        <option value="snes">SNES</option>
+                                        <option value="gba">GBA</option>
+                                        <option value="gbc">GBC</option>
+                                        <option value="gb">GameBoy</option>
+                                        <option value="n64">N64</option>
+                                        <option value="segaMD">Genesis</option>
+                                    </select>
+                                </div>
+                                <div style="margin-bottom: 15px;">
+                                    <label>Select ROM: </label>
+                                    <input type="file" id="ejs-rom-input" accept=".nes,.sfc,.smc,.gba,.gbc,.gb,.n64,.z64,.bin,.md">
+                                </div>
+                                <button id="ejs-start-btn" class="game-btn">START EMULATOR</button>
+                                <p style="font-size: 0.8em; color: #aaa; margin-top: 10px;">Note: Larger ROMs may take a moment to load.</p>
+                            </div>
                         </div>
                     </div>
                     <div class="side-box" style="text-align: center;">
@@ -920,6 +958,7 @@
 
         const gameIframe = document.getElementById('gameIframe');
         const emulatorContainer = document.getElementById('emulator-container');
+        const emulatorSetup = document.getElementById('emulator-setup');
         const gameTitle = document.getElementById('gameTitle');
         const gameControlsContent = document.getElementById('gameControlsContent');
         const gameCreditsContent = document.getElementById('gameCreditsContent');
@@ -928,12 +967,12 @@
 
         const gamesList = [
             {
-                title: "EmulatorJS Placeholder",
+                title: "EmulatorJS ROM Loader",
                 type: "emulator",
                 credits: "<p>Framework by EmulatorJS</p><p>Integrated by DiddyEater67</p>",
                 controls: `<div style="font-size: 0.95em; line-height: 1.5;">
-                    <p>▸ <strong>Ready for ROMs:</strong> This is a placeholder for EmulatorJS.</p>
-                    <p>▸ <strong>Controls:</strong> Will vary based on the system loaded.</p>
+                    <p>▸ <strong>Load ROM:</strong> Select a system and upload your ROM file.</p>
+                    <p>▸ <strong>Controls:</strong> Click 'Start Emulator' to begin playing.</p>
                 </div>`
             },
             {
@@ -985,21 +1024,7 @@
         ];
 
         let currentGameIndex = 0;
-        let emulatorLoaded = false;
-
-        function loadEmulator() {
-            if (emulatorLoaded) return;
-            const script = document.createElement('script');
-            script.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
-            script.onload = () => {
-                window.EJS_player = '#emulator-container';
-                window.EJS_core = 'nes'; // Default core
-                window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
-                window.EJS_gameUrl = ''; // Placeholder
-                emulatorLoaded = true;
-            };
-            document.body.appendChild(script);
-        }
+        let emulatorScriptLoaded = false;
 
         function updateGame() {
             const game = gamesList[currentGameIndex];
@@ -1010,13 +1035,52 @@
             if (game.type === 'emulator') {
                 gameIframe.style.display = 'none';
                 emulatorContainer.style.display = 'block';
-                loadEmulator();
+                emulatorSetup.style.display = 'flex';
             } else {
                 emulatorContainer.style.display = 'none';
+                emulatorSetup.style.display = 'none';
                 gameIframe.style.display = 'block';
                 gameIframe.src = game.url;
             }
         }
+
+        document.getElementById('ejs-start-btn').addEventListener('click', () => {
+            const romInput = document.getElementById('ejs-rom-input');
+            const coreSelect = document.getElementById('ejs-core-select');
+            
+            if (!romInput.files || romInput.files.length === 0) {
+                alert('Please select a ROM file first!');
+                return;
+            }
+
+            const file = romInput.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                const romData = e.target.result;
+                emulatorSetup.style.display = 'none';
+                
+                // Set global EJS variables
+                window.EJS_player = '#emulator-container';
+                window.EJS_core = coreSelect.value;
+                window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
+                window.EJS_gameUrl = URL.createObjectURL(new Blob([romData]));
+                
+                if (!emulatorScriptLoaded) {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
+                    script.onload = () => { emulatorScriptLoaded = true; };
+                    document.body.appendChild(script);
+                } else {
+                    // If script already loaded, we might need to re-init or reload
+                    // EmulatorJS usually auto-inits on script load. For subsequent loads, 
+                    // a page refresh or more complex logic might be needed.
+                    // For now, we'll assume first-time load per session.
+                    location.reload(); // Simple way to reset for a new ROM
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        });
 
         prevGameBtn.addEventListener('click', () => { currentGameIndex = (currentGameIndex - 1 + gamesList.length) % gamesList.length; updateGame(); });
         nextGameBtn.addEventListener('click', () => { currentGameIndex = (currentGameIndex + 1) % gamesList.length; updateGame(); });
