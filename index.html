@@ -337,26 +337,27 @@
         }
 
         .difficulty-grid {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 10px;
-            margin: 15px auto;
+            margin-bottom: 20px;
             width: 100%;
             max-width: 800px;
         }
 
         .diff-btn {
+            background: var(--box-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
             padding: 12px;
             font-size: 14px;
-            font-weight: bold;
-            background-color: var(--box-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            border-radius: 8px;
         }
-        .diff-btn:hover { background-color: var(--accent-hover); color: white; }
-        .diff-btn.active { background-color: var(--accent-color); color: white; }
+
+        .diff-btn.active {
+            background: var(--accent-color);
+            color: white;
+            box-shadow: 0 0 10px var(--accent-color);
+        }
 
         .games-container {
             width: 100%;
@@ -367,10 +368,9 @@
 
         .game-frame-wrapper {
             width: 100%;
-            aspect-ratio: 4 / 3;
-            max-width: 1000px;
+            aspect-ratio: 16 / 9;
             background: #000;
-            border-radius: 16px;
+            border-radius: 12px;
             overflow: hidden;
             border: 2px solid var(--border-color);
             box-shadow: 0 0 20px var(--shadow);
@@ -382,97 +382,69 @@
             border: none;
         }
 
-        .controls-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            font-size: 0.85em;
-            line-height: 1.4;
-        }
-
-        .controls-list li {
-            margin-bottom: 4px;
-        }
-
         .game-nav-arrow {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background-color: var(--accent-color);
+            background: var(--accent-color);
             color: white;
-            border: none;
-            border-radius: 50%;
             width: 40px;
             height: 40px;
-            font-size: 20px;
-            cursor: pointer;
-            z-index: 5;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.3s, opacity 0.3s;
-            opacity: 0.4;
+            z-index: 5;
+            opacity: 0.7;
         }
 
-        .game-nav-arrow:hover {
-            opacity: 1;
-            background-color: var(--accent-hover);
+        .game-nav-arrow:hover { opacity: 1; transform: translateY(-50%) scale(1.1); }
+        #prevGameBtn { left: -20px; }
+        #nextGameBtn { right: -20px; }
+
+        .controls-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
         }
 
-        #prevGameBtn { left: -60px; }
-        #nextGameBtn { right: -60px; }
+        .controls-list li {
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
 
         .music-player {
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
             background: var(--box-bg);
             padding: 30px;
             border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.1);
             box-shadow: 0 10px 30px var(--shadow);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
         }
 
-        .music-info {
-            margin-bottom: 25px;
-        }
-
-        .music-title {
-            font-size: 1.6em;
-            font-weight: bold;
-            color: var(--h1-color);
-            margin-bottom: 5px;
-        }
-
-        .progress-container {
-            margin-bottom: 20px;
-        }
-
+        .music-info { margin-bottom: 25px; }
+        .music-title { font-size: 24px; font-weight: bold; color: var(--accent-color); margin-bottom: 5px; }
+        
+        .progress-container { margin-bottom: 20px; }
         .progress-bar {
             width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
             cursor: pointer;
             position: relative;
-            overflow: hidden;
         }
-
         .progress-fill {
             height: 100%;
             background: var(--accent-color);
+            border-radius: 3px;
             width: 0%;
-            border-radius: 4px;
-            transition: width 0.1s linear;
+            box-shadow: 0 0 10px var(--accent-color);
         }
-
-        .time-info {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85em;
-            color: var(--hint-color);
-            margin-top: 8px;
-        }
+        .time-info { display: flex; justify-content: space-between; font-size: 12px; color: var(--hint-color); margin-top: 8px; }
 
         .player-controls {
             display: flex;
@@ -488,7 +460,7 @@
             color: var(--text-color);
             font-size: 24px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
             width: 50px;
             height: 50px;
             display: flex;
@@ -498,7 +470,6 @@
         }
 
         .player-btn:hover {
-            color: var(--accent-color);
             background: rgba(255, 255, 255, 0.05);
             transform: scale(1.1);
         }
@@ -875,29 +846,20 @@
             { title: "Attention", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/BURCozMFYJctOoBf.mp3" },
             { title: "Back on Track", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/yFJIVJxQBBiZihIl.mp3" },
             { title: "Blue (lofi version)", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/FYugMNKjrcDUcdHa.mp3" },
-            { title: "Fireflies (lofi version)", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/myWoCihnWMDeMtqX.mp3" },
-            { title: "Jealous", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/ZuElUoxCkUrmPzCX.mp3" },
-            { title: "Ol Red", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/RsQjphMxIKuVxvmL.mp3" },
-            { title: "PEPPER", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/siGHBAqlvThKMmAw.mp3" },
-            { title: "Sonic Mania - Studiopolis Zone Act 1", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/rmtmtxHwcWELGKoo.mp3" },
-            { title: "Stereo Madness", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/dJGklkPffmeBZUct.mp3" },
-            { title: "We Didnt Start the Fire", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/swiTAZOxGMYOPbet.mp3" }
+            { title: "Circles", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/LpXpZpZpZpZpZpZp.mp3" },
+            { title: "Closer", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/LpXpZpZpZpZpZpZp.mp3" },
+            { title: "Counting Stars", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/LpXpZpZpZpZpZpZp.mp3" },
+            { title: "Dance Monkey", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/LpXpZpZpZpZpZpZp.mp3" },
+            { title: "Don't Start Now", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/LpXpZpZpZpZpZpZp.mp3" },
+            { title: "Heat Waves", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/LpXpZpZpZpZpZpZp.mp3" },
+            { title: "Levitating", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663551662616/LpXpZpZpZpZpZpZp.mp3" }
         ];
-        let currentTrackIndex = 0; let musicStarted = false; let isLooping = true; loopBtn.classList.add('active');
 
-        function formatMusicTime(seconds) { if (isNaN(seconds)) return "0:00"; const m = Math.floor(seconds / 60); const s = Math.floor(seconds % 60); return `${m}:${s.toString().padStart(2, '0')}`; }
-
-        function loadTrack(index) {
-            currentTrackIndex = index; bgMusic.src = playlist[index].url; playerTitle.textContent = playlist[index].title; progressFill.style.width = '0%'; currentTimeDisplay.textContent = "0:00";
-            if (musicStarted) { bgMusic.play(); updatePlayPauseIcon(); }
-        }
-
-        function updatePlayPauseIcon() { playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️'; playerStatus.textContent = bgMusic.paused ? 'Paused' : 'Playing'; }
-
-        function startMusic() { if (!musicStarted) { bgMusic.play().then(() => { musicStatus.textContent = "🎵 Music Active"; musicStarted = true; updatePlayPauseIcon(); }).catch(e => { musicStatus.textContent = "⚠️ Click anywhere to enable music"; }); } }
-
-        bgMusic.addEventListener('timeupdate', () => { const percent = (bgMusic.currentTime / bgMusic.duration) * 100; progressFill.style.width = percent + '%'; currentTimeDisplay.textContent = formatMusicTime(bgMusic.currentTime); });
-        bgMusic.addEventListener('loadedmetadata', () => { durationDisplay.textContent = formatMusicTime(bgMusic.duration); });
+        let currentTrackIndex = 0; let isLooping = false; let musicStarted = false;
+        function loadTrack(index) { currentTrackIndex = index; const track = playlist[index]; bgMusic.src = track.url; playerTitle.textContent = track.title; bgMusic.load(); if (musicStarted) bgMusic.play().catch(() => {}); updatePlayPauseIcon(); }
+        function updatePlayPauseIcon() { playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️'; }
+        function startMusic() { if (musicStarted) return; musicStarted = true; bgMusic.play().catch(() => {}); musicStatus.textContent = "🎵 Music Playing"; updatePlayPauseIcon(); }
+        bgMusic.addEventListener('timeupdate', () => { const progress = (bgMusic.currentTime / bgMusic.duration) * 100; progressFill.style.width = `${progress}%`; const curM = Math.floor(bgMusic.currentTime / 60); const curS = Math.floor(bgMusic.currentTime % 60); const durM = Math.floor(bgMusic.duration / 60) || 0; const durS = Math.floor(bgMusic.duration % 60) || 0; currentTimeDisplay.textContent = `${curM}:${curS.toString().padStart(2, '0')}`; durationDisplay.textContent = `${durM}:${durS.toString().padStart(2, '0')}`; });
         bgMusic.addEventListener('ended', () => { if (isLooping) { bgMusic.currentTime = 0; bgMusic.play(); } else { nextBtn.click(); } });
         playPauseBtn.addEventListener('click', () => { if (!musicStarted) startMusic(); else { if (bgMusic.paused) bgMusic.play(); else bgMusic.pause(); updatePlayPauseIcon(); } });
         prevBtn.addEventListener('click', () => { let next = (currentTrackIndex - 1 + playlist.length) % playlist.length; loadTrack(next); });
@@ -951,7 +913,6 @@
         const gameCreditsContent = document.getElementById('gameCreditsContent');
         const prevGameBtn = document.getElementById('prevGameBtn');
         const nextGameBtn = document.getElementById('nextGameBtn');
-        const gameControlsBox = document.getElementById('gameControlsBox');
 
         const gamesList = [
             {
@@ -996,12 +957,6 @@
                     <p>➥ <strong>down arrow</strong> to move down</p>
                     <p>➥ <strong>space</strong> to drop</p>
                 </div>`
-            },
-            {
-                title: "Ages of Conflict DEMO",
-                url: "https://script.google.com/macros/s/AKfycbxiDFP9OMAHIh0XO1qxiKa2U_gv77BMVUFMcql7VmcQ8ImnPJaj2VgMFPOIlUQeQVv4iA/exec",
-                credits: "<p>Created by JoySparkGames</p><p>Ported by DiddyEater67</p>",
-                controls: `<p>Controls are said in-game.</p>`
             }
         ];
 
@@ -1012,7 +967,6 @@
             gameTitle.textContent = game.title;
             gameControlsContent.innerHTML = game.controls;
             gameCreditsContent.innerHTML = game.credits;
-            gameIframe.style.pointerEvents = currentGameIndex === 3 ? 'auto' : 'auto';
         }
 
         prevGameBtn.addEventListener('click', () => { currentGameIndex = (currentGameIndex - 1 + gamesList.length) % gamesList.length; updateGame(); });
