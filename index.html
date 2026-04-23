@@ -338,43 +338,57 @@
 
         .difficulty-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 10px;
             margin-bottom: 20px;
             width: 100%;
-            max-width: 800px;
         }
 
         .diff-btn {
             background: var(--box-bg);
             color: var(--text-color);
             border: 1px solid var(--border-color);
-            padding: 12px;
+            padding: 10px;
             font-size: 14px;
         }
 
         .diff-btn.active {
             background: var(--accent-color);
             color: white;
-            box-shadow: 0 0 10px var(--accent-color);
         }
 
-        .games-container {
-            width: 100%;
+        /* Games Section Styles */
+        .game-nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
             display: flex;
-            flex-direction: column;
             align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 5;
+            transition: background 0.3s;
         }
+
+        #prevGameBtn { left: -50px; }
+        #nextGameBtn { right: -50px; }
+
+        .game-nav-arrow:hover { background: var(--accent-color); }
 
         .game-frame-wrapper {
             width: 100%;
-            aspect-ratio: 16 / 9;
+            height: 600px;
             background: #000;
             border-radius: 12px;
             overflow: hidden;
-            border: 2px solid var(--border-color);
-            box-shadow: 0 0 20px var(--shadow);
             position: relative;
+            border: 2px solid var(--border-color);
         }
 
         .game-frame {
@@ -386,95 +400,76 @@
         #emulator-container {
             width: 100%;
             height: 100%;
-            background: #000;
         }
 
         #emulator-setup {
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: rgba(0,0,0,0.8);
-            z-index: 10;
+            background: #1a1a1a;
             color: white;
-            padding: 20px;
-            box-sizing: border-box;
         }
-
-        .game-nav-arrow {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: var(--accent-color);
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 5;
-            opacity: 0.7;
-        }
-
-        .game-nav-arrow:hover { opacity: 1; transform: translateY(-50%) scale(1.1); }
-        #prevGameBtn { left: -20px; }
-        #nextGameBtn { right: -20px; }
 
         .controls-list {
             list-style: none;
             padding: 0;
             margin: 0;
+            text-align: left;
             width: 100%;
         }
 
         .controls-list li {
             margin-bottom: 8px;
             padding-bottom: 8px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
+        /* Music Player Styles */
         .music-player {
             width: 100%;
             max-width: 600px;
             background: var(--box-bg);
             padding: 30px;
             border-radius: 24px;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 10px 30px var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .music-info { margin-bottom: 25px; }
-        .music-title { font-size: 24px; font-weight: bold; color: var(--accent-color); margin-bottom: 5px; }
-        
-        .progress-container { margin-bottom: 20px; }
+        .music-title { font-size: 1.8em; font-weight: bold; color: var(--accent-color); margin-bottom: 10px; }
+
+        .progress-container { margin-bottom: 25px; }
         .progress-bar {
             width: 100%;
-            height: 6px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 3px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
             cursor: pointer;
             position: relative;
         }
         .progress-fill {
             height: 100%;
             background: var(--accent-color);
-            border-radius: 3px;
+            border-radius: 4px;
             width: 0%;
-            box-shadow: 0 0 10px var(--accent-color);
+            transition: width 0.1s linear;
         }
-        .time-info { display: flex; justify-content: space-between; font-size: 12px; color: var(--hint-color); margin-top: 8px; }
+
+        .time-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 0.9em;
+            color: var(--hint-color);
+        }
 
         .player-controls {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 20px;
+            gap: 25px;
             margin-bottom: 25px;
         }
 
@@ -484,13 +479,12 @@
             color: var(--text-color);
             font-size: 24px;
             cursor: pointer;
-            transition: all 0.2s;
-            width: 50px;
-            height: 50px;
+            transition: all 0.3s;
+            padding: 10px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
         }
 
         .player-btn:hover {
@@ -694,7 +688,7 @@
                 </div>
                 <div class="volume-container">
                     <span>🔈</span>
-                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="0.15">
+                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
                     <span>🔊</span>
                 </div>
                 <div class="playlist-info" id="playlistCount">Playlist: 15 tracks available</div>
@@ -878,19 +872,18 @@
         particleShapeBtn.addEventListener('click', () => { particleShapeState = (particleShapeState + 1) % shapeIcons.length; particleShapeBtn.textContent = shapeIcons[particleShapeState]; particleShapeBtn.blur(); });
 
         const bgMusic = document.getElementById('bgMusic');
-        const musicStatus = document.getElementById('musicStatus');
         const playPauseBtn = document.getElementById('playPauseBtn');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
         const loopBtn = document.getElementById('loopBtn');
         const volumeSlider = document.getElementById('volumeSlider');
         const playerMuteBtn = document.getElementById('playerMuteBtn');
-        const playerTitle = document.getElementById('playerTitle');
-        const playerStatus = document.getElementById('playerStatus');
         const progressBar = document.getElementById('progressBar');
         const progressFill = document.getElementById('progressFill');
         const currentTimeDisplay = document.getElementById('currentTime');
         const durationDisplay = document.getElementById('duration');
+        const playerTitle = document.getElementById('playerTitle');
+        const musicStatus = document.getElementById('musicStatus');
 
         const playlist = [
             { title: "Default Background Ambiance", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/VjoxrzwMYdrlCMeB.mp3" },
@@ -972,6 +965,20 @@
 
         const gamesList = [
             {
+                title: "Sonic The Hedgehog 1 (Autoload)",
+                type: "emulator",
+                autoload: true,
+                core: "segaMD",
+                romUrl: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/ROMS/Sonic%20The%20Hedgehog%201.md",
+                credits: "<p>Game by SEGA</p><p>Framework by EmulatorJS</p>",
+                controls: `<div style="font-size: 0.95em; line-height: 1.5;">
+                    <p>▸ <strong>Arrows:</strong> Move Sonic</p>
+                    <p>▸ <strong>Z/X/C:</strong> Jump (A/B/C Buttons)</p>
+                    <p>▸ <strong>Enter:</strong> Start</p>
+                    <p>▸ <strong>Shift:</strong> Mode</p>
+                </div>`
+            },
+            {
                 title: "Super Mario Bros. (Autoload)",
                 type: "emulator",
                 autoload: true,
@@ -1022,25 +1029,13 @@
                 title: "World Peace Project",
                 type: "iframe",
                 url: "https://turbowarp.org/772985488/embed?addons=pause%2Cfullscreen&fps=60",
-                credits: "<p>Game by codeGIO</p><p>Ported by DiddyEater67</p>",
-                controls: `<div style="font-size: 0.95em; line-height: 1.5;">
-                    <p>▸ <strong>1st button:</strong> Gives you one flag and you select the appropriate country.</p>
-                    <p>▸ <strong>2nd button:</strong> Gives you the name of a country and you select the corresponding flag.</p>
-                    <p>▸ <strong>3rd button:</strong> There is the world map for you to explore! You can click to zoom in.</p>
-                    <p>▸ <strong>4th button:</strong> 4 quotes by famous people that support peace!</p>
-                </div>`
-            },
-            {
-                title: "Tetris",
-                type: "iframe",
-                url: "https://turbowarp.org/451773001/embed?addons=pause%2Cfullscreen&fps=60",
-                credits: "<p>Game by TimMcCool</p><p>Ported by DiddyEater67</p>",
-                controls: `<div style="font-size: 0.95em; line-height: 1.5;">
-                    <p>➥ <strong>left / right arrow</strong> to move</p>
-                    <p>➥ <strong>up arrow</strong> to rotate</p>
-                    <p>➥ <strong>down arrow</strong> to move down</p>
-                    <p>➥ <strong>space</strong> to drop</p>
-                </div>`
+                credits: "<p>Game made by Griffpatch</p><p>Ported by DiddyEater67</p>",
+                controls: `<ul class="controls-list">
+                    <li><strong>[WASD]</strong> - Move</li>
+                    <li><strong>[Space]</strong> - Jump</li>
+                    <li><strong>[E]</strong> - Interact</li>
+                    <li><strong>[Q]</strong> - Drop</li>
+                </ul>`
             }
         ];
 
@@ -1064,9 +1059,9 @@
                     emulatorSetup.style.display = 'flex';
                 }
             } else {
+                gameIframe.style.display = 'block';
                 emulatorContainer.style.display = 'none';
                 emulatorSetup.style.display = 'none';
-                gameIframe.style.display = 'block';
                 gameIframe.src = game.url;
             }
         }
@@ -1094,6 +1089,8 @@
                 // For subsequent loads, we might need a refresh or more complex logic
                 // For now, we'll assume first-time load per session or refresh.
                 console.log("Emulator script already loaded. Refreshing might be needed for new ROM.");
+                // Re-trigger loader if possible or just update global vars
+                if (typeof EJS_reinit === 'function') EJS_reinit();
             }
         }
 
