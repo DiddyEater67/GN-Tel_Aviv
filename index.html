@@ -737,9 +737,15 @@
             startMusic();
         });
 
+        // Keyboard navigation - Disabled arrow keys to prevent interference with games
         window.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft') document.getElementById('prevPageBtn').click();
-            else if (e.key === 'ArrowRight') document.getElementById('nextPageBtn').click();
+            // Only allow spacebar for clicker on page 1
+            if (e.code === 'Space' && currentPage === 0) {
+                e.preventDefault();
+                handleClick();
+                clickBtn.style.transform = 'translateY(2px)';
+                setTimeout(() => clickBtn.style.transform = 'translateY(0)', 100);
+            }
         });
 
         const themeToggle = document.getElementById('themeToggle');
@@ -936,7 +942,6 @@
         function endGame() { clearInterval(timerId); gameActive = false; statusMsg.textContent = "TIME'S UP!"; minInput.disabled = false; secInput.disabled = false; if (count > highScore) { highScore = count; localStorage.setItem('gn_highScore', highScore); highScoreDisplay.textContent = highScore; statusMsg.textContent = "NEW HIGH SCORE!"; } }
         function handleClick() { if (!gameActive && timeLeft > 0 && timerId === null) startGame(); if (gameActive) { count++; counterDisplay.textContent = count; } }
         clickBtn.addEventListener('click', handleClick);
-        window.addEventListener('keydown', (e) => { if (e.code === 'Space' && currentPage === 0) { e.preventDefault(); handleClick(); clickBtn.style.transform = 'translateY(2px)'; setTimeout(() => clickBtn.style.transform = 'translateY(0)', 100); } });
         resetBtn.addEventListener('click', () => { clearInterval(timerId); timerId = null; gameActive = false; count = 0; counterDisplay.textContent = count; timeLeft = parseInt(minInput.value) * 60 + parseInt(secInput.value); updateTimerDisplay(); statusMsg.textContent = ""; minInput.disabled = false; secInput.disabled = false; });
 
         const guessInput = document.getElementById('guessInput');
@@ -1066,17 +1071,24 @@
                 window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
                 window.EJS_gameUrl = URL.createObjectURL(new Blob([romData]));
                 
+                // Ensure emulator container is focused for input
+                emulatorContainer.tabIndex = 0;
+                emulatorContainer.focus();
+
                 if (!emulatorScriptLoaded) {
                     const script = document.createElement('script');
                     script.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
-                    script.onload = () => { emulatorScriptLoaded = true; };
+                    script.onload = () => { 
+                        emulatorScriptLoaded = true;
+                        // Force focus again after script load
+                        setTimeout(() => {
+                            emulatorContainer.focus();
+                        }, 500);
+                    };
                     document.body.appendChild(script);
                 } else {
-                    // If script already loaded, we might need to re-init or reload
-                    // EmulatorJS usually auto-inits on script load. For subsequent loads, 
-                    // a page refresh or more complex logic might be needed.
-                    // For now, we'll assume first-time load per session.
-                    location.reload(); // Simple way to reset for a new ROM
+                    // If script already loaded, we refresh to reset the state for a new ROM
+                    location.reload();
                 }
             };
             reader.readAsArrayBuffer(file);
