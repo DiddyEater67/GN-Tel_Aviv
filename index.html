@@ -718,7 +718,7 @@
         </div>
     </div>
 
-    <audio id="bgMusic"></audio>
+    <audio id="bgMusic" crossOrigin="anonymous"></audio>
 
     <script>
         const pages = document.querySelectorAll('.page');
@@ -935,16 +935,22 @@
         let analyser = null;
         let dataArray = null;
         let animationId = null;
+        let sourceNode = null;
 
         function initAudioContext() {
             if (audioContext) return;
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioContext.createAnalyser();
-            analyser.fftSize = 256;
-            const source = audioContext.createMediaElementAudioSource(bgMusic);
-            source.connect(analyser);
-            analyser.connect(audioContext.destination);
-            dataArray = new Uint8Array(analyser.frequencyBinCount);
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                analyser.smoothingTimeConstant = 0.8;
+                sourceNode = audioContext.createMediaElementAudioSource(bgMusic);
+                sourceNode.connect(analyser);
+                analyser.connect(audioContext.destination);
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+            } catch (e) {
+                console.error('Audio Context Error:', e);
+            }
         }
 
         function resizeVisualizerCanvas() {
@@ -954,10 +960,9 @@
         }
 
         function drawVisualizer() {
-            if (!analyser) return;
+            if (!analyser || !dataArray) return;
             analyser.getByteFrequencyData(dataArray);
-            visualizerCtx.fillStyle = 'rgba(10, 10, 10, 0.2)';
-            visualizerCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+            visualizerCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
             const barWidth = visualizerCanvas.width / dataArray.length;
             let x = 0;
             for (let i = 0; i < dataArray.length; i++) {
@@ -974,8 +979,11 @@
         window.addEventListener('resize', resizeVisualizerCanvas);
 
         bgMusic.addEventListener('play', function() {
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
             if (!audioContext) initAudioContext();
-            if (!animationId) drawVisualizer();
+            if (audioContext && !animationId) drawVisualizer();
         });
 
         bgMusic.addEventListener('pause', function() {
