@@ -744,7 +744,7 @@
         </div>
     </div>
 
-    <audio id="bgMusic" crossorigin="anonymous" preload="auto"></audio>
+    <audio id="bgMusic" crossorigin="anonymous"></audio>
 
     <script>
         const pages = document.querySelectorAll('.page');
@@ -929,12 +929,11 @@
 
         let currentTrackIndex = 0; 
         let isLooping = false; 
-        let musicStarted = false;
         let audioCtx, analyser, dataArray, source;
-        let visualizerEnabled = false;
+        let visualizerStarted = false;
 
-        function initVisualizer() {
-            if (audioCtx) return;
+        function startVisualizer() {
+            if (visualizerStarted) return;
             try {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 analyser = audioCtx.createAnalyser();
@@ -944,13 +943,10 @@
                 analyser.fftSize = 256;
                 const bufferLength = analyser.frequencyBinCount;
                 dataArray = new Uint8Array(bufferLength);
-                visualizerEnabled = true;
+                visualizerStarted = true;
                 drawVisualizer();
             } catch (e) {
-                console.warn("Visualizer failed (likely CORS). Audio will play without it.", e);
-                // Fallback: If visualizer fails, we MUST disconnect and connect audio directly
-                // but since createMediaElementSource ALREADY hijacks the audio, we just let it be
-                // or if it fails completely, we don't use AudioContext at all.
+                console.warn("Visualizer blocked by CORS. Audio is still connected to output.", e);
             }
         }
 
@@ -962,7 +958,7 @@
 
             function draw() {
                 requestAnimationFrame(draw);
-                if (!visualizerEnabled || !analyser) return;
+                if (!visualizerStarted || !analyser) return;
                 analyser.getByteFrequencyData(dataArray);
                 vCtx.clearRect(0, 0, width, height);
                 const barWidth = (width / dataArray.length) * 2.5;
@@ -985,9 +981,6 @@
             bgMusic.src = track.url; 
             playerTitle.textContent = track.title; 
             bgMusic.load(); 
-            if (musicStarted) {
-                bgMusic.play().catch(e => console.warn("Playback blocked:", e));
-            }
             updatePlayPauseIcon(); 
         }
         
@@ -995,21 +988,18 @@
             playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️'; 
         }
         
-        function startMusic() { 
-            if (musicStarted || playlist.length === 0) return; 
-            musicStarted = true; 
-            
-            // Try to init visualizer, but don't let it block audio
-            initVisualizer(); 
-            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-            
-            bgMusic.play().then(() => {
-                musicStatus.textContent = "🎵 Music Playing";
+        function togglePlay() {
+            if (bgMusic.paused) {
+                if (!visualizerStarted) startVisualizer();
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+                bgMusic.play().then(() => {
+                    musicStatus.textContent = "🎵 Music Playing";
+                    updatePlayPauseIcon();
+                }).catch(e => console.error("Play failed:", e));
+            } else {
+                bgMusic.pause();
                 updatePlayPauseIcon();
-            }).catch(e => {
-                console.error("Playback error:", e);
-                musicStarted = false;
-            }); 
+            }
         }
         
         bgMusic.addEventListener('timeupdate', () => { 
@@ -1034,24 +1024,9 @@
             } 
         });
         
-        playPauseBtn.addEventListener('click', (e) => { 
-            e.stopPropagation();
-            if (playlist.length === 0) return; 
-            if (!musicStarted) {
-                startMusic();
-            } else { 
-                if (bgMusic.paused) { 
-                    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); 
-                    bgMusic.play(); 
-                } else {
-                    bgMusic.pause(); 
-                }
-                updatePlayPauseIcon(); 
-            } 
-        });
-        
-        prevBtn.addEventListener('click', (e) => { e.stopPropagation(); if (playlist.length === 0) return; let next = (currentTrackIndex - 1 + playlist.length) % playlist.length; loadTrack(next); });
-        nextBtn.addEventListener('click', (e) => { e.stopPropagation(); if (playlist.length === 0) return; let next = (currentTrackIndex + 1) % playlist.length; loadTrack(next); });
+        playPauseBtn.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
+        prevBtn.addEventListener('click', (e) => { e.stopPropagation(); let next = (currentTrackIndex - 1 + playlist.length) % playlist.length; loadTrack(next); if (!bgMusic.paused) bgMusic.play(); });
+        nextBtn.addEventListener('click', (e) => { e.stopPropagation(); let next = (currentTrackIndex + 1) % playlist.length; loadTrack(next); if (!bgMusic.paused) bgMusic.play(); });
         loopBtn.addEventListener('click', (e) => { e.stopPropagation(); isLooping = !isLooping; loopBtn.classList.toggle('active', isLooping); });
         volumeSlider.addEventListener('input', (e) => { bgMusic.volume = e.target.value; playerMuteBtn.textContent = bgMusic.volume === 0 ? '🔇' : '🔊'; });
         playerMuteBtn.addEventListener('click', (e) => { e.stopPropagation(); if (bgMusic.volume > 0) { bgMusic.dataset.lastVolume = bgMusic.volume; bgMusic.volume = 0; volumeSlider.value = 0; playerMuteBtn.textContent = '🔇'; } else { bgMusic.volume = bgMusic.dataset.lastVolume || 0.5; volumeSlider.value = bgMusic.volume; playerMuteBtn.textContent = '🔊'; } });
@@ -1059,10 +1034,8 @@
         
         // Initial load
         loadTrack(0); 
-        // Global click to unlock audio
-        window.addEventListener('click', () => { if (!musicStarted) startMusic(); }, { once: true });
 
-        // Spacebar Clicker Logic
+        // Game Logic
         const counterDisplay = document.getElementById('counter');
         const highScoreDisplay = document.getElementById('highScore');
         const timerDisplay = document.getElementById('timer');
@@ -1082,7 +1055,6 @@
         
         clickBtn.addEventListener('click', (e) => { e.stopPropagation(); handleClick(); });
         resetBtn.addEventListener('click', (e) => { e.stopPropagation(); clearInterval(timerId); timerId = null; gameActive = false; count = 0; counterDisplay.textContent = count; timeLeft = parseInt(minInput.value) * 60 + parseInt(secInput.value); updateTimerDisplay(); statusMsg.textContent = ""; minInput.disabled = false; secInput.disabled = false; });
-        
         window.addEventListener('keydown', (e) => { if (e.code === 'Space') { e.preventDefault(); handleClick(); } });
 
         // Guessing Game Logic
