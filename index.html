@@ -528,16 +528,6 @@
             font-size: 0.9em;
             color: var(--hint-color);
         }
-
-        #visualizerCanvas {
-            width: 100%;
-            height: 150px;
-            margin-top: 20px;
-            background: linear-gradient(to bottom, rgba(93, 173, 226, 0.1), rgba(93, 173, 226, 0.05));
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            display: block;
-        }
     </style>
 </head>
 <body>
@@ -702,7 +692,6 @@
                     <span>🔊</span>
                 </div>
                 <div class="playlist-info" id="playlistCount">Playlist: 15 tracks available</div>
-                <canvas id="visualizerCanvas"></canvas>
             </div>
         </div>
     </div>
@@ -718,7 +707,7 @@
         </div>
     </div>
 
-    <audio id="bgMusic" crossOrigin="anonymous"></audio>
+    <audio id="bgMusic"></audio>
 
     <script>
         const pages = document.querySelectorAll('.page');
@@ -928,70 +917,6 @@
         playerMuteBtn.addEventListener('click', () => { if (bgMusic.volume > 0) { bgMusic.dataset.lastVolume = bgMusic.volume; bgMusic.volume = 0; volumeSlider.value = 0; playerMuteBtn.textContent = '🔇'; } else { bgMusic.volume = bgMusic.dataset.lastVolume || 0.5; volumeSlider.value = bgMusic.volume; playerMuteBtn.textContent = '🔊'; } });
         progressBar.addEventListener('click', (e) => { if (playlist.length === 0) return; const rect = progressBar.getBoundingClientRect(); const pos = (e.clientX - rect.left) / rect.width; bgMusic.currentTime = pos * bgMusic.duration; });
         loadTrack(0); window.addEventListener('click', startMusic, { once: true });
-
-        const visualizerCanvas = document.getElementById('visualizerCanvas');
-        const visualizerCtx = visualizerCanvas.getContext('2d');
-        let audioContext = null;
-        let analyser = null;
-        let dataArray = null;
-        let animationId = null;
-        let sourceNode = null;
-
-        function initAudioContext() {
-            if (audioContext) return;
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioContext.createAnalyser();
-                analyser.fftSize = 256;
-                analyser.smoothingTimeConstant = 0.8;
-                sourceNode = audioContext.createMediaElementAudioSource(bgMusic);
-                sourceNode.connect(analyser);
-                analyser.connect(audioContext.destination);
-                dataArray = new Uint8Array(analyser.frequencyBinCount);
-            } catch (e) {
-                console.error('Audio Context Error:', e);
-            }
-        }
-
-        function resizeVisualizerCanvas() {
-            const rect = visualizerCanvas.getBoundingClientRect();
-            visualizerCanvas.width = rect.width;
-            visualizerCanvas.height = rect.height;
-        }
-
-        function drawVisualizer() {
-            if (!analyser || !dataArray) return;
-            analyser.getByteFrequencyData(dataArray);
-            visualizerCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-            const barWidth = visualizerCanvas.width / dataArray.length;
-            let x = 0;
-            for (let i = 0; i < dataArray.length; i++) {
-                const barHeight = (dataArray[i] / 255) * visualizerCanvas.height;
-                const hue = (i / dataArray.length) * 360;
-                visualizerCtx.fillStyle = 'hsl(' + hue + ', 100%, 50%)';
-                visualizerCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth - 1, barHeight);
-                x += barWidth;
-            }
-            animationId = requestAnimationFrame(drawVisualizer);
-        }
-
-        resizeVisualizerCanvas();
-        window.addEventListener('resize', resizeVisualizerCanvas);
-
-        bgMusic.addEventListener('play', function() {
-            if (audioContext && audioContext.state === 'suspended') {
-                audioContext.resume();
-            }
-            if (!audioContext) initAudioContext();
-            if (audioContext && !animationId) drawVisualizer();
-        });
-
-        bgMusic.addEventListener('pause', function() {
-            if (animationId) cancelAnimationFrame(animationId);
-            animationId = null;
-            visualizerCtx.fillStyle = 'rgba(10, 10, 10, 0.5)';
-            visualizerCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-        });
 
         const counterDisplay = document.getElementById('counter');
         const highScoreDisplay = document.getElementById('highScore');
