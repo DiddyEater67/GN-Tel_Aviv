@@ -931,15 +931,19 @@
 
         function initVisualizer() {
             if (audioCtx) return;
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioCtx.createAnalyser();
-            source = audioCtx.createMediaElementSource(bgMusic);
-            source.connect(analyser);
-            analyser.connect(audioCtx.destination);
-            analyser.fftSize = 256;
-            const bufferLength = analyser.frequencyBinCount;
-            dataArray = new Uint8Array(bufferLength);
-            drawVisualizer();
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioCtx.createAnalyser();
+                source = audioCtx.createMediaElementSource(bgMusic);
+                source.connect(analyser);
+                analyser.connect(audioCtx.destination);
+                analyser.fftSize = 256;
+                const bufferLength = analyser.frequencyBinCount;
+                dataArray = new Uint8Array(bufferLength);
+                drawVisualizer();
+            } catch (e) {
+                console.error("Visualizer failed:", e);
+            }
         }
 
         function drawVisualizer() {
@@ -950,6 +954,7 @@
 
             function draw() {
                 requestAnimationFrame(draw);
+                if (!analyser) return;
                 analyser.getByteFrequencyData(dataArray);
                 vCtx.clearRect(0, 0, width, height);
                 const barWidth = (width / dataArray.length) * 2.5;
@@ -965,12 +970,44 @@
             draw();
         }
 
-        function loadTrack(index) { if (playlist.length === 0) return; currentTrackIndex = index; const track = playlist[index]; bgMusic.src = track.url; playerTitle.textContent = track.title; bgMusic.load(); if (musicStarted) bgMusic.play().catch(() => {}); updatePlayPauseIcon(); }
+        function loadTrack(index) { 
+            if (playlist.length === 0) return; 
+            currentTrackIndex = index; 
+            const track = playlist[index]; 
+            bgMusic.src = track.url; 
+            playerTitle.textContent = track.title; 
+            bgMusic.load(); 
+            if (musicStarted) {
+                bgMusic.play().catch(e => console.log("Play error:", e));
+            }
+            updatePlayPauseIcon(); 
+        }
         function updatePlayPauseIcon() { playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️'; }
-        function startMusic() { if (musicStarted || playlist.length === 0) return; musicStarted = true; initVisualizer(); bgMusic.play().catch(() => {}); musicStatus.textContent = "🎵 Music Playing"; updatePlayPauseIcon(); }
+        function startMusic() { 
+            if (musicStarted || playlist.length === 0) return; 
+            musicStarted = true; 
+            initVisualizer(); 
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            bgMusic.play().catch(e => console.log("Start error:", e)); 
+            musicStatus.textContent = "🎵 Music Playing"; 
+            updatePlayPauseIcon(); 
+        }
         bgMusic.addEventListener('timeupdate', () => { if (playlist.length === 0) return; const progress = (bgMusic.currentTime / bgMusic.duration) * 100; progressFill.style.width = `${progress}%`; const curM = Math.floor(bgMusic.currentTime / 60); const curS = Math.floor(bgMusic.currentTime % 60); const durM = Math.floor(bgMusic.duration / 60) || 0; const durS = Math.floor(bgMusic.duration % 60) || 0; currentTimeDisplay.textContent = `${curM}:${curS.toString().padStart(2, '0')}`; durationDisplay.textContent = `${durM}:${durS.toString().padStart(2, '0')}`; });
         bgMusic.addEventListener('ended', () => { if (playlist.length === 0) return; if (isLooping) { bgMusic.currentTime = 0; bgMusic.play(); } else { nextBtn.click(); } });
-        playPauseBtn.addEventListener('click', () => { if (playlist.length === 0) return; if (!musicStarted) startMusic(); else { if (bgMusic.paused) { if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); bgMusic.play(); } else bgMusic.pause(); updatePlayPauseIcon(); } });
+        playPauseBtn.addEventListener('click', () => { 
+            if (playlist.length === 0) return; 
+            if (!musicStarted) {
+                startMusic();
+            } else { 
+                if (bgMusic.paused) { 
+                    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); 
+                    bgMusic.play().catch(e => console.log("Resume error:", e)); 
+                } else {
+                    bgMusic.pause(); 
+                }
+                updatePlayPauseIcon(); 
+            } 
+        });
         prevBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex - 1 + playlist.length) % playlist.length; loadTrack(next); });
         nextBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex + 1) % playlist.length; loadTrack(next); });
         loopBtn.addEventListener('click', () => { isLooping = !isLooping; loopBtn.classList.toggle('active', isLooping); });
