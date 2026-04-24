@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GN-Tel_Aviv & Spacebar Clicker</title>
+    <title>GN-Power</title>
     <style>
         @font-face {
             font-family: 'Digital';
@@ -338,45 +338,57 @@
 
         .difficulty-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 10px;
             margin-bottom: 20px;
             width: 100%;
-            max-width: 800px;
         }
 
         .diff-btn {
-            background-color: var(--box-bg);
+            background: var(--box-bg);
             color: var(--text-color);
             border: 1px solid var(--border-color);
             padding: 10px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
+            font-size: 14px;
         }
 
         .diff-btn.active {
-            background-color: var(--accent-color);
+            background: var(--accent-color);
             color: white;
-            box-shadow: 0 0 10px var(--accent-color);
         }
 
-        .games-container {
-            width: 100%;
+        /* Games Section Styles */
+        .game-nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
             display: flex;
-            flex-direction: column;
             align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 5;
+            transition: background 0.3s;
         }
+
+        #prevGameBtn { left: -50px; }
+        #nextGameBtn { right: -50px; }
+
+        .game-nav-arrow:hover { background: var(--accent-color); }
 
         .game-frame-wrapper {
             width: 100%;
-            aspect-ratio: 16 / 9;
+            height: 600px;
             background: #000;
-            border-radius: 16px;
+            border-radius: 12px;
             overflow: hidden;
-            border: 2px solid var(--border-color);
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
             position: relative;
+            border: 2px solid var(--border-color);
         }
 
         .game-frame {
@@ -401,101 +413,63 @@
             color: white;
         }
 
-        .game-nav-arrow {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            opacity: 0.7;
-            transition: opacity 0.3s;
-        }
-
-        .game-nav-arrow:hover { opacity: 1; }
-        #prevGameBtn { left: -50px; }
-        #nextGameBtn { right: -50px; }
-
         .controls-list {
             list-style: none;
             padding: 0;
             margin: 0;
+            text-align: left;
             width: 100%;
         }
 
         .controls-list li {
             margin-bottom: 8px;
             padding-bottom: 8px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
+        /* Music Player Styles */
         .music-player {
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
             background: var(--box-bg);
             padding: 30px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .music-info {
-            margin-bottom: 25px;
-        }
+        .music-info { margin-bottom: 25px; }
+        .music-title { font-size: 1.8em; font-weight: bold; color: var(--accent-color); margin-bottom: 10px; }
 
-        .music-title {
-            font-size: 1.4em;
-            font-weight: bold;
-            color: var(--h1-color);
-            margin-bottom: 5px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .progress-container {
-            margin-bottom: 20px;
-        }
-
+        .progress-container { margin-bottom: 25px; }
         .progress-bar {
             width: 100%;
-            height: 6px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 3px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
             cursor: pointer;
             position: relative;
         }
-
         .progress-fill {
             height: 100%;
             background: var(--accent-color);
-            border-radius: 3px;
+            border-radius: 4px;
             width: 0%;
-            box-shadow: 0 0 10px var(--accent-color);
+            transition: width 0.1s linear;
         }
 
         .time-info {
             display: flex;
             justify-content: space-between;
-            font-size: 0.85em;
-            color: var(--hint-color);
             margin-top: 8px;
+            font-size: 0.9em;
+            color: var(--hint-color);
         }
 
         .player-controls {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 20px;
+            gap: 25px;
             margin-bottom: 25px;
         }
 
@@ -505,7 +479,7 @@
             color: var(--text-color);
             font-size: 24px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s;
             padding: 10px;
             border-radius: 50%;
             display: flex;
@@ -514,8 +488,8 @@
         }
 
         .player-btn:hover {
-            color: var(--accent-color);
             background: rgba(255, 255, 255, 0.05);
+            transform: scale(1.1);
         }
 
         .player-btn.active {
@@ -553,16 +527,6 @@
             margin-top: 20px;
             font-size: 0.9em;
             color: var(--hint-color);
-        }
-
-        /* Visualizer Styles */
-        #visualizer {
-            width: 100%;
-            height: 100px;
-            margin-top: 20px;
-            border-radius: 10px;
-            background: rgba(0, 0, 0, 0.2);
-            display: block;
         }
     </style>
 </head>
@@ -728,7 +692,6 @@
                     <span>🔊</span>
                 </div>
                 <div class="playlist-info" id="playlistCount">Playlist: 15 tracks available</div>
-                <canvas id="visualizer"></canvas>
             </div>
         </div>
     </div>
@@ -736,38 +699,49 @@
     <div id="page6" class="page">
         <div class="container blank-container">
             <div class="about-text">
-                <h1><strong>About GN-Tel_Aviv</strong></h1>
-                <p>GN-Tel_Aviv is a multi-functional web application designed for entertainment and utility. It features a spacebar clicker, number guessing games, and an integrated music player.</p>
-                <p>Built with performance and aesthetics in mind, this application provides a seamless experience for users looking to pass time or enjoy simple interactive games.</p>
+                <h1><strong>About GN-Power</strong></h1>
+                <p>GN-Tel_Power is a website with games, simple enough.</p>
+                <p>I enjoyed making it, so I hope you enjoy using it.</p>
                 <p>Created by DiddyEater67.</p>
             </div>
         </div>
     </div>
 
-    <audio id="bgMusic" crossorigin="anonymous"></audio>
+    <audio id="bgMusic"></audio>
 
     <script>
         const pages = document.querySelectorAll('.page');
         let currentPage = 0;
 
         function showPage(index) {
-            pages.forEach((p, i) => {
-                p.classList.toggle('active', i === index);
-            });
+            pages.forEach((p, i) => { p.classList.toggle('active', i === index); });
             currentPage = index;
+            window.scrollTo(0, 0);
         }
 
         document.getElementById('prevPageBtn').addEventListener('click', () => {
             let next = (currentPage - 1 + pages.length) % pages.length;
             showPage(next);
+            startMusic();
         });
 
         document.getElementById('nextPageBtn').addEventListener('click', () => {
             let next = (currentPage + 1) % pages.length;
             showPage(next);
+            startMusic();
         });
 
-        // Theme Toggle
+        // Keyboard navigation - Disabled arrow keys to prevent interference with games
+        window.addEventListener('keydown', (e) => {
+            // Only allow spacebar for clicker on page 1
+            if (e.code === 'Space' && currentPage === 0) {
+                e.preventDefault();
+                handleClick();
+                clickBtn.style.transform = 'translateY(2px)';
+                setTimeout(() => clickBtn.style.transform = 'translateY(0)', 100);
+            }
+        });
+
         const themeToggle = document.getElementById('themeToggle');
         themeToggle.addEventListener('click', () => {
             document.body.classList.toggle('light-mode');
@@ -775,7 +749,6 @@
             themeToggle.blur();
         });
 
-        // Particle System
         const canvas = document.getElementById('particleCanvas');
         const ctx = canvas.getContext('2d');
         const particleToggle = document.getElementById('particleToggle');
@@ -783,37 +756,40 @@
         const particleShapeBtn = document.getElementById('particleShapeBtn');
 
         let particles = [];
-        const maxParticles = 100;
         let particlesEnabled = true;
-        let particleModeState = 0; // 0: Float, 1: Rise, 2: Fall, 3: Side, 4: Rain, 5: Bubbles, 6: Off
-        let particleColorState = 0; // 0: Default, 1: Blue, 2: Red, 3: Green, 4: Rainbow
-        let particleShapeState = 0; // 0: Circle, 1: Square, 2: Triangle, 3: Star, 4: Diamond, 5: Heart
-
-        const modeIcons = ['🔵', '🔼', '🔽', '▶️', '🌧️', '🫧', '🚫'];
-        const colorIcons = ['🟦', '🔵', '🔴', '🟢', '🌈'];
-        const shapeIcons = ['⏺️', '⏹️', '🔼', '⭐', '🔷', '❤️'];
-        const particleColors = ['#5dade2', '#3498db', '#e74c3c', '#2ecc71', 'rainbow'];
-
+        let particleModeState = 0;
+        let particleColorState = 0;
+        let particleShapeState = 0;
         let rainbowHue = 0;
-        const mouse = { x: null, y: null, isOverContainer: false };
+        const maxParticles = 100;
 
-        window.addEventListener('resize', () => {
+        const modeIcons = ['🔵', '🔥', '❄️', '💨', '🌧️', '🫧', '🚫'];
+        const colorIcons = ['🟦', '🟥', '🟩', '🟨', '🟪', '🌈'];
+        const shapeIcons = ['⏺️', '⏹️', '🔼', '⭐', '🔷', '❤️'];
+        const particleColors = ['#5dade2', '#e74c3c', '#2ecc71', '#f1c40f', '#9b59b6', 'rainbow'];
+
+        let mouse = { x: null, y: null, isOverContainer: false };
+
+        function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            particles = [];
-            createParticles();
-        });
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
 
         window.addEventListener('mousemove', (e) => {
-            mouse.x = e.x;
-            mouse.y = e.y;
-            const containers = document.querySelectorAll('.container');
-            mouse.isOverContainer = Array.from(containers).some(c => {
-                const rect = c.getBoundingClientRect();
-                return e.x > rect.left && e.x < rect.right && e.y > rect.top && e.y < rect.bottom;
-            });
+            mouse.x = e.x; mouse.y = e.y;
+            const activePage = document.querySelector('.page.active');
+            if (activePage) {
+                const activeContainer = activePage.querySelector('.container');
+                if (activeContainer) {
+                    const rect = activeContainer.getBoundingClientRect();
+                    mouse.isOverContainer = (e.x >= rect.left && e.x <= rect.right && e.y >= rect.top && e.y <= rect.bottom);
+                    return;
+                }
+            }
+            mouse.isOverContainer = false;
         });
 
         class Particle {
@@ -821,7 +797,7 @@
             init() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 5 + 1;
+                this.size = Math.random() * 4 + 1;
                 this.baseSpeedX = (Math.random() - 0.5) * 0.4;
                 this.baseSpeedY = (Math.random() - 0.5) * 0.4;
                 this.popping = false;
@@ -927,115 +903,21 @@
             { title: "Sugar Were Goin Down", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/tfmqGurmZQhkpTRw.mp3" }
         ];
 
-        let currentTrackIndex = 0; 
-        let isLooping = false; 
-        let audioCtx, analyser, dataArray, source;
-        let visualizerStarted = false;
-
-        function startVisualizer() {
-            if (visualizerStarted) return;
-            try {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioCtx.createAnalyser();
-                source = audioCtx.createMediaElementSource(bgMusic);
-                source.connect(analyser);
-                analyser.connect(audioCtx.destination);
-                analyser.fftSize = 256;
-                const bufferLength = analyser.frequencyBinCount;
-                dataArray = new Uint8Array(bufferLength);
-                visualizerStarted = true;
-                drawVisualizer();
-            } catch (e) {
-                console.warn("Visualizer blocked by CORS. Audio is still connected to output.", e);
-            }
-        }
-
-        function drawVisualizer() {
-            const visualizer = document.getElementById('visualizer');
-            const vCtx = visualizer.getContext('2d');
-            const width = visualizer.width;
-            const height = visualizer.height;
-
-            function draw() {
-                requestAnimationFrame(draw);
-                if (!visualizerStarted || !analyser) return;
-                analyser.getByteFrequencyData(dataArray);
-                vCtx.clearRect(0, 0, width, height);
-                const barWidth = (width / dataArray.length) * 2.5;
-                let x = 0;
-                for (let i = 0; i < dataArray.length; i++) {
-                    const barHeight = (dataArray[i] / 255) * height;
-                    const color = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim() || '#5dade2';
-                    vCtx.fillStyle = color;
-                    vCtx.fillRect(x, height - barHeight, barWidth, barHeight);
-                    x += barWidth + 1;
-                }
-            }
-            draw();
-        }
-
-        function loadTrack(index) { 
-            if (playlist.length === 0) return; 
-            currentTrackIndex = index; 
-            const track = playlist[index]; 
-            bgMusic.src = track.url; 
-            playerTitle.textContent = track.title; 
-            bgMusic.load(); 
-            updatePlayPauseIcon(); 
-        }
-        
-        function updatePlayPauseIcon() { 
-            playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️'; 
-        }
-        
-        function togglePlay() {
-            if (bgMusic.paused) {
-                if (!visualizerStarted) startVisualizer();
-                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-                bgMusic.play().then(() => {
-                    musicStatus.textContent = "🎵 Music Playing";
-                    updatePlayPauseIcon();
-                }).catch(e => console.error("Play failed:", e));
-            } else {
-                bgMusic.pause();
-                updatePlayPauseIcon();
-            }
-        }
-        
-        bgMusic.addEventListener('timeupdate', () => { 
-            if (playlist.length === 0 || isNaN(bgMusic.duration)) return; 
-            const progress = (bgMusic.currentTime / bgMusic.duration) * 100; 
-            progressFill.style.width = `${progress}%`; 
-            const curM = Math.floor(bgMusic.currentTime / 60); 
-            const curS = Math.floor(bgMusic.currentTime % 60); 
-            const durM = Math.floor(bgMusic.duration / 60) || 0; 
-            const durS = Math.floor(bgMusic.duration % 60) || 0; 
-            currentTimeDisplay.textContent = `${curM}:${curS.toString().padStart(2, '0')}`; 
-            durationDisplay.textContent = `${durM}:${durS.toString().padStart(2, '0')}`; 
-        });
-
-        bgMusic.addEventListener('ended', () => { 
-            if (playlist.length === 0) return; 
-            if (isLooping) { 
-                bgMusic.currentTime = 0; 
-                bgMusic.play(); 
-            } else { 
-                nextBtn.click(); 
-            } 
-        });
-        
-        playPauseBtn.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
-        prevBtn.addEventListener('click', (e) => { e.stopPropagation(); let next = (currentTrackIndex - 1 + playlist.length) % playlist.length; loadTrack(next); if (!bgMusic.paused) bgMusic.play(); });
-        nextBtn.addEventListener('click', (e) => { e.stopPropagation(); let next = (currentTrackIndex + 1) % playlist.length; loadTrack(next); if (!bgMusic.paused) bgMusic.play(); });
-        loopBtn.addEventListener('click', (e) => { e.stopPropagation(); isLooping = !isLooping; loopBtn.classList.toggle('active', isLooping); });
+        let currentTrackIndex = 0; let isLooping = false; let musicStarted = false;
+        function loadTrack(index) { if (playlist.length === 0) return; currentTrackIndex = index; const track = playlist[index]; bgMusic.src = track.url; playerTitle.textContent = track.title; bgMusic.load(); if (musicStarted) bgMusic.play().catch(() => {}); updatePlayPauseIcon(); }
+        function updatePlayPauseIcon() { playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️'; }
+        function startMusic() { if (musicStarted || playlist.length === 0) return; musicStarted = true; bgMusic.play().catch(() => {}); musicStatus.textContent = "🎵 Music Playing"; updatePlayPauseIcon(); }
+        bgMusic.addEventListener('timeupdate', () => { if (playlist.length === 0) return; const progress = (bgMusic.currentTime / bgMusic.duration) * 100; progressFill.style.width = `${progress}%`; const curM = Math.floor(bgMusic.currentTime / 60); const curS = Math.floor(bgMusic.currentTime % 60); const durM = Math.floor(bgMusic.duration / 60) || 0; const durS = Math.floor(bgMusic.duration % 60) || 0; currentTimeDisplay.textContent = `${curM}:${curS.toString().padStart(2, '0')}`; durationDisplay.textContent = `${durM}:${durS.toString().padStart(2, '0')}`; });
+        bgMusic.addEventListener('ended', () => { if (playlist.length === 0) return; if (isLooping) { bgMusic.currentTime = 0; bgMusic.play(); } else { nextBtn.click(); } });
+        playPauseBtn.addEventListener('click', () => { if (playlist.length === 0) return; if (!musicStarted) startMusic(); else { if (bgMusic.paused) bgMusic.play(); else bgMusic.pause(); updatePlayPauseIcon(); } });
+        prevBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex - 1 + playlist.length) % playlist.length; loadTrack(next); });
+        nextBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex + 1) % playlist.length; loadTrack(next); });
+        loopBtn.addEventListener('click', () => { isLooping = !isLooping; loopBtn.classList.toggle('active', isLooping); });
         volumeSlider.addEventListener('input', (e) => { bgMusic.volume = e.target.value; playerMuteBtn.textContent = bgMusic.volume === 0 ? '🔇' : '🔊'; });
-        playerMuteBtn.addEventListener('click', (e) => { e.stopPropagation(); if (bgMusic.volume > 0) { bgMusic.dataset.lastVolume = bgMusic.volume; bgMusic.volume = 0; volumeSlider.value = 0; playerMuteBtn.textContent = '🔇'; } else { bgMusic.volume = bgMusic.dataset.lastVolume || 0.5; volumeSlider.value = bgMusic.volume; playerMuteBtn.textContent = '🔊'; } });
-        progressBar.addEventListener('click', (e) => { e.stopPropagation(); if (playlist.length === 0 || isNaN(bgMusic.duration)) return; const rect = progressBar.getBoundingClientRect(); const pos = (e.clientX - rect.left) / rect.width; bgMusic.currentTime = pos * bgMusic.duration; });
-        
-        // Initial load
-        loadTrack(0); 
+        playerMuteBtn.addEventListener('click', () => { if (bgMusic.volume > 0) { bgMusic.dataset.lastVolume = bgMusic.volume; bgMusic.volume = 0; volumeSlider.value = 0; playerMuteBtn.textContent = '🔇'; } else { bgMusic.volume = bgMusic.dataset.lastVolume || 0.5; volumeSlider.value = bgMusic.volume; playerMuteBtn.textContent = '🔊'; } });
+        progressBar.addEventListener('click', (e) => { if (playlist.length === 0) return; const rect = progressBar.getBoundingClientRect(); const pos = (e.clientX - rect.left) / rect.width; bgMusic.currentTime = pos * bgMusic.duration; });
+        loadTrack(0); window.addEventListener('click', startMusic, { once: true });
 
-        // Game Logic
         const counterDisplay = document.getElementById('counter');
         const highScoreDisplay = document.getElementById('highScore');
         const timerDisplay = document.getElementById('timer');
@@ -1052,12 +934,9 @@
         function startGame() { if (gameActive) return; count = 0; counterDisplay.textContent = count; timeLeft = parseInt(minInput.value) * 60 + parseInt(secInput.value); if (timeLeft <= 0) return; gameActive = true; statusMsg.textContent = "GAME IN PROGRESS..."; minInput.disabled = true; secInput.disabled = true; updateTimerDisplay(); timerId = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) endGame(); }, 1000); }
         function endGame() { clearInterval(timerId); gameActive = false; statusMsg.textContent = "TIME'S UP!"; minInput.disabled = false; secInput.disabled = false; if (count > highScore) { highScore = count; localStorage.setItem('gn_highScore', highScore); highScoreDisplay.textContent = highScore; statusMsg.textContent = "NEW HIGH SCORE!"; } }
         function handleClick() { if (!gameActive && timeLeft > 0 && timerId === null) startGame(); if (gameActive) { count++; counterDisplay.textContent = count; } }
-        
-        clickBtn.addEventListener('click', (e) => { e.stopPropagation(); handleClick(); });
-        resetBtn.addEventListener('click', (e) => { e.stopPropagation(); clearInterval(timerId); timerId = null; gameActive = false; count = 0; counterDisplay.textContent = count; timeLeft = parseInt(minInput.value) * 60 + parseInt(secInput.value); updateTimerDisplay(); statusMsg.textContent = ""; minInput.disabled = false; secInput.disabled = false; });
-        window.addEventListener('keydown', (e) => { if (e.code === 'Space') { e.preventDefault(); handleClick(); } });
+        clickBtn.addEventListener('click', handleClick);
+        resetBtn.addEventListener('click', () => { clearInterval(timerId); timerId = null; gameActive = false; count = 0; counterDisplay.textContent = count; timeLeft = parseInt(minInput.value) * 60 + parseInt(secInput.value); updateTimerDisplay(); statusMsg.textContent = ""; minInput.disabled = false; secInput.disabled = false; });
 
-        // Guessing Game Logic
         const guessInput = document.getElementById('guessInput');
         const guessBtn = document.getElementById('guessBtn');
         const gameResetBtn = document.getElementById('gameResetBtn');
@@ -1072,12 +951,9 @@
         diffBtns.forEach(btn => { btn.addEventListener('click', () => { diffBtns.forEach(b => b.classList.remove('active')); btn.classList.add('active'); maxNumber = parseInt(btn.dataset.max); initGuessingGame(); }); });
         function makeGuess() { if (!guessingGameActive) return; const guess = parseInt(guessInput.value); if (isNaN(guess) || guess < 1 || guess > maxNumber) { gameFeedback.textContent = `Please enter a number between 1 and ${maxNumber}!`; gameFeedback.style.color = 'var(--reset-color)'; return; } guessesLeft--; guessesLeftDisplay.textContent = guessesLeft; if (guess === targetNumber) { gameFeedback.textContent = `CORRECT! The number was ${targetNumber}!`; gameFeedback.style.color = '#2ecc71'; endGuessingGame(true); } else if (guessesLeft <= 0) { gameFeedback.textContent = `GAME OVER! The number was ${targetNumber}.`; gameFeedback.style.color = 'var(--reset-color)'; endGuessingGame(false); } else { gameFeedback.textContent = guess < targetNumber ? "HIGHER!" : "LOWER!"; gameFeedback.style.color = 'var(--accent-color)'; } guessInput.value = ""; guessInput.focus(); }
         function endGuessingGame(won) { guessingGameActive = false; guessInput.disabled = true; guessBtn.disabled = true; }
-        guessBtn.addEventListener('click', (e) => { e.stopPropagation(); makeGuess(); }); 
-        guessInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') makeGuess(); }); 
-        gameResetBtn.addEventListener('click', (e) => { e.stopPropagation(); initGuessingGame(); });
+        guessBtn.addEventListener('click', makeGuess); guessInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') makeGuess(); }); gameResetBtn.addEventListener('click', initGuessingGame);
         initGuessingGame();
 
-        // Games Section Logic
         const gameIframe = document.getElementById('gameIframe');
         const emulatorContainer = document.getElementById('emulator-container');
         const emulatorSetup = document.getElementById('emulator-setup');
@@ -1191,10 +1067,13 @@
         }
 
         function startEmulator(core, romUrl) {
+            // Set global EJS variables
             window.EJS_player = '#emulator-container';
             window.EJS_core = core;
             window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
             window.EJS_gameUrl = romUrl;
+            
+            // Ensure emulator container is focused for input
             emulatorContainer.tabIndex = 0;
             emulatorContainer.focus();
 
@@ -1207,20 +1086,26 @@
                 };
                 document.body.appendChild(script);
             } else {
+                // For subsequent loads, we might need a refresh or more complex logic
+                // For now, we'll assume first-time load per session or refresh.
+                console.log("Emulator script already loaded. Refreshing might be needed for new ROM.");
+                // Re-trigger loader if possible or just update global vars
                 if (typeof EJS_reinit === 'function') EJS_reinit();
             }
         }
 
-        document.getElementById('ejs-start-btn').addEventListener('click', (e) => {
-            e.stopPropagation();
+        document.getElementById('ejs-start-btn').addEventListener('click', () => {
             const romInput = document.getElementById('ejs-rom-input');
             const coreSelect = document.getElementById('ejs-core-select');
+            
             if (!romInput.files || romInput.files.length === 0) {
                 alert('Please select a ROM file first!');
                 return;
             }
+
             const file = romInput.files[0];
             const reader = new FileReader();
+            
             reader.onload = (e) => {
                 const romData = e.target.result;
                 const romBlobUrl = URL.createObjectURL(new Blob([romData]));
@@ -1230,8 +1115,8 @@
             reader.readAsArrayBuffer(file);
         });
 
-        prevGameBtn.addEventListener('click', (e) => { e.stopPropagation(); currentGameIndex = (currentGameIndex - 1 + gamesList.length) % gamesList.length; updateGame(); });
-        nextGameBtn.addEventListener('click', (e) => { e.stopPropagation(); currentGameIndex = (currentGameIndex + 1) % gamesList.length; updateGame(); });
+        prevGameBtn.addEventListener('click', () => { currentGameIndex = (currentGameIndex - 1 + gamesList.length) % gamesList.length; updateGame(); });
+        nextGameBtn.addEventListener('click', () => { currentGameIndex = (currentGameIndex + 1) % gamesList.length; updateGame(); });
         updateGame();
     </script>
 </body>
