@@ -921,22 +921,27 @@
         function startMusic() { if (musicStarted || playlist.length === 0) return; musicStarted = true; bgMusic.play().catch(() => {}); musicStatus.textContent = "🎵 Music Playing"; updatePlayPauseIcon(); }
         bgMusic.addEventListener('timeupdate', () => { if (playlist.length === 0) return; const progress = (bgMusic.currentTime / bgMusic.duration) * 100; progressFill.style.width = `${progress}%`; const curM = Math.floor(bgMusic.currentTime / 60); const curS = Math.floor(bgMusic.currentTime % 60); const durM = Math.floor(bgMusic.duration / 60) || 0; const durS = Math.floor(bgMusic.duration % 60) || 0; currentTimeDisplay.textContent = `${curM}:${curS.toString().padStart(2, '0')}`; durationDisplay.textContent = `${durM}:${durS.toString().padStart(2, '0')}`; });
         bgMusic.addEventListener('ended', () => { if (playlist.length === 0) return; if (isLooping) { bgMusic.currentTime = 0; bgMusic.play(); } else { nextBtn.click(); } });
-        playPauseBtn.addEventListener('click', () => { if (playlist.length === 0) return; if (!musicStarted) startMusic(); else { if (bgMusic.paused) bgMusic.play(); else bgMusic.pause(); updatePlayPauseIcon(); } });
-        prevBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex - 1 + playlist.length) % playlist.length; loadTrack(next); });
-        nextBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex + 1) % playlist.length; loadTrack(next); });
+        playPauseBtn.addEventListener('click', () => { if (playlist.length === 0) return; if (!musicStarted) { startMusic(); setTimeout(function() { if (!audioContext) initAudioContext(); }, 50); } else { if (bgMusic.paused) bgMusic.play(); else bgMusic.pause(); updatePlayPauseIcon(); } });
+        prevBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex - 1 + playlist.length) % playlist.length; loadTrack(next); setTimeout(function() { if (!audioContext) initAudioContext(); }, 50); });
+        nextBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex + 1) % playlist.length; loadTrack(next); setTimeout(function() { if (!audioContext) initAudioContext(); }, 50); });
         loopBtn.addEventListener('click', () => { isLooping = !isLooping; loopBtn.classList.toggle('active', isLooping); });
         volumeSlider.addEventListener('input', (e) => { bgMusic.volume = e.target.value; playerMuteBtn.textContent = bgMusic.volume === 0 ? '🔇' : '🔊'; });
         playerMuteBtn.addEventListener('click', () => { if (bgMusic.volume > 0) { bgMusic.dataset.lastVolume = bgMusic.volume; bgMusic.volume = 0; volumeSlider.value = 0; playerMuteBtn.textContent = '🔇'; } else { bgMusic.volume = bgMusic.dataset.lastVolume || 0.5; volumeSlider.value = bgMusic.volume; playerMuteBtn.textContent = '🔊'; } });
         progressBar.addEventListener('click', (e) => { if (playlist.length === 0) return; const rect = progressBar.getBoundingClientRect(); const pos = (e.clientX - rect.left) / rect.width; bgMusic.currentTime = pos * bgMusic.duration; });
         loadTrack(0);
-        window.addEventListener('click', startMusic, { once: true });
+        window.addEventListener('click', function() {
+            startMusic();
+            setTimeout(function() { if (!audioContext) initAudioContext(); }, 50);
+        }, { once: true });
 
         const visualizerContainer = document.getElementById('visualizerContainer');
         let animationId = null;
         let isPlaying = false;
         let barCount = 32;
         let bars = [];
-        let time = 0;
+        let audioContext = null;
+        let analyser = null;
+        let dataArray = null;
 
         function initBars() {
             visualizerContainer.innerHTML = '';
@@ -953,25 +958,33 @@
             }
         }
 
+        function initAudioContext() {
+            if (audioContext) return;
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                analyser.smoothingTimeConstant = 0.85;
+                const source = audioContext.createMediaElementAudioSource(bgMusic);
+                source.connect(analyser);
+                analyser.connect(audioContext.destination);
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+            } catch (e) {
+                console.error('AudioContext failed:', e);
+            }
+        }
+
         function drawVisualizer() {
-            time += 0.016;
-            const currentTime = bgMusic.currentTime;
             const maxHeight = visualizerContainer.offsetHeight - 20;
             
-            for (let i = 0; i < barCount; i++) {
-                const beatPhase = (currentTime * 2 + i * 0.15) % (Math.PI * 2);
-                const bassPhase = (currentTime * 0.8 + i * 0.08) % (Math.PI * 2);
-                const randomSeed = Math.sin(i * 12.9898 + currentTime * 78.233) * 43758.5453;
-                const randomValue = randomSeed - Math.floor(randomSeed);
-                
-                const beatWave = Math.sin(beatPhase) * 0.4 + 0.3;
-                const bassWave = Math.sin(bassPhase) * 0.3 + 0.2;
-                const randomNoise = randomValue * 0.2;
-                
-                const heightFactor = (beatWave + bassWave + randomNoise);
-                const height = heightFactor * maxHeight;
-                
-                bars[i].element.style.height = height + 'px';
+            if (analyser && dataArray) {
+                analyser.getByteFrequencyData(dataArray);
+                for (let i = 0; i < barCount; i++) {
+                    const index = Math.floor((i / barCount) * dataArray.length);
+                    const heightFactor = dataArray[index] / 255;
+                    const height = heightFactor * maxHeight;
+                    bars[i].element.style.height = height + 'px';
+                }
             }
             
             if (isPlaying) {
@@ -983,7 +996,10 @@
             if (!isPlaying) {
                 isPlaying = true;
                 if (bars.length === 0) initBars();
-                time = 0;
+                if (!audioContext) initAudioContext();
+                if (audioContext && audioContext.state === 'suspended') {
+                    audioContext.resume().catch(function() {});
+                }
                 drawVisualizer();
             }
         }
