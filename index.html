@@ -916,7 +916,7 @@
         ];
 
         let currentTrackIndex = 0; let isLooping = false; let musicStarted = false;
-        function loadTrack(index) { if (playlist.length === 0) return; currentTrackIndex = index; const track = playlist[index]; playerTitle.textContent = track.title; const proxyUrl = 'https://cors-anywhere.herokuapp.com/' + track.url; fetch(proxyUrl).then(r => r.blob()).then(blob => { const blobUrl = URL.createObjectURL(blob); bgMusic.src = blobUrl; bgMusic.load(); if (musicStarted) bgMusic.play().catch(() => {}); updatePlayPauseIcon(); }).catch(() => { bgMusic.src = track.url; bgMusic.load(); if (musicStarted) bgMusic.play().catch(() => {}); updatePlayPauseIcon(); }); }
+        function loadTrack(index) { if (playlist.length === 0) return; currentTrackIndex = index; const track = playlist[index]; playerTitle.textContent = track.title; bgMusic.src = track.url; bgMusic.load(); if (musicStarted) bgMusic.play().catch(() => {}); updatePlayPauseIcon(); }
         function updatePlayPauseIcon() { playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️'; }
         function startMusic() { if (musicStarted || playlist.length === 0) return; musicStarted = true; bgMusic.play().catch(() => {}); musicStatus.textContent = "🎵 Music Playing"; updatePlayPauseIcon(); }
         bgMusic.addEventListener('timeupdate', () => { if (playlist.length === 0) return; const progress = (bgMusic.currentTime / bgMusic.duration) * 100; progressFill.style.width = `${progress}%`; const curM = Math.floor(bgMusic.currentTime / 60); const curS = Math.floor(bgMusic.currentTime % 60); const durM = Math.floor(bgMusic.duration / 60) || 0; const durS = Math.floor(bgMusic.duration % 60) || 0; currentTimeDisplay.textContent = `${curM}:${curS.toString().padStart(2, '0')}`; durationDisplay.textContent = `${durM}:${durS.toString().padStart(2, '0')}`; });
@@ -941,20 +941,23 @@
         let bars = [];
         let audioContext = null;
         let analyser = null;
-        let dataArray = null;
+        let scriptProcessor = null;
+        let volumeLevels = [];
 
         function initBars() {
             visualizerContainer.innerHTML = '';
             bars = [];
+            volumeLevels = [];
             for (let i = 0; i < barCount; i++) {
                 const bar = document.createElement('div');
                 bar.style.flex = '1';
                 bar.style.background = 'hsl(' + (i / barCount * 360) + ', 100%, 50%)';
                 bar.style.borderRadius = '4px';
                 bar.style.minHeight = '5px';
-                bar.style.transition = 'height 0.1s ease-out';
+                bar.style.transition = 'height 0.08s ease-out';
                 visualizerContainer.appendChild(bar);
                 bars.push({ element: bar, height: 0 });
+                volumeLevels.push(0);
             }
         }
 
@@ -964,11 +967,11 @@
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 analyser = audioContext.createAnalyser();
                 analyser.fftSize = 256;
-                analyser.smoothingTimeConstant = 0.85;
+                analyser.smoothingTimeConstant = 0.8;
                 const source = audioContext.createMediaElementAudioSource(bgMusic);
                 source.connect(analyser);
                 analyser.connect(audioContext.destination);
-                dataArray = new Uint8Array(analyser.frequencyBinCount);
+                console.log('AudioContext initialized');
             } catch (e) {
                 console.error('AudioContext failed:', e);
             }
@@ -977,13 +980,16 @@
         function drawVisualizer() {
             const maxHeight = visualizerContainer.offsetHeight - 20;
             
-            if (analyser && dataArray) {
+            if (analyser) {
+                const dataArray = new Uint8Array(analyser.frequencyBinCount);
                 analyser.getByteFrequencyData(dataArray);
+                
                 for (let i = 0; i < barCount; i++) {
                     const index = Math.floor((i / barCount) * dataArray.length);
-                    const heightFactor = dataArray[index] / 255;
+                    volumeLevels[i] = dataArray[index];
+                    const heightFactor = volumeLevels[i] / 255;
                     const height = heightFactor * maxHeight;
-                    bars[i].element.style.height = height + 'px';
+                    bars[i].element.style.height = Math.max(5, height) + 'px';
                 }
             }
             
