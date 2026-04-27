@@ -735,7 +735,7 @@
         </div>
     </div>
 
-    <audio id="bgMusic"></audio>
+    <audio id="bgMusic" crossorigin="anonymous"></audio>
 
     <script>
         const pages = document.querySelectorAll('.page');
@@ -950,14 +950,21 @@
 
         function initVisualizer() {
             if (audioCtx) return;
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioCtx.createAnalyser();
-            source = audioCtx.createMediaElementSource(bgMusic);
-            source.connect(analyser);
-            analyser.connect(audioCtx.destination);
-            analyser.fftSize = 256;
-            dataArray = new Uint8Array(analyser.frequencyBinCount);
-            renderFrame();
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioCtx.createAnalyser();
+                source = audioCtx.createMediaElementSource(bgMusic);
+                
+                // Connect source to analyser AND analyser to destination
+                source.connect(analyser);
+                analyser.connect(audioCtx.destination);
+                
+                analyser.fftSize = 256;
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+                renderFrame();
+            } catch (e) {
+                console.error("Visualizer init failed:", e);
+            }
         }
 
         function renderFrame() {
