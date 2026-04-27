@@ -735,7 +735,7 @@
         </div>
     </div>
 
-    <audio id="bgMusic" crossorigin="anonymous"></audio>
+    <audio id="bgMusic"></audio>
 
     <script>
         const pages = document.querySelectorAll('.page');
@@ -948,22 +948,26 @@
             bars.push(bar);
         }
 
-        function initVisualizer() {
+                function initVisualizer() {
             if (audioCtx) return;
             try {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
                 analyser = audioCtx.createAnalyser();
-                source = audioCtx.createMediaElementSource(bgMusic);
                 
-                // Connect source to analyser AND analyser to destination
+                // Re-route audio
+                source = audioCtx.createMediaElementSource(bgMusic);
                 source.connect(analyser);
                 analyser.connect(audioCtx.destination);
                 
                 analyser.fftSize = 256;
                 dataArray = new Uint8Array(analyser.frequencyBinCount);
                 renderFrame();
+                console.log("Visualizer initialized successfully");
             } catch (e) {
-                console.error("Visualizer init failed:", e);
+                console.warn("Visualizer failed to initialize (likely CORS or browser restriction):", e);
+                // If it fails, we ensure the audio is still connected to destination
+                // though createMediaElementSource usually handles this by default if not connected elsewhere
             }
         }
 
@@ -979,7 +983,7 @@
             }
         }
 
-        function startMusic() { if (musicStarted || playlist.length === 0) return; musicStarted = true; initVisualizer(); if (audioCtx.state === "suspended") audioCtx.resume(); bgMusic.play().catch(() => {}); musicStatus.textContent = "🎵 Music Playing"; updatePlayPauseIcon(); }
+        function startMusic() { if (musicStarted || playlist.length === 0) return; musicStarted = true; initVisualizer(); if (audioCtx && audioCtx.state === "suspended") audioCtx.resume(); bgMusic.play().catch(() => {}); musicStatus.textContent = "🎵 Music Playing"; updatePlayPauseIcon(); }
         bgMusic.addEventListener('timeupdate', () => { if (playlist.length === 0) return; const progress = (bgMusic.currentTime / bgMusic.duration) * 100; progressFill.style.width = `${progress}%`; const curM = Math.floor(bgMusic.currentTime / 60); const curS = Math.floor(bgMusic.currentTime % 60); const durM = Math.floor(bgMusic.duration / 60) || 0; const durS = Math.floor(bgMusic.duration % 60) || 0; currentTimeDisplay.textContent = `${curM}:${curS.toString().padStart(2, '0')}`; durationDisplay.textContent = `${durM}:${durS.toString().padStart(2, '0')}`; });
         bgMusic.addEventListener('ended', () => { if (playlist.length === 0) return; if (isLooping) { bgMusic.currentTime = 0; bgMusic.play(); } else { nextBtn.click(); } });
         playPauseBtn.addEventListener('click', () => { if (playlist.length === 0) return; if (!musicStarted) startMusic(); else { if (bgMusic.paused) bgMusic.play(); else bgMusic.pause(); updatePlayPauseIcon(); } });
