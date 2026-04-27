@@ -338,11 +338,11 @@
 
         .difficulty-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 10px;
+            margin-bottom: 20px;
             width: 100%;
             max-width: 800px;
-            margin-bottom: 20px;
         }
 
         .diff-btn {
@@ -358,36 +358,52 @@
             color: white;
         }
 
-        /* Music Player Styling */
+        .games-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .game-frame-wrapper {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--border-color);
+            position: relative;
+        }
+
+        .controls-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+        }
+
+        .controls-list li {
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Music Player Styles */
         .music-player {
             width: 100%;
             max-width: 600px;
             background: var(--box-bg);
             padding: 30px;
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             position: relative;
             overflow: hidden;
         }
 
-        .music-info {
-            text-align: center;
-        }
+        .music-info { margin-bottom: 25px; }
+        .music-title { font-size: 1.8em; font-weight: bold; color: var(--accent-color); margin-bottom: 10px; }
 
-        .music-title {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: var(--h1-color);
-            margin-bottom: 5px;
-        }
-
-        .progress-container {
-            width: 100%;
-        }
-
+        .progress-container { margin-bottom: 25px; }
         .progress-bar {
             width: 100%;
             height: 8px;
@@ -396,19 +412,19 @@
             cursor: pointer;
             position: relative;
         }
-
         .progress-fill {
             height: 100%;
             background: var(--accent-color);
             border-radius: 4px;
             width: 0%;
+            transition: width 0.1s linear;
         }
 
         .time-info {
             display: flex;
             justify-content: space-between;
-            margin-top: 5px;
-            font-size: 0.8em;
+            margin-top: 8px;
+            font-size: 0.9em;
             color: var(--hint-color);
         }
 
@@ -416,14 +432,15 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 20px;
+            gap: 25px;
+            margin-bottom: 25px;
         }
 
         .player-btn {
             background: none;
             border: none;
-            font-size: 24px;
             color: var(--text-color);
+            font-size: 24px;
             cursor: pointer;
             transition: all 0.3s;
             padding: 10px;
@@ -440,7 +457,9 @@
 
         .player-btn.active {
             color: var(--accent-color);
-            text-shadow: 0 0 10px var(--accent-color);
+            text-shadow: 0 0 10px var(--accent-color), 0 0 20px var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-color), inset 0 0 10px rgba(93, 173, 226, 0.3);
+            background: rgba(93, 173, 226, 0.1);
         }
 
         .play-pause {
@@ -467,7 +486,13 @@
             accent-color: var(--accent-color);
         }
 
-        /* Visualizer Styling */
+        .playlist-info {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: var(--hint-color);
+        }
+
+        /* Visualizer Canvas Style */
         #visualizerCanvas {
             position: absolute;
             bottom: 0;
@@ -476,13 +501,7 @@
             height: 100px;
             pointer-events: none;
             z-index: -1;
-            opacity: 0.6;
-        }
-
-        .playlist-info {
-            margin-top: 20px;
-            font-size: 0.9em;
-            color: var(--hint-color);
+            opacity: 0.5;
         }
     </style>
 </head>
@@ -575,7 +594,7 @@
                     </div>
                     <div class="center-content">
                         <h2 id="gameTitle" style="color: var(--h1-color); margin-bottom: 10px;"></h2>
-                        <div class="game-frame-wrapper" style="width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; border: 2px solid var(--border-color); position: relative;">
+                        <div class="game-frame-wrapper">
                             <iframe id="gameIframe" style="width: 100%; height: 100%; border: none;" allowtransparency="true" frameborder="0" scrolling="no" allowfullscreen></iframe>
                             <div id="emulator-container" style="display: none; width: 100%; height: 100%;"></div>
                             <div id="emulator-setup" style="display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; background: #1a1a1a; color: white;">
@@ -672,7 +691,9 @@
         let currentPage = 0;
 
         function showPage(index) {
-            pages.forEach((p, i) => { p.classList.toggle('active', i === index); });
+            pages.forEach((p, i) => {
+                p.classList.toggle('active', i === index);
+            });
             currentPage = index;
             window.scrollTo(0, 0);
         }
@@ -689,11 +710,12 @@
             startMusic();
         });
 
-        // Keyboard navigation
+        // Keyboard navigation for Spacebar Clicker
         window.addEventListener('keydown', (e) => {
             if (e.code === 'Space' && currentPage === 0) {
                 e.preventDefault();
                 handleClick();
+                // Add a small visual feedback to the button
                 clickBtn.style.transform = 'translateY(2px)';
                 setTimeout(() => clickBtn.style.transform = 'translateY(0)', 100);
             }
@@ -736,13 +758,19 @@
         resizeCanvas();
 
         window.addEventListener('mousemove', (e) => {
-            mouse.x = e.x; mouse.y = e.y;
+            mouse.x = e.x;
+            mouse.y = e.y;
+            
+            // Check if mouse is over any container to prevent particle interaction
             const activePage = document.querySelector('.page.active');
             if (activePage) {
                 const activeContainer = activePage.querySelector('.container');
                 if (activeContainer) {
                     const rect = activeContainer.getBoundingClientRect();
-                    mouse.isOverContainer = (e.x >= rect.left && e.x <= rect.right && e.y >= rect.top && e.y <= rect.bottom);
+                    mouse.isOverContainer = (
+                        e.x >= rect.left && e.x <= rect.right &&
+                        e.y >= rect.top && e.y <= rect.bottom
+                    );
                     return;
                 }
             }
@@ -750,7 +778,10 @@
         });
 
         class Particle {
-            constructor() { this.init(); }
+            constructor() {
+                this.init();
+            }
+
             init() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
@@ -759,74 +790,246 @@
                 this.baseSpeedY = (Math.random() - 0.5) * 0.4;
                 this.popping = false;
                 this.popProgress = 0;
-                if (particleModeState === 1) { this.y = canvas.height + Math.random() * 20; this.baseSpeedY = -Math.random() * 1.5 - 0.5; this.baseSpeedX = (Math.random() - 0.5) * 0.5; }
-                else if (particleModeState === 2) { this.y = -Math.random() * 20; this.baseSpeedY = Math.random() * 1 + 0.5; this.baseSpeedX = (Math.random() - 0.5) * 0.5; }
-                else if (particleModeState === 3) { this.x = -Math.random() * 20; this.baseSpeedX = Math.random() * 2 + 1; this.baseSpeedY = (Math.random() - 0.5) * 0.2; }
-                else if (particleModeState === 4) { this.y = -Math.random() * 20; this.baseSpeedY = Math.random() * 5 + 5; this.baseSpeedX = 2; }
-                else if (particleModeState === 5) { this.y = canvas.height + Math.random() * 50; this.size = Math.random() * 10 + 2; this.baseSpeedY = -Math.random() * 1 - 0.5; this.baseSpeedX = (Math.random() - 0.5) * 0.5; this.popThreshold = Math.random() * (canvas.height * 0.8); }
-                this.speedX = this.baseSpeedX; this.speedY = this.baseSpeedY; this.alpha = Math.random() * 0.4 + 0.1;
+
+                // Mode specific initialization
+                if (particleModeState === 1) { // Fire
+                    this.y = canvas.height + Math.random() * 20;
+                    this.baseSpeedY = -Math.random() * 1.5 - 0.5;
+                    this.baseSpeedX = (Math.random() - 0.5) * 0.5;
+                } else if (particleModeState === 2) { // Snow
+                    this.y = -Math.random() * 20;
+                    this.baseSpeedY = Math.random() * 1 + 0.5;
+                    this.baseSpeedX = (Math.random() - 0.5) * 0.5;
+                } else if (particleModeState === 3) { // Wind
+                    this.x = -Math.random() * 20;
+                    this.baseSpeedX = Math.random() * 2 + 1;
+                    this.baseSpeedY = (Math.random() - 0.5) * 0.2;
+                } else if (particleModeState === 4) { // Rain
+                    this.y = -Math.random() * 20;
+                    this.baseSpeedY = Math.random() * 5 + 5;
+                    this.baseSpeedX = 2;
+                } else if (particleModeState === 5) { // Bubbles
+                    this.y = canvas.height + Math.random() * 50;
+                    this.size = Math.random() * 10 + 2;
+                    this.baseSpeedY = -Math.random() * 1 - 0.5;
+                    this.baseSpeedX = (Math.random() - 0.5) * 0.5;
+                    this.popThreshold = Math.random() * (canvas.height * 0.8);
+                }
+
+                this.speedX = this.baseSpeedX;
+                this.speedY = this.baseSpeedY;
+                this.alpha = Math.random() * 0.4 + 0.1;
             }
+
             update() {
-                if (this.popping) { this.popProgress += 0.1; if (this.popProgress >= 1) this.init(); return; }
+                if (this.popping) {
+                    this.popProgress += 0.1;
+                    if (this.popProgress >= 1) this.init();
+                    return;
+                }
+
+                // Interaction
                 if (particleModeState === 0 && mouse.x != null && !mouse.isOverContainer) {
-                    let dx = mouse.x - this.x; let dy = mouse.y - this.y; let distance = Math.sqrt(dx * dx + dy * dy); let forceRadius = 100;
-                    if (distance < forceRadius) { let force = (forceRadius - distance) / forceRadius; let directionX = dx / distance; let directionY = dy / distance; this.speedX -= directionX * force * 0.2; this.speedY -= directionY * force * 0.2; }
-                    else { this.speedX += (this.baseSpeedX - this.speedX) * 0.05; this.speedY += (this.baseSpeedY - this.speedY) * 0.05; }
-                } else { this.speedX += (this.baseSpeedX - this.speedX) * 0.05; this.speedY += (this.baseSpeedY - this.speedY) * 0.05; }
-                this.x += this.speedX; this.y += this.speedY;
-                if (particleModeState === 5 && this.y < this.popThreshold) this.popping = true;
-                if (particleModeState === 0) { if (this.x < 0) this.x = canvas.width; if (this.x > canvas.width) this.x = 0; if (this.y < 0) this.y = canvas.height; if (this.y > canvas.height) this.y = 0; }
-                else { if (this.y < -50 || this.y > canvas.height + 50 || this.x < -50 || this.x > canvas.width + 50) this.init(); }
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    let forceRadius = 100;
+                    
+                    if (distance < forceRadius) {
+                        let force = (forceRadius - distance) / forceRadius;
+                        let directionX = dx / distance;
+                        let directionY = dy / distance;
+                        this.speedX -= directionX * force * 0.2;
+                        this.speedY -= directionY * force * 0.2;
+                    } else {
+                        this.speedX += (this.baseSpeedX - this.speedX) * 0.05;
+                        this.speedY += (this.baseSpeedY - this.speedY) * 0.05;
+                    }
+                } else {
+                    this.speedX += (this.baseSpeedX - this.speedX) * 0.05;
+                    this.speedY += (this.baseSpeedY - this.speedY) * 0.05;
+                }
+
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (particleModeState === 5 && this.y < this.popThreshold) {
+                    this.popping = true;
+                }
+
+                // Boundary check
+                if (particleModeState === 0) {
+                    if (this.x < 0) this.x = canvas.width;
+                    if (this.x > canvas.width) this.x = 0;
+                    if (this.y < 0) this.y = canvas.height;
+                    if (this.y > canvas.height) this.y = 0;
+                } else {
+                    if (this.y < -50 || this.y > canvas.height + 50 || 
+                        this.x < -50 || this.x > canvas.width + 50) {
+                        this.init();
+                    }
+                }
             }
+
             draw() {
                 ctx.globalAlpha = this.alpha;
                 let color;
-                if (particleColors[particleColorState] === 'rainbow') color = `hsla(${rainbowHue}, 70%, 60%, ${this.alpha})`;
-                else color = particleColors[particleColorState];
-                ctx.fillStyle = color; ctx.shadowBlur = 10; ctx.shadowColor = color;
-                if (this.popping) { ctx.beginPath(); ctx.arc(this.x, this.y, this.size * (1 + this.popProgress), 0, Math.PI * 2); ctx.strokeStyle = color; ctx.globalAlpha = this.alpha * (1 - this.popProgress); ctx.stroke(); ctx.shadowBlur = 0; return; }
-                if (particleModeState === 4) { ctx.beginPath(); ctx.lineWidth = 2; ctx.strokeStyle = color; ctx.moveTo(this.x, this.y); ctx.lineTo(this.x - this.speedX, this.y - this.speedY); ctx.stroke(); }
-                else if (particleModeState === 5) { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.stroke(); ctx.beginPath(); ctx.arc(this.x - this.size * 0.3, this.y - this.size * 0.3, this.size * 0.1, 0, Math.PI * 2); ctx.fillStyle = "white"; ctx.globalAlpha = this.alpha * 0.5; ctx.fill(); }
-                else this.drawShape();
+                if (particleColors[particleColorState] === 'rainbow') {
+                    color = `hsla(${rainbowHue}, 70%, 60%, ${this.alpha})`;
+                } else {
+                    color = particleColors[particleColorState];
+                }
+                
+                ctx.fillStyle = color;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = color;
+
+                if (this.popping) {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size * (1 + this.popProgress), 0, Math.PI * 2);
+                    ctx.strokeStyle = color;
+                    ctx.globalAlpha = this.alpha * (1 - this.popProgress);
+                    ctx.stroke();
+                    ctx.shadowBlur = 0;
+                    return;
+                }
+
+                if (particleModeState === 4) { // Rain line
+                    ctx.beginPath();
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = color;
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(this.x - this.speedX, this.y - this.speedY);
+                    ctx.stroke();
+                } else if (particleModeState === 5) { // Bubble
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                    
+                    // Bubble highlight
+                    ctx.beginPath();
+                    ctx.arc(this.x - this.size * 0.3, this.y - this.size * 0.3, this.size * 0.1, 0, Math.PI * 2);
+                    ctx.fillStyle = "white";
+                    ctx.globalAlpha = this.alpha * 0.5;
+                    ctx.fill();
+                } else {
+                    this.drawShape();
+                }
+                
                 ctx.shadowBlur = 0;
             }
+
             drawShape() {
                 const s = this.size;
                 switch(particleShapeState) {
-                    case 0: ctx.beginPath(); ctx.arc(this.x, this.y, s, 0, Math.PI * 2); ctx.fill(); break;
-                    case 1: ctx.fillRect(this.x - s, this.y - s, s * 2, s * 2); break;
-                    case 2: ctx.beginPath(); ctx.moveTo(this.x, this.y - s); ctx.lineTo(this.x + s, this.y + s); ctx.lineTo(this.x - s, this.y + s); ctx.closePath(); ctx.fill(); break;
-                    case 3: ctx.beginPath(); for (let i = 0; i < 5; i++) { ctx.lineTo(this.x + s * Math.cos((18 + i * 72) * Math.PI / 180), this.y - s * Math.sin((18 + i * 72) * Math.PI / 180)); ctx.lineTo(this.x + (s/2) * Math.cos((54 + i * 72) * Math.PI / 180), this.y - (s/2) * Math.sin((54 + i * 72) * Math.PI / 180)); } ctx.closePath(); ctx.fill(); break;
-                    case 4: ctx.beginPath(); ctx.moveTo(this.x, this.y - s); ctx.lineTo(this.x + s, this.y); ctx.lineTo(this.x, this.y + s); ctx.lineTo(this.x - s, this.y); ctx.closePath(); ctx.fill(); break;
-                    case 5: ctx.beginPath(); ctx.moveTo(this.x, this.y + s/2); ctx.bezierCurveTo(this.x, this.y, this.x - s, this.y, this.x - s, this.y - s/2); ctx.bezierCurveTo(this.x - s, this.y - s*1.2, this.x, this.y - s*1.2, this.x, this.y - s/2); ctx.bezierCurveTo(this.x, this.y - s*1.2, this.x + s, this.y - s*1.2, this.x + s, this.y - s/2); ctx.bezierCurveTo(this.x + s, this.y, this.x, this.y, this.x, this.y + s/2); ctx.fill(); break;
+                    case 0: // Circle
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, s, 0, Math.PI * 2);
+                        ctx.fill();
+                        break;
+                    case 1: // Square
+                        ctx.fillRect(this.x - s, this.y - s, s * 2, s * 2);
+                        break;
+                    case 2: // Triangle
+                        ctx.beginPath();
+                        ctx.moveTo(this.x, this.y - s);
+                        ctx.lineTo(this.x + s, this.y + s);
+                        ctx.lineTo(this.x - s, this.y + s);
+                        ctx.closePath();
+                        ctx.fill();
+                        break;
+                    case 3: // Star
+                        ctx.beginPath();
+                        for (let i = 0; i < 5; i++) {
+                            ctx.lineTo(this.x + s * Math.cos((18 + i * 72) * Math.PI / 180), 
+                                     this.y - s * Math.sin((18 + i * 72) * Math.PI / 180));
+                            ctx.lineTo(this.x + (s/2) * Math.cos((54 + i * 72) * Math.PI / 180), 
+                                     this.y - (s/2) * Math.sin((54 + i * 72) * Math.PI / 180));
+                        }
+                        ctx.closePath();
+                        ctx.fill();
+                        break;
+                    case 4: // Diamond
+                        ctx.beginPath();
+                        ctx.moveTo(this.x, this.y - s);
+                        ctx.lineTo(this.x + s, this.y);
+                        ctx.lineTo(this.x, this.y + s);
+                        ctx.lineTo(this.x - s, this.y);
+                        ctx.closePath();
+                        ctx.fill();
+                        break;
+                    case 5: // Heart
+                        ctx.beginPath();
+                        ctx.moveTo(this.x, this.y + s/2);
+                        ctx.bezierCurveTo(this.x, this.y, this.x - s, this.y, this.x - s, this.y - s/2);
+                        ctx.bezierCurveTo(this.x - s, this.y - s*1.2, this.x, this.y - s*1.2, this.x, this.y - s/2);
+                        ctx.bezierCurveTo(this.x, this.y - s*1.2, this.x + s, this.y - s*1.2, this.x + s, this.y - s/2);
+                        ctx.bezierCurveTo(this.x + s, this.y, this.x, this.y, this.x, this.y + s/2);
+                        ctx.fill();
+                        break;
                 }
             }
         }
 
         function createParticles() {
             const interval = setInterval(() => {
-                if (particles.length < maxParticles && particlesEnabled) particles.push(new Particle());
-                else if (!particlesEnabled || particles.length >= maxParticles) clearInterval(interval);
+                if (particles.length < maxParticles && particlesEnabled) {
+                    particles.push(new Particle());
+                } else if (!particlesEnabled || particles.length >= maxParticles) {
+                    clearInterval(interval);
+                }
             }, 20);
         }
 
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if (particlesEnabled) { rainbowHue = (rainbowHue + 0.5) % 360; particles.forEach(p => { p.update(); p.draw(); }); }
+            
+            if (particlesEnabled) {
+                rainbowHue = (rainbowHue + 0.5) % 360;
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+            }
+            
             requestAnimationFrame(animateParticles);
         }
 
-        createParticles(); animateParticles();
+        createParticles();
+        animateParticles();
 
         particleToggle.addEventListener('click', () => {
             particleModeState = (particleModeState + 1) % modeIcons.length;
-            if (particleModeState === 6) { particlesEnabled = false; particleToggle.textContent = modeIcons[6]; particleColorBtn.style.display = 'none'; particleShapeBtn.style.display = 'none'; }
-            else { particlesEnabled = true; particleToggle.textContent = modeIcons[particleModeState]; particleColorBtn.style.display = 'flex'; particleShapeBtn.style.display = 'flex'; particles = []; createParticles(); }
+            
+            if (particleModeState === 6) { // Off
+                particlesEnabled = false;
+                particleToggle.textContent = modeIcons[6];
+                particleColorBtn.style.display = 'none';
+                particleShapeBtn.style.display = 'none';
+            } else {
+                particlesEnabled = true;
+                particleToggle.textContent = modeIcons[particleModeState];
+                particleColorBtn.style.display = 'flex';
+                particleShapeBtn.style.display = 'flex';
+                particles = [];
+                createParticles();
+            }
             particleToggle.blur();
         });
 
-        particleColorBtn.addEventListener('click', () => { particleColorState = (particleColorState + 1) % particleColors.length; particleColorBtn.textContent = colorIcons[particleColorState]; particleColorBtn.blur(); });
-        particleShapeBtn.addEventListener('click', () => { particleShapeState = (particleShapeState + 1) % shapeIcons.length; particleShapeBtn.textContent = shapeIcons[particleShapeState]; particleShapeBtn.blur(); });
+        particleColorBtn.addEventListener('click', () => {
+            particleColorState = (particleColorState + 1) % particleColors.length;
+            particleColorBtn.textContent = colorIcons[particleColorState];
+            particleColorBtn.blur();
+        });
+
+        particleShapeBtn.addEventListener('click', () => {
+            particleShapeState = (particleShapeState + 1) % shapeIcons.length;
+            particleShapeBtn.textContent = shapeIcons[particleShapeState];
+            particleShapeBtn.blur();
+        });
 
         // --- Music Player Section ---
         const bgMusic = document.getElementById('bgMusic');
@@ -861,17 +1064,21 @@
             { title: "Sugar Were Goin Down", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/tfmqGurmZQhkpTRw.mp3" }
         ];
 
-        let currentTrackIndex = 0; let isLooping = false; let musicStarted = false;
+        let currentTrackIndex = 0;
+        let isLooping = false;
+        let musicStarted = false;
 
         // Visualizer Setup
         let audioCtx = null, analyser = null, sourceNode = null, audioContextReady = false;
         function ensureAudioContext() {
-            if (audioContextReady) { if (audioCtx.state === 'suspended') audioCtx.resume(); return; }
+            if (audioContextReady) {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                return;
+            }
             try {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 analyser = audioCtx.createAnalyser();
                 analyser.fftSize = 256;
-                analyser.smoothingTimeConstant = 0.8;
                 sourceNode = audioCtx.createMediaElementSource(bgMusic);
                 sourceNode.connect(analyser);
                 analyser.connect(audioCtx.destination);
@@ -879,26 +1086,120 @@
             } catch (e) { console.warn("AudioContext init failed:", e); }
         }
 
-        function loadTrack(index) { if (playlist.length === 0) return; currentTrackIndex = index; const track = playlist[index]; bgMusic.src = track.url; playerTitle.textContent = track.title; bgMusic.load(); if (musicStarted) bgMusic.play().catch(() => {}); updatePlayPauseIcon(); }
-        function updatePlayPauseIcon() { playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️'; }
-        function startMusic() { if (musicStarted || playlist.length === 0) return; musicStarted = true; ensureAudioContext(); bgMusic.play().catch(() => {}); if (musicStatus) musicStatus.textContent = "🎵 Music Playing"; updatePlayPauseIcon(); }
-        
-        bgMusic.addEventListener('timeupdate', () => { if (playlist.length === 0) return; const progress = (bgMusic.currentTime / bgMusic.duration) * 100; progressFill.style.width = `${progress}%`; const curM = Math.floor(bgMusic.currentTime / 60); const curS = Math.floor(bgMusic.currentTime % 60); const durM = Math.floor(bgMusic.duration / 60) || 0; const durS = Math.floor(bgMusic.duration % 60) || 0; currentTimeDisplay.textContent = `${curM}:${curS.toString().padStart(2, '0')}`; durationDisplay.textContent = `${durM}:${durS.toString().padStart(2, '0')}`; });
-        bgMusic.addEventListener('ended', () => { if (playlist.length === 0) return; if (isLooping) { bgMusic.currentTime = 0; bgMusic.play(); } else { nextBtn.click(); } });
-        playPauseBtn.addEventListener('click', () => { if (playlist.length === 0) return; ensureAudioContext(); if (!musicStarted) startMusic(); else { if (bgMusic.paused) bgMusic.play(); else bgMusic.pause(); updatePlayPauseIcon(); } });
-        prevBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex - 1 + playlist.length) % playlist.length; loadTrack(next); });
-        nextBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex + 1) % playlist.length; loadTrack(next); });
-        loopBtn.addEventListener('click', () => { isLooping = !isLooping; loopBtn.classList.toggle('active', isLooping); });
-        volumeSlider.addEventListener('input', (e) => { bgMusic.volume = e.target.value; playerMuteBtn.textContent = bgMusic.volume === 0 ? '🔇' : '🔊'; });
-        playerMuteBtn.addEventListener('click', () => { if (bgMusic.volume > 0) { bgMusic.dataset.lastVolume = bgMusic.volume; bgMusic.volume = 0; volumeSlider.value = 0; playerMuteBtn.textContent = '🔇'; } else { bgMusic.volume = bgMusic.dataset.lastVolume || 0.5; volumeSlider.value = bgMusic.volume; playerMuteBtn.textContent = '🔊'; } });
-        progressBar.addEventListener('click', (e) => { if (playlist.length === 0) return; const rect = progressBar.getBoundingClientRect(); const pos = (e.clientX - rect.left) / rect.width; bgMusic.currentTime = pos * bgMusic.duration; });
-        loadTrack(0); window.addEventListener('click', startMusic, { once: true });
+        function loadTrack(index) {
+            if (playlist.length === 0) return;
+            currentTrackIndex = index;
+            const track = playlist[index];
+            bgMusic.src = track.url;
+            playerTitle.textContent = track.title;
+            bgMusic.load();
+            if (musicStarted) bgMusic.play().catch(() => {});
+            updatePlayPauseIcon();
+        }
 
-        // Visualizer Drawing
+        function updatePlayPauseIcon() {
+            playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️';
+        }
+
+        function startMusic() {
+            if (musicStarted || playlist.length === 0) return;
+            musicStarted = true;
+            ensureAudioContext();
+            bgMusic.play().catch(() => {});
+            if (musicStatus) musicStatus.textContent = "🎵 Music Playing";
+            updatePlayPauseIcon();
+        }
+
+        bgMusic.addEventListener('timeupdate', () => {
+            if (playlist.length === 0) return;
+            const progress = (bgMusic.currentTime / bgMusic.duration) * 100;
+            progressFill.style.width = `${progress}%`;
+            
+            const curM = Math.floor(bgMusic.currentTime / 60);
+            const curS = Math.floor(bgMusic.currentTime % 60);
+            const durM = Math.floor(bgMusic.duration / 60) || 0;
+            const durS = Math.floor(bgMusic.duration % 60) || 0;
+            
+            currentTimeDisplay.textContent = `${curM}:${curS.toString().padStart(2, '0')}`;
+            durationDisplay.textContent = `${durM}:${durS.toString().padStart(2, '0')}`;
+        });
+
+        bgMusic.addEventListener('ended', () => {
+            if (playlist.length === 0) return;
+            if (isLooping) {
+                bgMusic.currentTime = 0;
+                bgMusic.play();
+            } else {
+                nextBtn.click();
+            }
+        });
+
+        playPauseBtn.addEventListener('click', () => {
+            if (playlist.length === 0) return;
+            ensureAudioContext();
+            if (!musicStarted) {
+                startMusic();
+            } else {
+                if (bgMusic.paused) bgMusic.play();
+                else bgMusic.pause();
+                updatePlayPauseIcon();
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (playlist.length === 0) return;
+            let next = (currentTrackIndex - 1 + playlist.length) % playlist.length;
+            loadTrack(next);
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (playlist.length === 0) return;
+            let next = (currentTrackIndex + 1) % playlist.length;
+            loadTrack(next);
+        });
+
+        loopBtn.addEventListener('click', () => {
+            isLooping = !isLooping;
+            loopBtn.classList.toggle('active', isLooping);
+        });
+
+        volumeSlider.addEventListener('input', (e) => {
+            bgMusic.volume = e.target.value;
+            playerMuteBtn.textContent = bgMusic.volume === 0 ? '🔇' : '🔊';
+        });
+
+        playerMuteBtn.addEventListener('click', () => {
+            if (bgMusic.volume > 0) {
+                bgMusic.dataset.lastVolume = bgMusic.volume;
+                bgMusic.volume = 0;
+                volumeSlider.value = 0;
+                playerMuteBtn.textContent = '🔇';
+            } else {
+                bgMusic.volume = bgMusic.dataset.lastVolume || 0.5;
+                volumeSlider.value = bgMusic.volume;
+                playerMuteBtn.textContent = '🔊';
+            }
+        });
+
+        progressBar.addEventListener('click', (e) => {
+            if (playlist.length === 0) return;
+            const rect = progressBar.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            bgMusic.currentTime = pos * bgMusic.duration;
+        });
+
+        loadTrack(0);
+        window.addEventListener('click', startMusic, { once: true });
+
+        // Visualizer Logic
         const vizCanvas = document.getElementById('visualizerCanvas');
         const vizCtx = vizCanvas.getContext('2d');
         let vizW, vizH;
-        function resizeViz() { const rect = vizCanvas.parentElement.getBoundingClientRect(); vizW = vizCanvas.width = rect.width; vizH = vizCanvas.height = 100; }
+        function resizeViz() {
+            const rect = vizCanvas.parentElement.getBoundingClientRect();
+            vizW = vizCanvas.width = rect.width;
+            vizH = vizCanvas.height = 100;
+        }
         window.addEventListener('resize', resizeViz);
         resizeViz();
 
@@ -925,7 +1226,7 @@
         }
         drawVisualizer();
 
-        // --- Clicker Game ---
+        // --- Clicker Game Logic ---
         const counterDisplay = document.getElementById('counter');
         const highScoreDisplay = document.getElementById('highScore');
         const timerDisplay = document.getElementById('timer');
@@ -934,16 +1235,80 @@
         const minInput = document.getElementById('minInput');
         const secInput = document.getElementById('secInput');
         const statusMsg = document.getElementById('statusMsg');
-        let count = 0; let highScore = localStorage.getItem('gn_highScore') || 0; let timeLeft = 10; let timerId = null; let gameActive = false;
-        highScoreDisplay.textContent = highScore;
-        function updateTimerDisplay() { const m = Math.floor(timeLeft / 60); const s = timeLeft % 60; timerDisplay.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`; }
-        function startGame() { if (gameActive) return; count = 0; counterDisplay.textContent = count; timeLeft = parseInt(minInput.value) * 60 + parseInt(secInput.value); if (timeLeft <= 0) return; gameActive = true; statusMsg.textContent = "GAME IN PROGRESS..."; minInput.disabled = true; secInput.disabled = true; updateTimerDisplay(); timerId = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) endGame(); }, 1000); }
-        function endGame() { clearInterval(timerId); gameActive = false; statusMsg.textContent = "TIME'S UP!"; minInput.disabled = false; secInput.disabled = false; if (count > highScore) { highScore = count; localStorage.setItem('gn_highScore', highScore); highScoreDisplay.textContent = highScore; statusMsg.textContent = "NEW HIGH SCORE!"; } }
-        function handleClick() { if (!gameActive && timeLeft > 0 && timerId === null) startGame(); if (gameActive) { count++; counterDisplay.textContent = count; } }
-        clickBtn.addEventListener('click', handleClick);
-        resetBtn.addEventListener('click', () => { clearInterval(timerId); timerId = null; gameActive = false; count = 0; counterDisplay.textContent = count; timeLeft = parseInt(minInput.value) * 60 + parseInt(secInput.value); updateTimerDisplay(); statusMsg.textContent = ""; minInput.disabled = false; secInput.disabled = false; });
 
-        // --- Guessing Game ---
+        let count = 0;
+        let highScore = localStorage.getItem('gn_highScore') || 0;
+        let timeLeft = 10;
+        let timerId = null;
+        let gameActive = false;
+
+        highScoreDisplay.textContent = highScore;
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft / 60);
+            const s = timeLeft % 60;
+            timerDisplay.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function startGame() {
+            if (gameActive) return;
+            count = 0;
+            counterDisplay.textContent = count;
+            timeLeft = parseInt(minInput.value) * 60 + parseInt(secInput.value);
+            if (timeLeft <= 0) return;
+            
+            gameActive = true;
+            statusMsg.textContent = "GAME IN PROGRESS...";
+            minInput.disabled = true;
+            secInput.disabled = true;
+            
+            updateTimerDisplay();
+            
+            timerId = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                if (timeLeft <= 0) endGame();
+            }, 1000);
+        }
+
+        function endGame() {
+            clearInterval(timerId);
+            gameActive = false;
+            statusMsg.textContent = "TIME'S UP!";
+            minInput.disabled = false;
+            secInput.disabled = false;
+            
+            if (count > highScore) {
+                highScore = count;
+                localStorage.setItem('gn_highScore', highScore);
+                highScoreDisplay.textContent = highScore;
+                statusMsg.textContent = "NEW HIGH SCORE!";
+            }
+        }
+
+        function handleClick() {
+            if (!gameActive && timeLeft > 0 && timerId === null) startGame();
+            if (gameActive) {
+                count++;
+                counterDisplay.textContent = count;
+            }
+        }
+
+        clickBtn.addEventListener('click', handleClick);
+        resetBtn.addEventListener('click', () => {
+            clearInterval(timerId);
+            timerId = null;
+            gameActive = false;
+            count = 0;
+            counterDisplay.textContent = count;
+            timeLeft = parseInt(minInput.value) * 60 + parseInt(secInput.value);
+            updateTimerDisplay();
+            statusMsg.textContent = "";
+            minInput.disabled = false;
+            secInput.disabled = false;
+        });
+
+        // --- Guessing Game Logic ---
         const guessInput = document.getElementById('guessInput');
         const guessBtn = document.getElementById('guessBtn');
         const gameResetBtn = document.getElementById('gameResetBtn');
@@ -951,15 +1316,78 @@
         const guessesLeftDisplay = document.getElementById('guessesLeft');
         const diffBtns = document.querySelectorAll('.diff-btn');
         const gamePrompt = document.getElementById('gamePrompt');
-        let targetNumber; let guessesLeft; let maxNumber = 100; let guessingGameActive = true;
-        function initGuessingGame() { targetNumber = Math.floor(Math.random() * maxNumber) + 1; guessesLeft = Math.ceil(Math.log2(maxNumber)) + 1; guessesLeftDisplay.textContent = guessesLeft; gameFeedback.textContent = ""; gameFeedback.style.color = 'var(--text-color)'; guessInput.value = ""; guessInput.disabled = false; guessBtn.disabled = false; guessingGameActive = true; gamePrompt.textContent = `I'm thinking of a number between 1 and ${maxNumber}.`; }
-        diffBtns.forEach(btn => { btn.addEventListener('click', () => { diffBtns.forEach(b => b.classList.remove('active')); btn.classList.add('active'); maxNumber = parseInt(btn.dataset.max); initGuessingGame(); }); });
-        function makeGuess() { if (!guessingGameActive) return; const guess = parseInt(guessInput.value); if (isNaN(guess) || guess < 1 || guess > maxNumber) { gameFeedback.textContent = `Please enter a number between 1 and ${maxNumber}!`; gameFeedback.style.color = 'var(--reset-color)'; return; } guessesLeft--; guessesLeftDisplay.textContent = guessesLeft; if (guess === targetNumber) { gameFeedback.textContent = `CORRECT! The number was ${targetNumber}!`; gameFeedback.style.color = '#2ecc71'; endGuessingGame(true); } else if (guessesLeft <= 0) { gameFeedback.textContent = `GAME OVER! The number was ${targetNumber}.`; gameFeedback.style.color = 'var(--reset-color)'; endGuessingGame(false); } else { gameFeedback.textContent = guess < targetNumber ? "HIGHER!" : "LOWER!"; gameFeedback.style.color = 'var(--accent-color)'; } guessInput.value = ""; guessInput.focus(); }
-        function endGuessingGame(won) { guessingGameActive = false; guessInput.disabled = true; guessBtn.disabled = true; }
-        guessBtn.addEventListener('click', makeGuess); guessInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') makeGuess(); }); gameResetBtn.addEventListener('click', initGuessingGame);
+
+        let targetNumber;
+        let guessesLeft;
+        let maxNumber = 100;
+        let guessingGameActive = true;
+
+        function initGuessingGame() {
+            targetNumber = Math.floor(Math.random() * maxNumber) + 1;
+            guessesLeft = Math.ceil(Math.log2(maxNumber)) + 1;
+            guessesLeftDisplay.textContent = guessesLeft;
+            gameFeedback.textContent = "";
+            gameFeedback.style.color = 'var(--text-color)';
+            guessInput.value = "";
+            guessInput.disabled = false;
+            guessBtn.disabled = false;
+            guessingGameActive = true;
+            gamePrompt.textContent = `I'm thinking of a number between 1 and ${maxNumber}.`;
+        }
+
+        diffBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                diffBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                maxNumber = parseInt(btn.dataset.max);
+                initGuessingGame();
+            });
+        });
+
+        function makeGuess() {
+            if (!guessingGameActive) return;
+            const guess = parseInt(guessInput.value);
+            
+            if (isNaN(guess) || guess < 1 || guess > maxNumber) {
+                gameFeedback.textContent = `Please enter a number between 1 and ${maxNumber}!`;
+                gameFeedback.style.color = 'var(--reset-color)';
+                return;
+            }
+
+            guessesLeft--;
+            guessesLeftDisplay.textContent = guessesLeft;
+
+            if (guess === targetNumber) {
+                gameFeedback.textContent = `CORRECT! The number was ${targetNumber}!`;
+                gameFeedback.style.color = '#2ecc71';
+                endGuessingGame(true);
+            } else if (guessesLeft <= 0) {
+                gameFeedback.textContent = `GAME OVER! The number was ${targetNumber}.`;
+                gameFeedback.style.color = 'var(--reset-color)';
+                endGuessingGame(false);
+            } else {
+                gameFeedback.textContent = guess < targetNumber ? "HIGHER!" : "LOWER!";
+                gameFeedback.style.color = 'var(--accent-color)';
+            }
+            
+            guessInput.value = "";
+            guessInput.focus();
+        }
+
+        function endGuessingGame(won) {
+            guessingGameActive = false;
+            guessInput.disabled = true;
+            guessBtn.disabled = true;
+        }
+
+        guessBtn.addEventListener('click', makeGuess);
+        guessInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') makeGuess();
+        });
+        gameResetBtn.addEventListener('click', initGuessingGame);
         initGuessingGame();
 
-        // --- Games Section ---
+        // --- Games Section Logic ---
         const gameIframe = document.getElementById('gameIframe');
         const emulatorContainer = document.getElementById('emulator-container');
         const emulatorSetup = document.getElementById('emulator-setup');
@@ -968,24 +1396,157 @@
         const gameCreditsContent = document.getElementById('gameCreditsContent');
         const prevGameBtn = document.getElementById('prevGameBtn');
         const nextGameBtn = document.getElementById('nextGameBtn');
+
         const gamesList = [
-            { title: "Sonic The Hedgehog 1 (Autoload)", type: "emulator", autoload: true, core: "segaMD", romUrl: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/ROMS/Sonic%20The%20Hedgehog%201.md", credits: "<p>Game by SEGA</p><p>Framework by EmulatorJS</p>", controls: "▸ Arrows: Move Sonic, Z/X/C: Jump, Enter: Start" },
-            { title: "Super Mario Bros. (Autoload)", type: "emulator", autoload: true, core: "nes", romUrl: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/ROMS/Super%20Mario%20Bros.%20(World).nes", credits: "<p>Game by Nintendo</p><p>Framework by EmulatorJS</p>", controls: "▸ Arrows: Move Mario, Z: Jump, X: Run, Enter: Start" },
-            { title: "EmulatorJS ROM Loader", type: "emulator", autoload: false, credits: "<p>Framework by EmulatorJS</p>", controls: "Load your own ROM file." },
-            { title: "Paper Minecraft v11.7", type: "iframe", url: "https://turbowarp.org/10128407/embed?addons=pause%2Cfullscreen&fps=60", credits: "<p>Game by Griffpatch</p>", controls: "WASD: Move, Click: Place/Mine, E: Inventory" },
-            { title: "World Peace Project", type: "iframe", url: "https://turbowarp.org/772985488/embed?addons=pause%2Cfullscreen&fps=60", credits: "<p>Game by Griffpatch</p>", controls: "WASD: Move, Space: Jump" }
+            {
+                title: "Sonic The Hedgehog 1 (Autoload)",
+                type: "emulator",
+                autoload: true,
+                core: "segaMD",
+                romUrl: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/ROMS/Sonic%20The%20Hedgehog%201.md",
+                credits: "<p>Game by SEGA</p><p>Framework by EmulatorJS</p>",
+                controls: `<div style="font-size: 0.95em; line-height: 1.5;">
+                    <p>▸ <strong>Arrows:</strong> Move Sonic</p>
+                    <p>▸ <strong>Z/X/C:</strong> Jump (A/B/C Buttons)</p>
+                    <p>▸ <strong>Enter:</strong> Start</p>
+                    <p>▸ <strong>Shift:</strong> Mode</p>
+                </div>`
+            },
+            {
+                title: "Super Mario Bros. (Autoload)",
+                type: "emulator",
+                autoload: true,
+                core: "nes",
+                romUrl: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/ROMS/Super%20Mario%20Bros.%20(World).nes",
+                credits: "<p>Game by Nintendo</p><p>Framework by EmulatorJS</p>",
+                controls: `<div style="font-size: 0.95em; line-height: 1.5;">
+                    <p>▸ <strong>Arrows:</strong> Move Mario</p>
+                    <p>▸ <strong>Z:</strong> Jump (A Button)</p>
+                    <p>▸ <strong>X:</strong> Run/Fireball (B Button)</p>
+                    <p>▸ <strong>Enter:</strong> Start</p>
+                    <p>▸ <strong>Shift:</strong> Select</p>
+                </div>`
+            },
+            {
+                title: "EmulatorJS ROM Loader",
+                type: "emulator",
+                autoload: false,
+                credits: "<p>Framework by EmulatorJS</p><p>Integrated by DiddyEater67</p>",
+                controls: `<div style="font-size: 0.95em; line-height: 1.5;">
+                    <p>▸ <strong>Load ROM:</strong> Select a system and upload your ROM file.</p>
+                    <p>▸ <strong>Controls:</strong> Click 'Start Emulator' to begin playing.</p>
+                </div>`
+            },
+            {
+                title: "Paper Minecraft v11.7",
+                type: "iframe",
+                url: "https://turbowarp.org/10128407/embed?addons=pause%2Cfullscreen&fps=60",
+                credits: "<p>Game made by Griffpatch</p>",
+                controls: `<ul class="controls-list">
+                    <li><strong>[1 to 9]</strong> - Select Item</li>
+                    <li><strong>[Click]</strong> - Place or Mine</li>
+                    <li><strong>[WASD]</strong> - Move / Jump</li>
+                    <li><strong>[E]</strong> - Open/Close Inventory</li>
+                    <li><strong>[E+hover]</strong> - Open/Close Chest, Crafting Table, Door</li>
+                    <li><strong>[Space]</strong> - Drop single tile from stack</li>
+                    <li><strong>[F]</strong> - Eat food</li>
+                    <li><strong>[N]</strong> - Label a sign or chest</li>
+                    <li><strong>[Q]</strong> - Drop item</li>
+                    <li><strong>[P]</strong> - Pause / Unpause</li>
+                    <li><strong>[T]</strong> - Talk / Command</li>
+                    <li><strong>[O]</strong> - Save your game</li>
+                    <li><strong>[M]</strong> - Music / Sounds</li>
+                    <li><strong>[Shift]</strong> - Sprint</li>
+                </ul>`
+            },
+            {
+                title: "World Peace Project",
+                type: "iframe",
+                url: "https://turbowarp.org/772985488/embed?addons=pause%2Cfullscreen&fps=60",
+                credits: "<p>Game made by Griffpatch</p><p>Ported by DiddyEater67</p>",
+                controls: `<ul class="controls-list">
+                    <li><strong>[WASD]</strong> - Move</li>
+                    <li><strong>[Space]</strong> - Jump</li>
+                    <li><strong>[E]</strong> - Interact</li>
+                    <li><strong>[Q]</strong> - Drop</li>
+                </ul>`
+            }
         ];
-        let currentGameIndex = 0; let emulatorScriptLoaded = false;
+
+        let currentGameIndex = 0;
+        let emulatorScriptLoaded = false;
+
         function updateGame() {
-            const game = gamesList[currentGameIndex]; gameTitle.textContent = game.title; gameControlsContent.innerHTML = game.controls; gameCreditsContent.innerHTML = game.credits;
-            if (game.type === 'emulator') { gameIframe.style.display = 'none'; emulatorContainer.style.display = 'block'; if (game.autoload) { emulatorSetup.style.display = 'none'; startEmulator(game.core, game.romUrl); } else { emulatorSetup.style.display = 'flex'; } }
-            else { gameIframe.style.display = 'block'; emulatorContainer.style.display = 'none'; emulatorSetup.style.display = 'none'; gameIframe.src = game.url; }
+            const game = gamesList[currentGameIndex];
+            gameTitle.textContent = game.title;
+            gameControlsContent.innerHTML = game.controls;
+            gameCreditsContent.innerHTML = game.credits;
+
+            if (game.type === 'emulator') {
+                gameIframe.style.display = 'none';
+                emulatorContainer.style.display = 'block';
+                
+                if (game.autoload) {
+                    emulatorSetup.style.display = 'none';
+                    startEmulator(game.core, game.romUrl);
+                } else {
+                    emulatorSetup.style.display = 'flex';
+                }
+            } else {
+                gameIframe.style.display = 'block';
+                emulatorContainer.style.display = 'none';
+                emulatorSetup.style.display = 'none';
+                gameIframe.src = game.url;
+            }
         }
-        function startEmulator(core, romUrl) { window.EJS_player = '#emulator-container'; window.EJS_core = core; window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/'; window.EJS_gameUrl = romUrl; if (!emulatorScriptLoaded) { const script = document.createElement('script'); script.src = 'https://cdn.emulatorjs.org/stable/data/loader.js'; script.onload = () => { emulatorScriptLoaded = true; }; document.body.appendChild(script); } else if (typeof EJS_reinit === 'function') EJS_reinit(); }
-        document.getElementById('ejs-start-btn').addEventListener('click', () => { const romInput = document.getElementById('ejs-rom-input'); const coreSelect = document.getElementById('ejs-core-select'); if (romInput.files.length > 0) { const reader = new FileReader(); reader.onload = (e) => { startEmulator(coreSelect.value, URL.createObjectURL(new Blob([e.target.result]))); emulatorSetup.style.display = 'none'; }; reader.readAsArrayBuffer(romInput.files[0]); } });
+
+        function startEmulator(core, romUrl) {
+            // Set global EJS variables
+            window.EJS_player = '#emulator-container';
+            window.EJS_core = core;
+            window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
+            window.EJS_gameUrl = romUrl;
+            
+            // Ensure emulator container is focused for input
+            emulatorContainer.tabIndex = 0;
+            emulatorContainer.focus();
+
+            if (!emulatorScriptLoaded) {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
+                script.onload = () => { 
+                    emulatorScriptLoaded = true;
+                    setTimeout(() => { emulatorContainer.focus(); }, 500);
+                };
+                document.body.appendChild(script);
+            } else {
+                if (typeof EJS_reinit === 'function') EJS_reinit();
+            }
+        }
+
+        document.getElementById('ejs-start-btn').addEventListener('click', () => {
+            const romInput = document.getElementById('ejs-rom-input');
+            const coreSelect = document.getElementById('ejs-core-select');
+            
+            if (!romInput.files || romInput.files.length === 0) {
+                alert('Please select a ROM file first!');
+                return;
+            }
+
+            const file = romInput.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                const romData = e.target.result;
+                const romBlobUrl = URL.createObjectURL(new Blob([romData]));
+                emulatorSetup.style.display = 'none';
+                startEmulator(coreSelect.value, romBlobUrl);
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
         prevGameBtn.addEventListener('click', () => { currentGameIndex = (currentGameIndex - 1 + gamesList.length) % gamesList.length; updateGame(); });
         nextGameBtn.addEventListener('click', () => { currentGameIndex = (currentGameIndex + 1) % gamesList.length; updateGame(); });
         updateGame();
     </script>
 </body>
-</html>
