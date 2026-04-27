@@ -719,7 +719,7 @@
         </div>
     </div>
 
-    <audio id="bgMusic" crossOrigin="anonymous"></audio>
+    <audio id="bgMusic"></audio>
 
     <script>
         const pages = document.querySelectorAll('.page');
@@ -921,27 +921,23 @@
         function startMusic() { if (musicStarted || playlist.length === 0) return; musicStarted = true; bgMusic.play().catch(() => {}); musicStatus.textContent = "🎵 Music Playing"; updatePlayPauseIcon(); }
         bgMusic.addEventListener('timeupdate', () => { if (playlist.length === 0) return; const progress = (bgMusic.currentTime / bgMusic.duration) * 100; progressFill.style.width = `${progress}%`; const curM = Math.floor(bgMusic.currentTime / 60); const curS = Math.floor(bgMusic.currentTime % 60); const durM = Math.floor(bgMusic.duration / 60) || 0; const durS = Math.floor(bgMusic.duration % 60) || 0; currentTimeDisplay.textContent = `${curM}:${curS.toString().padStart(2, '0')}`; durationDisplay.textContent = `${durM}:${durS.toString().padStart(2, '0')}`; });
         bgMusic.addEventListener('ended', () => { if (playlist.length === 0) return; if (isLooping) { bgMusic.currentTime = 0; bgMusic.play(); } else { nextBtn.click(); } });
-        playPauseBtn.addEventListener('click', () => { if (playlist.length === 0) return; if (!musicStarted) { startMusic(); if (!audioContext) initAudioContext(); } else { if (bgMusic.paused) bgMusic.play(); else bgMusic.pause(); updatePlayPauseIcon(); } });
-        prevBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex - 1 + playlist.length) % playlist.length; loadTrack(next); if (!audioContext) initAudioContext(); });
-        nextBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex + 1) % playlist.length; loadTrack(next); if (!audioContext) initAudioContext(); });
+        playPauseBtn.addEventListener('click', () => { if (playlist.length === 0) return; if (!musicStarted) startMusic(); else { if (bgMusic.paused) bgMusic.play(); else bgMusic.pause(); updatePlayPauseIcon(); } });
+        prevBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex - 1 + playlist.length) % playlist.length; loadTrack(next); });
+        nextBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex + 1) % playlist.length; loadTrack(next); });
         loopBtn.addEventListener('click', () => { isLooping = !isLooping; loopBtn.classList.toggle('active', isLooping); });
         volumeSlider.addEventListener('input', (e) => { bgMusic.volume = e.target.value; playerMuteBtn.textContent = bgMusic.volume === 0 ? '🔇' : '🔊'; });
         playerMuteBtn.addEventListener('click', () => { if (bgMusic.volume > 0) { bgMusic.dataset.lastVolume = bgMusic.volume; bgMusic.volume = 0; volumeSlider.value = 0; playerMuteBtn.textContent = '🔇'; } else { bgMusic.volume = bgMusic.dataset.lastVolume || 0.5; volumeSlider.value = bgMusic.volume; playerMuteBtn.textContent = '🔊'; } });
         progressBar.addEventListener('click', (e) => { if (playlist.length === 0) return; const rect = progressBar.getBoundingClientRect(); const pos = (e.clientX - rect.left) / rect.width; bgMusic.currentTime = pos * bgMusic.duration; });
         loadTrack(0);
-        window.addEventListener('click', function() {
-            startMusic();
-            if (!audioContext) initAudioContext();
-        }, { once: true });
+        window.addEventListener('click', startMusic, { once: true });
 
         const visualizerCanvas = document.getElementById('visualizerCanvas');
         const visualizerCtx = visualizerCanvas.getContext('2d');
         let animationId = null;
-        let audioContext = null;
-        let analyser = null;
-        let dataArray = null;
         let isPlaying = false;
         let barCount = 64;
+        let bars = [];
+        let beatTime = 0;
 
         function resizeVisualizerCanvas() {
             const rect = visualizerCanvas.getBoundingClientRect();
@@ -951,20 +947,10 @@
             if (visualizerCanvas.height === 0) visualizerCanvas.height = 150;
         }
 
-        function initAudioContext() {
-            if (audioContext) return;
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioContext.createAnalyser();
-                analyser.fftSize = 256;
-                analyser.smoothingTimeConstant = 0.85;
-                const source = audioContext.createMediaElementAudioSource(bgMusic);
-                source.connect(analyser);
-                analyser.connect(audioContext.destination);
-                dataArray = new Uint8Array(analyser.frequencyBinCount);
-            } catch (e) {
-                console.warn('AudioContext failed:', e);
-                analyser = null;
+        function initBars() {
+            bars = [];
+            for (let i = 0; i < barCount; i++) {
+                bars.push({ height: 0, target: 0 });
             }
         }
 
@@ -975,18 +961,22 @@
             visualizerCtx.fillStyle = '#000';
             visualizerCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
             
-            if (analyser && dataArray) {
-                analyser.getByteFrequencyData(dataArray);
-                const barWidth = visualizerCanvas.width / barCount;
-                let x = 0;
-                for (let i = 0; i < barCount; i++) {
-                    const index = Math.floor((i / barCount) * dataArray.length);
-                    const barHeight = (dataArray[index] / 255) * visualizerCanvas.height;
-                    const hue = (i / barCount) * 360;
-                    visualizerCtx.fillStyle = 'hsl(' + hue + ', 100%, 50%)';
-                    visualizerCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth - 1, barHeight);
-                    x += barWidth;
-                }
+            const volume = bgMusic.volume;
+            const currentTime = bgMusic.currentTime;
+            beatTime += 0.016;
+            
+            const barWidth = visualizerCanvas.width / barCount;
+            let x = 0;
+            for (let i = 0; i < barCount; i++) {
+                const beatFactor = Math.sin((beatTime + i * 0.1) * 3) * 0.5 + 0.5;
+                const volumeFactor = volume * 255;
+                bars[i].target = beatFactor * volumeFactor;
+                bars[i].height += (bars[i].target - bars[i].height) * 0.15;
+                const barHeight = (bars[i].height / 255) * visualizerCanvas.height;
+                const hue = (i / barCount) * 360;
+                visualizerCtx.fillStyle = 'hsl(' + hue + ', 100%, 50%)';
+                visualizerCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth - 1, barHeight);
+                x += barWidth;
             }
             
             if (isPlaying) {
@@ -997,10 +987,8 @@
         function startVisualizer() {
             if (!isPlaying) {
                 isPlaying = true;
-                if (!audioContext) initAudioContext();
-                if (audioContext && audioContext.state === 'suspended') {
-                    audioContext.resume().catch(function() {});
-                }
+                initBars();
+                beatTime = 0;
                 drawVisualizer();
             }
         }
