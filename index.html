@@ -533,10 +533,11 @@
             width: 100%;
             height: 150px;
             margin-top: 20px;
-            background: linear-gradient(to bottom, rgba(93, 173, 226, 0.1), rgba(93, 173, 226, 0.05));
+            background: #000;
             border-radius: 12px;
             border: 1px solid var(--border-color);
             display: block;
+            box-sizing: border-box;
         }
     </style>
 </head>
@@ -945,12 +946,18 @@
 
         function resizeVisualizerCanvas() {
             const rect = visualizerCanvas.getBoundingClientRect();
-            visualizerCanvas.width = rect.width;
-            visualizerCanvas.height = rect.height;
+            visualizerCanvas.width = Math.floor(rect.width);
+            visualizerCanvas.height = Math.floor(rect.height);
+            if (visualizerCanvas.width === 0) visualizerCanvas.width = 600;
+            if (visualizerCanvas.height === 0) visualizerCanvas.height = 150;
         }
 
         function drawVisualizer() {
-            visualizerCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+            if (visualizerCanvas.width === 0 || visualizerCanvas.height === 0) {
+                resizeVisualizerCanvas();
+            }
+            visualizerCtx.fillStyle = '#000';
+            visualizerCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
             const barWidth = visualizerCanvas.width / barCount;
             let x = 0;
             for (let i = 0; i < barCount; i++) {
@@ -985,7 +992,11 @@
             visualizerCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
         }
 
-        resizeVisualizerCanvas();
+        setTimeout(function() {
+            resizeVisualizerCanvas();
+            visualizerCtx.fillStyle = '#000';
+            visualizerCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+        }, 100);
         window.addEventListener('resize', resizeVisualizerCanvas);
 
         bgMusic.addEventListener('play', startVisualizer);
