@@ -935,6 +935,7 @@
         function loadTrack(index) { if (playlist.length === 0) return; currentTrackIndex = index; const track = playlist[index]; bgMusic.src = track.url; playerTitle.textContent = track.title; bgMusic.load(); if (musicStarted) bgMusic.play().catch(() => {}); updatePlayPauseIcon(); }
         function updatePlayPauseIcon() { playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️'; }
 
+        
         // Audio Visualizer Logic
         let audioCtx, analyser, source, dataArray;
         const visualizer = document.getElementById('visualizer');
@@ -948,42 +949,70 @@
             bars.push(bar);
         }
 
-                function initVisualizer() {
+        function initVisualizer() {
             if (audioCtx) return;
-            try {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContext();
-                analyser = audioCtx.createAnalyser();
-                
-                // Re-route audio
-                source = audioCtx.createMediaElementSource(bgMusic);
-                source.connect(analyser);
-                analyser.connect(audioCtx.destination);
-                
-                analyser.fftSize = 256;
-                dataArray = new Uint8Array(analyser.frequencyBinCount);
-                renderFrame();
-                console.log("Visualizer initialized successfully");
-            } catch (e) {
-                console.warn("Visualizer failed to initialize (likely CORS or browser restriction):", e);
-                // If it fails, we ensure the audio is still connected to destination
-                // though createMediaElementSource usually handles this by default if not connected elsewhere
-            }
+            
+            // We use a click listener to resume context (browser requirement)
+            const startContext = () => {
+                if (!audioCtx) {
+                    try {
+                        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                        analyser = audioCtx.createAnalyser();
+                        source = audioCtx.createMediaElementSource(bgMusic);
+                        
+                        // Connect source to analyser AND analyser to destination
+                        // This is the standard way, but CORS can mute it
+                        source.connect(analyser);
+                        analyser.connect(audioCtx.destination);
+                        
+                        analyser.fftSize = 256;
+                        dataArray = new Uint8Array(analyser.frequencyBinCount);
+                        renderFrame();
+                    } catch (e) {
+                        console.error("Visualizer init failed:", e);
+                    }
+                }
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+            };
+            
+            window.addEventListener('click', startContext, { once: true });
+            if (musicStarted) startContext();
         }
 
         function renderFrame() {
             requestAnimationFrame(renderFrame);
             if (!analyser) return;
+            
             analyser.getByteFrequencyData(dataArray);
+            
+            // Check if we are getting actual data (CORS check)
+            let hasData = false;
+            for (let i = 0; i < dataArray.length; i++) {
+                if (dataArray[i] > 0) {
+                    hasData = true;
+                    break;
+                }
+            }
+
+            if (!hasData && bgMusic.paused === false) {
+                // If no data but music is playing, it's likely a CORS block.
+                // In some browsers, this results in silence. 
+                // We don't disconnect here to avoid loops, but we show a hint in console.
+                // The visualizer will just stay flat.
+            }
+
             for (let i = 0; i < barCount; i++) {
                 const val = dataArray[i];
                 const height = (val / 255) * 100;
-                bars[i].style.height = `${height}%`;
+                bars[i].style.height = `${Math.max(2, height)}%`;
                 bars[i].style.opacity = 0.5 + (val / 255) * 0.5;
             }
         }
 
-        function startMusic() { if (musicStarted || playlist.length === 0) return; musicStarted = true; initVisualizer(); if (audioCtx && audioCtx.state === "suspended") audioCtx.resume(); bgMusic.play().catch(() => {}); musicStatus.textContent = "🎵 Music Playing"; updatePlayPauseIcon(); }
+
+        function startMusic() { if (musicStarted || playlist.length === 0) return; musicStarted = true; initVisualizer(); bgMusic.play().catch(() => {}); musicStatus.textContent = "🎵 Music Playing"; updatePlayPauseIcon(); }
         bgMusic.addEventListener('timeupdate', () => { if (playlist.length === 0) return; const progress = (bgMusic.currentTime / bgMusic.duration) * 100; progressFill.style.width = `${progress}%`; const curM = Math.floor(bgMusic.currentTime / 60); const curS = Math.floor(bgMusic.currentTime % 60); const durM = Math.floor(bgMusic.duration / 60) || 0; const durS = Math.floor(bgMusic.duration % 60) || 0; currentTimeDisplay.textContent = `${curM}:${curS.toString().padStart(2, '0')}`; durationDisplay.textContent = `${durM}:${durS.toString().padStart(2, '0')}`; });
         bgMusic.addEventListener('ended', () => { if (playlist.length === 0) return; if (isLooping) { bgMusic.currentTime = 0; bgMusic.play(); } else { nextBtn.click(); } });
         playPauseBtn.addEventListener('click', () => { if (playlist.length === 0) return; if (!musicStarted) startMusic(); else { if (bgMusic.paused) bgMusic.play(); else bgMusic.pause(); updatePlayPauseIcon(); } });
