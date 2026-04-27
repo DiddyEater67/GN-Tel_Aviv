@@ -931,32 +931,15 @@
 
         const visualizerCanvas = document.getElementById('visualizerCanvas');
         const visualizerCtx = visualizerCanvas.getContext('2d');
-        let audioContext = null;
-        let analyser = null;
-        let dataArray = null;
         let animationId = null;
-        let sourceNode = null;
-        let usesFallback = false;
-        let fallbackBars = [];
+        let bars = [];
+        let barCount = 64;
+        let isPlaying = false;
 
-        function initAudioContext() {
-            if (audioContext) return;
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioContext.createAnalyser();
-                analyser.fftSize = 256;
-                analyser.smoothingTimeConstant = 0.8;
-                sourceNode = audioContext.createMediaElementAudioSource(bgMusic);
-                sourceNode.connect(analyser);
-                analyser.connect(audioContext.destination);
-                dataArray = new Uint8Array(analyser.frequencyBinCount);
-                usesFallback = false;
-            } catch (e) {
-                console.warn('Audio Context unavailable, using fallback visualizer');
-                usesFallback = true;
-                for (let i = 0; i < 128; i++) {
-                    fallbackBars.push(0);
-                }
+        function initBars() {
+            bars = [];
+            for (let i = 0; i < barCount; i++) {
+                bars.push({ height: 0, target: 0 });
             }
         }
 
@@ -968,51 +951,45 @@
 
         function drawVisualizer() {
             visualizerCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-            if (usesFallback) {
-                const volume = bgMusic.volume;
-                const barWidth = visualizerCanvas.width / fallbackBars.length;
-                let x = 0;
-                for (let i = 0; i < fallbackBars.length; i++) {
-                    fallbackBars[i] += (Math.random() * volume * 255 - fallbackBars[i] * 0.1);
-                    fallbackBars[i] = Math.max(0, Math.min(255, fallbackBars[i]));
-                    const barHeight = (fallbackBars[i] / 255) * visualizerCanvas.height;
-                    const hue = (i / fallbackBars.length) * 360;
-                    visualizerCtx.fillStyle = 'hsl(' + hue + ', 100%, 50%)';
-                    visualizerCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth - 1, barHeight);
-                    x += barWidth;
-                }
-            } else if (analyser && dataArray) {
-                analyser.getByteFrequencyData(dataArray);
-                const barWidth = visualizerCanvas.width / dataArray.length;
-                let x = 0;
-                for (let i = 0; i < dataArray.length; i++) {
-                    const barHeight = (dataArray[i] / 255) * visualizerCanvas.height;
-                    const hue = (i / dataArray.length) * 360;
-                    visualizerCtx.fillStyle = 'hsl(' + hue + ', 100%, 50%)';
-                    visualizerCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth - 1, barHeight);
-                    x += barWidth;
-                }
+            const barWidth = visualizerCanvas.width / barCount;
+            let x = 0;
+            for (let i = 0; i < barCount; i++) {
+                bars[i].target = Math.random() * 255;
+                bars[i].height += (bars[i].target - bars[i].height) * 0.2;
+                const barHeight = (bars[i].height / 255) * visualizerCanvas.height;
+                const hue = (i / barCount) * 360;
+                visualizerCtx.fillStyle = 'hsl(' + hue + ', 100%, 50%)';
+                visualizerCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth - 1, barHeight);
+                x += barWidth;
             }
-            animationId = requestAnimationFrame(drawVisualizer);
+            if (isPlaying) {
+                animationId = requestAnimationFrame(drawVisualizer);
+            }
+        }
+
+        function startVisualizer() {
+            if (!isPlaying) {
+                isPlaying = true;
+                initBars();
+                drawVisualizer();
+            }
+        }
+
+        function stopVisualizer() {
+            isPlaying = false;
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+            visualizerCtx.fillStyle = 'rgba(10, 10, 10, 0.5)';
+            visualizerCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
         }
 
         resizeVisualizerCanvas();
         window.addEventListener('resize', resizeVisualizerCanvas);
 
-        bgMusic.addEventListener('play', function() {
-            if (!audioContext) initAudioContext();
-            if (audioContext && audioContext.state === 'suspended') {
-                audioContext.resume().catch(function() {});
-            }
-            if (!animationId) drawVisualizer();
-        });
-
-        bgMusic.addEventListener('pause', function() {
-            if (animationId) cancelAnimationFrame(animationId);
-            animationId = null;
-            visualizerCtx.fillStyle = 'rgba(10, 10, 10, 0.5)';
-            visualizerCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-        });
+        bgMusic.addEventListener('play', startVisualizer);
+        bgMusic.addEventListener('pause', stopVisualizer);
 
         const counterDisplay = document.getElementById('counter');
         const highScoreDisplay = document.getElementById('highScore');
