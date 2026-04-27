@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GN-Tel_Aviv & Spacebar Clicker</title>
+    <title>GN-Power</title>
     <style>
         @font-face {
             font-family: 'Digital';
@@ -528,17 +528,6 @@
             font-size: 0.9em;
             color: var(--hint-color);
         }
-
-        #visualizerCanvas {
-            width: 100%;
-            height: 150px;
-            margin-top: 20px;
-            background: #000;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            display: block;
-            box-sizing: border-box;
-        }
     </style>
 </head>
 <body>
@@ -587,7 +576,7 @@
             <div class="music-control">
                 <span id="musicStatus">🎵 Music Player Ready</span>
             </div>
-            <p class="hint">Tip: You can use the spacebar to click!</p>
+            <p class="hint">Main Page</p>
         </div>
     </div>
 
@@ -703,7 +692,6 @@
                     <span>🔊</span>
                 </div>
                 <div class="playlist-info" id="playlistCount">Playlist: 15 tracks available</div>
-                <div id="visualizerContainer" style="display: flex; align-items: flex-end; justify-content: space-around; height: 150px; background: #000; border-radius: 12px; border: 1px solid var(--border-color); margin-top: 20px; padding: 10px; gap: 2px;"></div>
             </div>
         </div>
     </div>
@@ -711,9 +699,9 @@
     <div id="page6" class="page">
         <div class="container blank-container">
             <div class="about-text">
-                <h1><strong>About GN-Tel_Aviv</strong></h1>
-                <p>GN-Tel_Aviv is a multi-functional web application designed for entertainment and utility. It features a spacebar clicker, number guessing games, and an integrated music player.</p>
-                <p>Built with performance and aesthetics in mind, this application provides a seamless experience for users looking to pass time or enjoy simple interactive games.</p>
+                <h1><strong>About GN-Power</strong></h1>
+                <p>GN-Power is a website with games, simple enough.</p>
+                <p>I enjoyed making it, so I hope you enjoy using it.</p>
                 <p>Created by DiddyEater67.</p>
             </div>
         </div>
@@ -916,117 +904,19 @@
         ];
 
         let currentTrackIndex = 0; let isLooping = false; let musicStarted = false;
-        function loadTrack(index) { if (playlist.length === 0) return; currentTrackIndex = index; const track = playlist[index]; playerTitle.textContent = track.title; bgMusic.src = track.url; bgMusic.load(); if (musicStarted) bgMusic.play().catch(() => {}); updatePlayPauseIcon(); }
+        function loadTrack(index) { if (playlist.length === 0) return; currentTrackIndex = index; const track = playlist[index]; bgMusic.src = track.url; playerTitle.textContent = track.title; bgMusic.load(); if (musicStarted) bgMusic.play().catch(() => {}); updatePlayPauseIcon(); }
         function updatePlayPauseIcon() { playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️'; }
         function startMusic() { if (musicStarted || playlist.length === 0) return; musicStarted = true; bgMusic.play().catch(() => {}); musicStatus.textContent = "🎵 Music Playing"; updatePlayPauseIcon(); }
         bgMusic.addEventListener('timeupdate', () => { if (playlist.length === 0) return; const progress = (bgMusic.currentTime / bgMusic.duration) * 100; progressFill.style.width = `${progress}%`; const curM = Math.floor(bgMusic.currentTime / 60); const curS = Math.floor(bgMusic.currentTime % 60); const durM = Math.floor(bgMusic.duration / 60) || 0; const durS = Math.floor(bgMusic.duration % 60) || 0; currentTimeDisplay.textContent = `${curM}:${curS.toString().padStart(2, '0')}`; durationDisplay.textContent = `${durM}:${durS.toString().padStart(2, '0')}`; });
         bgMusic.addEventListener('ended', () => { if (playlist.length === 0) return; if (isLooping) { bgMusic.currentTime = 0; bgMusic.play(); } else { nextBtn.click(); } });
-        playPauseBtn.addEventListener('click', () => { if (playlist.length === 0) return; if (!musicStarted) { startMusic(); setTimeout(function() { if (!audioContext) initAudioContext(); }, 50); } else { if (bgMusic.paused) bgMusic.play(); else bgMusic.pause(); updatePlayPauseIcon(); } });
-        prevBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex - 1 + playlist.length) % playlist.length; loadTrack(next); setTimeout(function() { if (!audioContext) initAudioContext(); }, 50); });
-        nextBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex + 1) % playlist.length; loadTrack(next); setTimeout(function() { if (!audioContext) initAudioContext(); }, 50); });
+        playPauseBtn.addEventListener('click', () => { if (playlist.length === 0) return; if (!musicStarted) startMusic(); else { if (bgMusic.paused) bgMusic.play(); else bgMusic.pause(); updatePlayPauseIcon(); } });
+        prevBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex - 1 + playlist.length) % playlist.length; loadTrack(next); });
+        nextBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex + 1) % playlist.length; loadTrack(next); });
         loopBtn.addEventListener('click', () => { isLooping = !isLooping; loopBtn.classList.toggle('active', isLooping); });
         volumeSlider.addEventListener('input', (e) => { bgMusic.volume = e.target.value; playerMuteBtn.textContent = bgMusic.volume === 0 ? '🔇' : '🔊'; });
         playerMuteBtn.addEventListener('click', () => { if (bgMusic.volume > 0) { bgMusic.dataset.lastVolume = bgMusic.volume; bgMusic.volume = 0; volumeSlider.value = 0; playerMuteBtn.textContent = '🔇'; } else { bgMusic.volume = bgMusic.dataset.lastVolume || 0.5; volumeSlider.value = bgMusic.volume; playerMuteBtn.textContent = '🔊'; } });
         progressBar.addEventListener('click', (e) => { if (playlist.length === 0) return; const rect = progressBar.getBoundingClientRect(); const pos = (e.clientX - rect.left) / rect.width; bgMusic.currentTime = pos * bgMusic.duration; });
-        loadTrack(0);
-        window.addEventListener('click', function() {
-            startMusic();
-            setTimeout(function() { if (!audioContext) initAudioContext(); }, 50);
-        }, { once: true });
-
-        const visualizerContainer = document.getElementById('visualizerContainer');
-        let animationId = null;
-        let isPlaying = false;
-        let barCount = 32;
-        let bars = [];
-        let audioContext = null;
-        let analyser = null;
-        let scriptProcessor = null;
-        let volumeLevels = [];
-
-        function initBars() {
-            visualizerContainer.innerHTML = '';
-            bars = [];
-            volumeLevels = [];
-            for (let i = 0; i < barCount; i++) {
-                const bar = document.createElement('div');
-                bar.style.flex = '1';
-                bar.style.background = 'hsl(' + (i / barCount * 360) + ', 100%, 50%)';
-                bar.style.borderRadius = '4px';
-                bar.style.minHeight = '5px';
-                bar.style.transition = 'height 0.08s ease-out';
-                visualizerContainer.appendChild(bar);
-                bars.push({ element: bar, height: 0 });
-                volumeLevels.push(0);
-            }
-        }
-
-        function initAudioContext() {
-            if (audioContext) return;
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioContext.createAnalyser();
-                analyser.fftSize = 256;
-                analyser.smoothingTimeConstant = 0.8;
-                const source = audioContext.createMediaElementAudioSource(bgMusic);
-                source.connect(analyser);
-                analyser.connect(audioContext.destination);
-                console.log('AudioContext initialized');
-            } catch (e) {
-                console.error('AudioContext failed:', e);
-            }
-        }
-
-        function drawVisualizer() {
-            const maxHeight = visualizerContainer.offsetHeight - 20;
-            
-            if (analyser) {
-                const dataArray = new Uint8Array(analyser.frequencyBinCount);
-                analyser.getByteFrequencyData(dataArray);
-                
-                for (let i = 0; i < barCount; i++) {
-                    const index = Math.floor((i / barCount) * dataArray.length);
-                    volumeLevels[i] = dataArray[index];
-                    const heightFactor = volumeLevels[i] / 255;
-                    const height = heightFactor * maxHeight;
-                    bars[i].element.style.height = Math.max(5, height) + 'px';
-                }
-            }
-            
-            if (isPlaying) {
-                animationId = requestAnimationFrame(drawVisualizer);
-            }
-        }
-
-        function startVisualizer() {
-            if (!isPlaying) {
-                isPlaying = true;
-                if (bars.length === 0) initBars();
-                if (!audioContext) initAudioContext();
-                if (audioContext && audioContext.state === 'suspended') {
-                    audioContext.resume().catch(function() {});
-                }
-                drawVisualizer();
-            }
-        }
-
-        function stopVisualizer() {
-            isPlaying = false;
-            if (animationId) {
-                cancelAnimationFrame(animationId);
-                animationId = null;
-            }
-            for (let bar of bars) {
-                bar.element.style.height = '5px';
-            }
-        }
-
-        setTimeout(function() {
-            if (bars.length === 0) initBars();
-        }, 100);
-
-        bgMusic.addEventListener('play', startVisualizer);
-        bgMusic.addEventListener('pause', stopVisualizer);
+        loadTrack(0); window.addEventListener('click', startMusic, { once: true });
 
         const counterDisplay = document.getElementById('counter');
         const highScoreDisplay = document.getElementById('highScore');
