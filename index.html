@@ -342,15 +342,14 @@
             gap: 10px;
             margin-bottom: 20px;
             width: 100%;
-            max-width: 800px;
         }
 
         .diff-btn {
             background: var(--box-bg);
             color: var(--text-color);
             border: 1px solid var(--border-color);
-            padding: 12px;
-            font-size: 0.9em;
+            padding: 10px;
+            font-size: 14px;
         }
 
         .diff-btn.active {
@@ -358,52 +357,67 @@
             color: white;
         }
 
-        .games-container {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
+        /* Games Section Styles */
         .game-nav-arrow {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background: var(--accent-color);
+            background: rgba(0, 0, 0, 0.5);
             color: white;
             border: none;
+            border-radius: 50%;
             width: 40px;
             height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 10;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            transition: all 0.3s;
+            cursor: pointer;
+            z-index: 5;
+            transition: background 0.3s;
         }
 
-        .game-nav-arrow:hover { background: var(--accent-hover); transform: translateY(-50%) scale(1.1); }
         #prevGameBtn { left: -50px; }
         #nextGameBtn { right: -50px; }
 
+        .game-nav-arrow:hover { background: var(--accent-color); }
+
         .game-frame-wrapper {
             width: 100%;
-            aspect-ratio: 16/9;
+            height: 600px;
             background: #000;
             border-radius: 12px;
             overflow: hidden;
-            border: 2px solid var(--border-color);
             position: relative;
+            border: 2px solid var(--border-color);
         }
 
-        .game-frame { width: 100%; height: 100%; border: none; }
+        .game-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        #emulator-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        #emulator-setup {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #1a1a1a;
+            color: white;
+        }
 
         .controls-list {
             list-style: none;
             padding: 0;
             margin: 0;
+            text-align: left;
             width: 100%;
         }
 
@@ -421,8 +435,6 @@
             padding: 30px;
             border-radius: 24px;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            position: relative;
-            overflow: hidden;
         }
 
         .music-info { margin-bottom: 25px; }
@@ -515,18 +527,6 @@
             margin-top: 20px;
             font-size: 0.9em;
             color: var(--hint-color);
-        }
-
-        /* Visualizer Canvas Added Here */
-        #visualizerCanvas {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 100px;
-            pointer-events: none;
-            z-index: -1;
-            opacity: 0.6;
         }
     </style>
 </head>
@@ -691,7 +691,6 @@
                     <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
                     <span>🔊</span>
                 </div>
-                <canvas id="visualizerCanvas"></canvas>
                 <div class="playlist-info" id="playlistCount">Playlist: 15 tracks available</div>
             </div>
         </div>
@@ -708,7 +707,7 @@
         </div>
     </div>
 
-    <audio id="bgMusic" crossorigin="anonymous"></audio>
+    <audio id="bgMusic"></audio>
 
     <script>
         const pages = document.querySelectorAll('.page');
@@ -732,12 +731,12 @@
             startMusic();
         });
 
-        // Keyboard navigation for Spacebar Clicker
+        // Keyboard navigation - Disabled arrow keys to prevent interference with games
         window.addEventListener('keydown', (e) => {
+            // Only allow spacebar for clicker on page 1
             if (e.code === 'Space' && currentPage === 0) {
                 e.preventDefault();
                 handleClick();
-                // Add a small visual feedback to the button
                 clickBtn.style.transform = 'translateY(2px)';
                 setTimeout(() => clickBtn.style.transform = 'translateY(0)', 100);
             }
@@ -780,19 +779,13 @@
         resizeCanvas();
 
         window.addEventListener('mousemove', (e) => {
-            mouse.x = e.x;
-            mouse.y = e.y;
-            
-            // Check if mouse is over any container to prevent particle interaction
+            mouse.x = e.x; mouse.y = e.y;
             const activePage = document.querySelector('.page.active');
             if (activePage) {
                 const activeContainer = activePage.querySelector('.container');
                 if (activeContainer) {
                     const rect = activeContainer.getBoundingClientRect();
-                    mouse.isOverContainer = (
-                        e.x >= rect.left && e.x <= rect.right &&
-                        e.y >= rect.top && e.y <= rect.bottom
-                    );
+                    mouse.isOverContainer = (e.x >= rect.left && e.x <= rect.right && e.y >= rect.top && e.y <= rect.bottom);
                     return;
                 }
             }
@@ -800,10 +793,7 @@
         });
 
         class Particle {
-            constructor() {
-                this.init();
-            }
-
+            constructor() { this.init(); }
             init() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
@@ -812,255 +802,82 @@
                 this.baseSpeedY = (Math.random() - 0.5) * 0.4;
                 this.popping = false;
                 this.popProgress = 0;
-
-                // Mode specific initialization
-                if (particleModeState === 1) { // Fire
-                    this.y = canvas.height + Math.random() * 20;
-                    this.baseSpeedY = -Math.random() * 1.5 - 0.5;
-                    this.baseSpeedX = (Math.random() - 0.5) * 0.5;
-                } else if (particleModeState === 2) { // Snow
-                    this.y = -Math.random() * 20;
-                    this.baseSpeedY = Math.random() * 1 + 0.5;
-                    this.baseSpeedX = (Math.random() - 0.5) * 0.5;
-                } else if (particleModeState === 3) { // Wind
-                    this.x = -Math.random() * 20;
-                    this.baseSpeedX = Math.random() * 2 + 1;
-                    this.baseSpeedY = (Math.random() - 0.5) * 0.2;
-                } else if (particleModeState === 4) { // Rain
-                    this.y = -Math.random() * 20;
-                    this.baseSpeedY = Math.random() * 5 + 5;
-                    this.baseSpeedX = 2;
-                } else if (particleModeState === 5) { // Bubbles
-                    this.y = canvas.height + Math.random() * 50;
-                    this.size = Math.random() * 10 + 2;
-                    this.baseSpeedY = -Math.random() * 1 - 0.5;
-                    this.baseSpeedX = (Math.random() - 0.5) * 0.5;
-                    this.popThreshold = Math.random() * (canvas.height * 0.8);
-                }
-
-                this.speedX = this.baseSpeedX;
-                this.speedY = this.baseSpeedY;
-                this.alpha = Math.random() * 0.4 + 0.1;
+                if (particleModeState === 1) { this.y = canvas.height + Math.random() * 20; this.baseSpeedY = -Math.random() * 1.5 - 0.5; this.baseSpeedX = (Math.random() - 0.5) * 0.5; }
+                else if (particleModeState === 2) { this.y = -Math.random() * 20; this.baseSpeedY = Math.random() * 1 + 0.5; this.baseSpeedX = (Math.random() - 0.5) * 0.5; }
+                else if (particleModeState === 3) { this.x = -Math.random() * 20; this.baseSpeedX = Math.random() * 2 + 1; this.baseSpeedY = (Math.random() - 0.5) * 0.2; }
+                else if (particleModeState === 4) { this.y = -Math.random() * 20; this.baseSpeedY = Math.random() * 5 + 5; this.baseSpeedX = 2; }
+                else if (particleModeState === 5) { this.y = canvas.height + Math.random() * 50; this.size = Math.random() * 10 + 2; this.baseSpeedY = -Math.random() * 1 - 0.5; this.baseSpeedX = (Math.random() - 0.5) * 0.5; this.popThreshold = Math.random() * (canvas.height * 0.8); }
+                this.speedX = this.baseSpeedX; this.speedY = this.baseSpeedY; this.alpha = Math.random() * 0.4 + 0.1;
             }
-
             update() {
-                if (this.popping) {
-                    this.popProgress += 0.1;
-                    if (this.popProgress >= 1) this.init();
-                    return;
-                }
-
-                // Interaction
+                if (this.popping) { this.popProgress += 0.1; if (this.popProgress >= 1) this.init(); return; }
                 if (particleModeState === 0 && mouse.x != null && !mouse.isOverContainer) {
-                    let dx = mouse.x - this.x;
-                    let dy = mouse.y - this.y;
-                    let distance = Math.sqrt(dx * dx + dy * dy);
-                    let forceRadius = 100;
-                    
-                    if (distance < forceRadius) {
-                        let force = (forceRadius - distance) / forceRadius;
-                        let directionX = dx / distance;
-                        let directionY = dy / distance;
-                        this.speedX -= directionX * force * 0.2;
-                        this.speedY -= directionY * force * 0.2;
-                    } else {
-                        this.speedX += (this.baseSpeedX - this.speedX) * 0.05;
-                        this.speedY += (this.baseSpeedY - this.speedY) * 0.05;
-                    }
-                } else {
-                    this.speedX += (this.baseSpeedX - this.speedX) * 0.05;
-                    this.speedY += (this.baseSpeedY - this.speedY) * 0.05;
-                }
-
-                this.x += this.speedX;
-                this.y += this.speedY;
-
-                if (particleModeState === 5 && this.y < this.popThreshold) {
-                    this.popping = true;
-                }
-
-                // Boundary check
-                if (particleModeState === 0) {
-                    if (this.x < 0) this.x = canvas.width;
-                    if (this.x > canvas.width) this.x = 0;
-                    if (this.y < 0) this.y = canvas.height;
-                    if (this.y > canvas.height) this.y = 0;
-                } else {
-                    if (this.y < -50 || this.y > canvas.height + 50 || 
-                        this.x < -50 || this.x > canvas.width + 50) {
-                        this.init();
-                    }
-                }
+                    let dx = mouse.x - this.x; let dy = mouse.y - this.y; let distance = Math.sqrt(dx * dx + dy * dy); let forceRadius = 100;
+                    if (distance < forceRadius) { let force = (forceRadius - distance) / forceRadius; let directionX = dx / distance; let directionY = dy / distance; this.speedX -= directionX * force * 0.2; this.speedY -= directionY * force * 0.2; }
+                    else { this.speedX += (this.baseSpeedX - this.speedX) * 0.05; this.speedY += (this.baseSpeedY - this.speedY) * 0.05; }
+                } else { this.speedX += (this.baseSpeedX - this.speedX) * 0.05; this.speedY += (this.baseSpeedY - this.speedY) * 0.05; }
+                this.x += this.speedX; this.y += this.speedY;
+                if (particleModeState === 5 && this.y < this.popThreshold) this.popping = true;
+                if (particleModeState === 0) { if (this.x < 0) this.x = canvas.width; if (this.x > canvas.width) this.x = 0; if (this.y < 0) this.y = canvas.height; if (this.y > canvas.height) this.y = 0; }
+                else { if (this.y < -50 || this.y > canvas.height + 50 || this.x < -50 || this.x > canvas.width + 50) this.init(); }
             }
-
             draw() {
                 ctx.globalAlpha = this.alpha;
                 let color;
-                if (particleColors[particleColorState] === 'rainbow') {
-                    color = `hsla(${rainbowHue}, 70%, 60%, ${this.alpha})`;
-                } else {
-                    color = particleColors[particleColorState];
-                }
-                
-                ctx.fillStyle = color;
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = color;
-
-                if (this.popping) {
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size * (1 + this.popProgress), 0, Math.PI * 2);
-                    ctx.strokeStyle = color;
-                    ctx.globalAlpha = this.alpha * (1 - this.popProgress);
-                    ctx.stroke();
-                    ctx.shadowBlur = 0;
-                    return;
-                }
-
-                if (particleModeState === 4) { // Rain line
-                    ctx.beginPath();
-                    ctx.lineWidth = 2;
-                    ctx.strokeStyle = color;
-                    ctx.moveTo(this.x, this.y);
-                    ctx.lineTo(this.x - this.speedX, this.y - this.speedY);
-                    ctx.stroke();
-                } else if (particleModeState === 5) { // Bubble
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.strokeStyle = color;
-                    ctx.lineWidth = 1;
-                    ctx.stroke();
-                    
-                    // Bubble highlight
-                    ctx.beginPath();
-                    ctx.arc(this.x - this.size * 0.3, this.y - this.size * 0.3, this.size * 0.1, 0, Math.PI * 2);
-                    ctx.fillStyle = "white";
-                    ctx.globalAlpha = this.alpha * 0.5;
-                    ctx.fill();
-                } else {
-                    this.drawShape();
-                }
-                
+                if (particleColors[particleColorState] === 'rainbow') color = `hsla(${rainbowHue}, 70%, 60%, ${this.alpha})`;
+                else color = particleColors[particleColorState];
+                ctx.fillStyle = color; ctx.shadowBlur = 10; ctx.shadowColor = color;
+                if (this.popping) { ctx.beginPath(); ctx.arc(this.x, this.y, this.size * (1 + this.popProgress), 0, Math.PI * 2); ctx.strokeStyle = color; ctx.globalAlpha = this.alpha * (1 - this.popProgress); ctx.stroke(); ctx.shadowBlur = 0; return; }
+                if (particleModeState === 4) { ctx.beginPath(); ctx.lineWidth = 2; ctx.strokeStyle = color; ctx.moveTo(this.x, this.y); ctx.lineTo(this.x - this.speedX, this.y - this.speedY); ctx.stroke(); }
+                else if (particleModeState === 5) { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.stroke(); ctx.beginPath(); ctx.arc(this.x - this.size * 0.3, this.y - this.size * 0.3, this.size * 0.1, 0, Math.PI * 2); ctx.fillStyle = "white"; ctx.globalAlpha = this.alpha * 0.5; ctx.fill(); }
+                else this.drawShape();
                 ctx.shadowBlur = 0;
             }
-
             drawShape() {
                 const s = this.size;
                 switch(particleShapeState) {
-                    case 0: // Circle
-                        ctx.beginPath();
-                        ctx.arc(this.x, this.y, s, 0, Math.PI * 2);
-                        ctx.fill();
-                        break;
-                    case 1: // Square
-                        ctx.fillRect(this.x - s, this.y - s, s * 2, s * 2);
-                        break;
-                    case 2: // Triangle
-                        ctx.beginPath();
-                        ctx.moveTo(this.x, this.y - s);
-                        ctx.lineTo(this.x + s, this.y + s);
-                        ctx.lineTo(this.x - s, this.y + s);
-                        ctx.closePath();
-                        ctx.fill();
-                        break;
-                    case 3: // Star
-                        ctx.beginPath();
-                        for (let i = 0; i < 5; i++) {
-                            ctx.lineTo(this.x + s * Math.cos((18 + i * 72) * Math.PI / 180), 
-                                     this.y - s * Math.sin((18 + i * 72) * Math.PI / 180));
-                            ctx.lineTo(this.x + (s/2) * Math.cos((54 + i * 72) * Math.PI / 180), 
-                                     this.y - (s/2) * Math.sin((54 + i * 72) * Math.PI / 180));
-                        }
-                        ctx.closePath();
-                        ctx.fill();
-                        break;
-                    case 4: // Diamond
-                        ctx.beginPath();
-                        ctx.moveTo(this.x, this.y - s);
-                        ctx.lineTo(this.x + s, this.y);
-                        ctx.lineTo(this.x, this.y + s);
-                        ctx.lineTo(this.x - s, this.y);
-                        ctx.closePath();
-                        ctx.fill();
-                        break;
-                    case 5: // Heart
-                        ctx.beginPath();
-                        ctx.moveTo(this.x, this.y + s/2);
-                        ctx.bezierCurveTo(this.x, this.y, this.x - s, this.y, this.x - s, this.y - s/2);
-                        ctx.bezierCurveTo(this.x - s, this.y - s*1.2, this.x, this.y - s*1.2, this.x, this.y - s/2);
-                        ctx.bezierCurveTo(this.x, this.y - s*1.2, this.x + s, this.y - s*1.2, this.x + s, this.y - s/2);
-                        ctx.bezierCurveTo(this.x + s, this.y, this.x, this.y, this.x, this.y + s/2);
-                        ctx.fill();
-                        break;
+                    case 0: ctx.beginPath(); ctx.arc(this.x, this.y, s, 0, Math.PI * 2); ctx.fill(); break;
+                    case 1: ctx.fillRect(this.x - s, this.y - s, s * 2, s * 2); break;
+                    case 2: ctx.beginPath(); ctx.moveTo(this.x, this.y - s); ctx.lineTo(this.x + s, this.y + s); ctx.lineTo(this.x - s, this.y + s); ctx.closePath(); ctx.fill(); break;
+                    case 3: ctx.beginPath(); for (let i = 0; i < 5; i++) { ctx.lineTo(this.x + s * Math.cos((18 + i * 72) * Math.PI / 180), this.y - s * Math.sin((18 + i * 72) * Math.PI / 180)); ctx.lineTo(this.x + (s/2) * Math.cos((54 + i * 72) * Math.PI / 180), this.y - (s/2) * Math.sin((54 + i * 72) * Math.PI / 180)); } ctx.closePath(); ctx.fill(); break;
+                    case 4: ctx.beginPath(); ctx.moveTo(this.x, this.y - s); ctx.lineTo(this.x + s, this.y); ctx.lineTo(this.x, this.y + s); ctx.lineTo(this.x - s, this.y); ctx.closePath(); ctx.fill(); break;
+                    case 5: ctx.beginPath(); ctx.moveTo(this.x, this.y + s/2); ctx.bezierCurveTo(this.x, this.y, this.x - s, this.y, this.x - s, this.y - s/2); ctx.bezierCurveTo(this.x - s, this.y - s*1.2, this.x, this.y - s*1.2, this.x, this.y - s/2); ctx.bezierCurveTo(this.x, this.y - s*1.2, this.x + s, this.y - s*1.2, this.x + s, this.y - s/2); ctx.bezierCurveTo(this.x + s, this.y, this.x, this.y, this.x, this.y + s/2); ctx.fill(); break;
                 }
             }
         }
 
         function createParticles() {
             const interval = setInterval(() => {
-                if (particles.length < maxParticles && particlesEnabled) {
-                    particles.push(new Particle());
-                } else if (!particlesEnabled || particles.length >= maxParticles) {
-                    clearInterval(interval);
-                }
+                if (particles.length < maxParticles && particlesEnabled) particles.push(new Particle());
+                else if (!particlesEnabled || particles.length >= maxParticles) clearInterval(interval);
             }, 20);
         }
 
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            if (particlesEnabled) {
-                rainbowHue = (rainbowHue + 0.5) % 360;
-                particles.forEach(p => {
-                    p.update();
-                    p.draw();
-                });
-            }
-            
+            if (particlesEnabled) { rainbowHue = (rainbowHue + 0.5) % 360; particles.forEach(p => { p.update(); p.draw(); }); }
             requestAnimationFrame(animateParticles);
         }
 
-        createParticles();
-        animateParticles();
+        createParticles(); animateParticles();
 
         particleToggle.addEventListener('click', () => {
             particleModeState = (particleModeState + 1) % modeIcons.length;
-            
-            if (particleModeState === 6) { // Off
-                particlesEnabled = false;
-                particleToggle.textContent = modeIcons[6];
-                particleColorBtn.style.display = 'none';
-                particleShapeBtn.style.display = 'none';
-            } else {
-                particlesEnabled = true;
-                particleToggle.textContent = modeIcons[particleModeState];
-                particleColorBtn.style.display = 'flex';
-                particleShapeBtn.style.display = 'flex';
-                particles = [];
-                createParticles();
-            }
+            if (particleModeState === 6) { particlesEnabled = false; particleToggle.textContent = modeIcons[6]; particleColorBtn.style.display = 'none'; particleShapeBtn.style.display = 'none'; }
+            else { particlesEnabled = true; particleToggle.textContent = modeIcons[particleModeState]; particleColorBtn.style.display = 'flex'; particleShapeBtn.style.display = 'flex'; particles = []; createParticles(); }
             particleToggle.blur();
         });
 
-        particleColorBtn.addEventListener('click', () => {
-            particleColorState = (particleColorState + 1) % particleColors.length;
-            particleColorBtn.textContent = colorIcons[particleColorState];
-            particleColorBtn.blur();
-        });
+        particleColorBtn.addEventListener('click', () => { particleColorState = (particleColorState + 1) % particleColors.length; particleColorBtn.textContent = colorIcons[particleColorState]; particleColorBtn.blur(); });
+        particleShapeBtn.addEventListener('click', () => { particleShapeState = (particleShapeState + 1) % shapeIcons.length; particleShapeBtn.textContent = shapeIcons[particleShapeState]; particleShapeBtn.blur(); });
 
-        particleShapeBtn.addEventListener('click', () => {
-            particleShapeState = (particleShapeState + 1) % shapeIcons.length;
-            particleShapeBtn.textContent = shapeIcons[particleShapeState];
-            particleShapeBtn.blur();
-        });
-
-        // --- Music Player Section ---
         const bgMusic = document.getElementById('bgMusic');
         const playPauseBtn = document.getElementById('playPauseBtn');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
         const loopBtn = document.getElementById('loopBtn');
-        const playerMuteBtn = document.getElementById('playerMuteBtn');
         const volumeSlider = document.getElementById('volumeSlider');
+        const playerMuteBtn = document.getElementById('playerMuteBtn');
         const progressBar = document.getElementById('progressBar');
         const progressFill = document.getElementById('progressFill');
         const currentTimeDisplay = document.getElementById('currentTime');
@@ -1086,162 +903,21 @@
             { title: "Sugar Were Goin Down", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/tfmqGurmZQhkpTRw.mp3" }
         ];
 
-        let currentTrackIndex = 0;
-        let isLooping = false;
-        let musicStarted = false;
+        let currentTrackIndex = 0; let isLooping = false; let musicStarted = false;
+        function loadTrack(index) { if (playlist.length === 0) return; currentTrackIndex = index; const track = playlist[index]; bgMusic.src = track.url; playerTitle.textContent = track.title; bgMusic.load(); if (musicStarted) bgMusic.play().catch(() => {}); updatePlayPauseIcon(); }
+        function updatePlayPauseIcon() { playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️'; }
+        function startMusic() { if (musicStarted || playlist.length === 0) return; musicStarted = true; bgMusic.play().catch(() => {}); musicStatus.textContent = "🎵 Music Playing"; updatePlayPauseIcon(); }
+        bgMusic.addEventListener('timeupdate', () => { if (playlist.length === 0) return; const progress = (bgMusic.currentTime / bgMusic.duration) * 100; progressFill.style.width = `${progress}%`; const curM = Math.floor(bgMusic.currentTime / 60); const curS = Math.floor(bgMusic.currentTime % 60); const durM = Math.floor(bgMusic.duration / 60) || 0; const durS = Math.floor(bgMusic.duration % 60) || 0; currentTimeDisplay.textContent = `${curM}:${curS.toString().padStart(2, '0')}`; durationDisplay.textContent = `${durM}:${durS.toString().padStart(2, '0')}`; });
+        bgMusic.addEventListener('ended', () => { if (playlist.length === 0) return; if (isLooping) { bgMusic.currentTime = 0; bgMusic.play(); } else { nextBtn.click(); } });
+        playPauseBtn.addEventListener('click', () => { if (playlist.length === 0) return; if (!musicStarted) startMusic(); else { if (bgMusic.paused) bgMusic.play(); else bgMusic.pause(); updatePlayPauseIcon(); } });
+        prevBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex - 1 + playlist.length) % playlist.length; loadTrack(next); });
+        nextBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex + 1) % playlist.length; loadTrack(next); });
+        loopBtn.addEventListener('click', () => { isLooping = !isLooping; loopBtn.classList.toggle('active', isLooping); });
+        volumeSlider.addEventListener('input', (e) => { bgMusic.volume = e.target.value; playerMuteBtn.textContent = bgMusic.volume === 0 ? '🔇' : '🔊'; });
+        playerMuteBtn.addEventListener('click', () => { if (bgMusic.volume > 0) { bgMusic.dataset.lastVolume = bgMusic.volume; bgMusic.volume = 0; volumeSlider.value = 0; playerMuteBtn.textContent = '🔇'; } else { bgMusic.volume = bgMusic.dataset.lastVolume || 0.5; volumeSlider.value = bgMusic.volume; playerMuteBtn.textContent = '🔊'; } });
+        progressBar.addEventListener('click', (e) => { if (playlist.length === 0) return; const rect = progressBar.getBoundingClientRect(); const pos = (e.clientX - rect.left) / rect.width; bgMusic.currentTime = pos * bgMusic.duration; });
+        loadTrack(0); window.addEventListener('click', startMusic, { once: true });
 
-        // --- Visualizer Logic Additions ---
-        let audioCtx = null, analyser = null, sourceNode = null, audioContextReady = false;
-        function ensureAudioContext() {
-            if (audioContextReady) { if (audioCtx.state === 'suspended') audioCtx.resume(); return; }
-            try {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioCtx.createAnalyser();
-                analyser.fftSize = 256;
-                sourceNode = audioCtx.createMediaElementSource(bgMusic);
-                sourceNode.connect(analyser);
-                analyser.connect(audioCtx.destination);
-                audioContextReady = true;
-            } catch (e) { console.warn("Visualizer failed to initialize:", e); }
-        }
-
-        const vizCanvas = document.getElementById('visualizerCanvas');
-        const vizCtx = vizCanvas.getContext('2d');
-        let vizW, vizH;
-        function resizeViz() { const rect = vizCanvas.parentElement.getBoundingClientRect(); vizW = vizCanvas.width = rect.width; vizH = vizCanvas.height = 100; }
-        window.addEventListener('resize', resizeViz);
-        resizeViz();
-
-        function drawVisualizer() {
-            requestAnimationFrame(drawVisualizer);
-            vizCtx.clearRect(0, 0, vizW, vizH);
-            if (!audioContextReady || !analyser) return;
-            const bufferLength = analyser.frequencyBinCount;
-            const dataArray = new Uint8Array(bufferLength);
-            analyser.getByteFrequencyData(dataArray);
-            const barCount = 60;
-            const gap = 2;
-            const barWidth = (vizW / barCount) - gap;
-            const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
-            for (let i = 0; i < barCount; i++) {
-                const value = dataArray[i];
-                const percent = value / 255;
-                const barHeight = percent * vizH;
-                vizCtx.fillStyle = accentColor;
-                vizCtx.globalAlpha = 0.2 + (percent * 0.8);
-                vizCtx.fillRect(i * (barWidth + gap), vizH - barHeight, barWidth, barHeight);
-            }
-            vizCtx.globalAlpha = 1.0;
-        }
-        drawVisualizer();
-        // --- End Visualizer Logic ---
-
-        function loadTrack(index) {
-            if (playlist.length === 0) return;
-            currentTrackIndex = index;
-            const track = playlist[index];
-            bgMusic.src = track.url;
-            playerTitle.textContent = track.title;
-            bgMusic.load();
-            if (musicStarted) bgMusic.play().catch(() => {});
-            updatePlayPauseIcon();
-        }
-
-        function updatePlayPauseIcon() {
-            playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️';
-        }
-
-        function startMusic() {
-            if (musicStarted || playlist.length === 0) return;
-            musicStarted = true;
-            ensureAudioContext(); // Initialize visualizer on start
-            bgMusic.play().catch(() => {});
-            musicStatus.textContent = "🎵 Music Playing";
-            updatePlayPauseIcon();
-        }
-
-        bgMusic.addEventListener('timeupdate', () => {
-            if (playlist.length === 0) return;
-            const progress = (bgMusic.currentTime / bgMusic.duration) * 100;
-            progressFill.style.width = `${progress}%`;
-            
-            const curM = Math.floor(bgMusic.currentTime / 60);
-            const curS = Math.floor(bgMusic.currentTime % 60);
-            const durM = Math.floor(bgMusic.duration / 60) || 0;
-            const durS = Math.floor(bgMusic.duration % 60) || 0;
-            
-            currentTimeDisplay.textContent = `${curM}:${curS.toString().padStart(2, '0')}`;
-            durationDisplay.textContent = `${durM}:${durS.toString().padStart(2, '0')}`;
-        });
-
-        bgMusic.addEventListener('ended', () => {
-            if (playlist.length === 0) return;
-            if (isLooping) {
-                bgMusic.currentTime = 0;
-                bgMusic.play();
-            } else {
-                nextBtn.click();
-            }
-        });
-
-        playPauseBtn.addEventListener('click', () => {
-            if (playlist.length === 0) return;
-            ensureAudioContext(); // Resume or init context on click
-            if (!musicStarted) {
-                startMusic();
-            } else {
-                if (bgMusic.paused) bgMusic.play();
-                else bgMusic.pause();
-                updatePlayPauseIcon();
-            }
-        });
-
-        prevBtn.addEventListener('click', () => {
-            if (playlist.length === 0) return;
-            let next = (currentTrackIndex - 1 + playlist.length) % playlist.length;
-            loadTrack(next);
-        });
-
-        nextBtn.addEventListener('click', () => {
-            if (playlist.length === 0) return;
-            let next = (currentTrackIndex + 1) % playlist.length;
-            loadTrack(next);
-        });
-
-        loopBtn.addEventListener('click', () => {
-            isLooping = !isLooping;
-            loopBtn.classList.toggle('active', isLooping);
-        });
-
-        volumeSlider.addEventListener('input', (e) => {
-            bgMusic.volume = e.target.value;
-            playerMuteBtn.textContent = bgMusic.volume === 0 ? '🔇' : '🔊';
-        });
-
-        playerMuteBtn.addEventListener('click', () => {
-            if (bgMusic.volume > 0) {
-                bgMusic.dataset.lastVolume = bgMusic.volume;
-                bgMusic.volume = 0;
-                volumeSlider.value = 0;
-                playerMuteBtn.textContent = '🔇';
-            } else {
-                bgMusic.volume = bgMusic.dataset.lastVolume || 0.5;
-                volumeSlider.value = bgMusic.volume;
-                playerMuteBtn.textContent = '🔊';
-            }
-        });
-
-        progressBar.addEventListener('click', (e) => {
-            if (playlist.length === 0) return;
-            const rect = progressBar.getBoundingClientRect();
-            const pos = (e.clientX - rect.left) / rect.width;
-            bgMusic.currentTime = pos * bgMusic.duration;
-        });
-
-        loadTrack(0);
-        window.addEventListener('click', startMusic, { once: true });
-
-        // --- Clicker Game Logic ---
         const counterDisplay = document.getElementById('counter');
         const highScoreDisplay = document.getElementById('highScore');
         const timerDisplay = document.getElementById('timer');
@@ -1251,79 +927,16 @@
         const secInput = document.getElementById('secInput');
         const statusMsg = document.getElementById('statusMsg');
 
-        let count = 0;
-        let highScore = localStorage.getItem('gn_highScore') || 0;
-        let timeLeft = 10;
-        let timerId = null;
-        let gameActive = false;
-
+        let count = 0; let highScore = localStorage.getItem('gn_highScore') || 0; let timeLeft = 10; let timerId = null; let gameActive = false;
         highScoreDisplay.textContent = highScore;
 
-        function updateTimerDisplay() {
-            const m = Math.floor(timeLeft / 60);
-            const s = timeLeft % 60;
-            timerDisplay.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        }
-
-        function startGame() {
-            if (gameActive) return;
-            count = 0;
-            counterDisplay.textContent = count;
-            timeLeft = parseInt(minInput.value) * 60 + parseInt(secInput.value);
-            if (timeLeft <= 0) return;
-            
-            gameActive = true;
-            statusMsg.textContent = "GAME IN PROGRESS...";
-            minInput.disabled = true;
-            secInput.disabled = true;
-            
-            updateTimerDisplay();
-            
-            timerId = setInterval(() => {
-                timeLeft--;
-                updateTimerDisplay();
-                if (timeLeft <= 0) endGame();
-            }, 1000);
-        }
-
-        function endGame() {
-            clearInterval(timerId);
-            gameActive = false;
-            statusMsg.textContent = "TIME'S UP!";
-            minInput.disabled = false;
-            secInput.disabled = false;
-            
-            if (count > highScore) {
-                highScore = count;
-                localStorage.setItem('gn_highScore', highScore);
-                highScoreDisplay.textContent = highScore;
-                statusMsg.textContent = "NEW HIGH SCORE!";
-            }
-        }
-
-        function handleClick() {
-            if (!gameActive && timeLeft > 0 && timerId === null) startGame();
-            if (gameActive) {
-                count++;
-                counterDisplay.textContent = count;
-            }
-        }
-
+        function updateTimerDisplay() { const m = Math.floor(timeLeft / 60); const s = timeLeft % 60; timerDisplay.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`; }
+        function startGame() { if (gameActive) return; count = 0; counterDisplay.textContent = count; timeLeft = parseInt(minInput.value) * 60 + parseInt(secInput.value); if (timeLeft <= 0) return; gameActive = true; statusMsg.textContent = "GAME IN PROGRESS..."; minInput.disabled = true; secInput.disabled = true; updateTimerDisplay(); timerId = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) endGame(); }, 1000); }
+        function endGame() { clearInterval(timerId); gameActive = false; statusMsg.textContent = "TIME'S UP!"; minInput.disabled = false; secInput.disabled = false; if (count > highScore) { highScore = count; localStorage.setItem('gn_highScore', highScore); highScoreDisplay.textContent = highScore; statusMsg.textContent = "NEW HIGH SCORE!"; } }
+        function handleClick() { if (!gameActive && timeLeft > 0 && timerId === null) startGame(); if (gameActive) { count++; counterDisplay.textContent = count; } }
         clickBtn.addEventListener('click', handleClick);
-        resetBtn.addEventListener('click', () => {
-            clearInterval(timerId);
-            timerId = null;
-            gameActive = false;
-            count = 0;
-            counterDisplay.textContent = count;
-            timeLeft = parseInt(minInput.value) * 60 + parseInt(secInput.value);
-            updateTimerDisplay();
-            statusMsg.textContent = "";
-            minInput.disabled = false;
-            secInput.disabled = false;
-        });
+        resetBtn.addEventListener('click', () => { clearInterval(timerId); timerId = null; gameActive = false; count = 0; counterDisplay.textContent = count; timeLeft = parseInt(minInput.value) * 60 + parseInt(secInput.value); updateTimerDisplay(); statusMsg.textContent = ""; minInput.disabled = false; secInput.disabled = false; });
 
-        // --- Guessing Game Logic ---
         const guessInput = document.getElementById('guessInput');
         const guessBtn = document.getElementById('guessBtn');
         const gameResetBtn = document.getElementById('gameResetBtn');
@@ -1332,77 +945,15 @@
         const diffBtns = document.querySelectorAll('.diff-btn');
         const gamePrompt = document.getElementById('gamePrompt');
 
-        let targetNumber;
-        let guessesLeft;
-        let maxNumber = 100;
-        let guessingGameActive = true;
+        let targetNumber; let guessesLeft; let maxNumber = 100; let guessingGameActive = true;
 
-        function initGuessingGame() {
-            targetNumber = Math.floor(Math.random() * maxNumber) + 1;
-            guessesLeft = Math.ceil(Math.log2(maxNumber)) + 1;
-            guessesLeftDisplay.textContent = guessesLeft;
-            gameFeedback.textContent = "";
-            gameFeedback.style.color = 'var(--text-color)';
-            guessInput.value = "";
-            guessInput.disabled = false;
-            guessBtn.disabled = false;
-            guessingGameActive = true;
-            gamePrompt.textContent = `I'm thinking of a number between 1 and ${maxNumber}.`;
-        }
-
-        diffBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                diffBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                maxNumber = parseInt(btn.dataset.max);
-                initGuessingGame();
-            });
-        });
-
-        function makeGuess() {
-            if (!guessingGameActive) return;
-            const guess = parseInt(guessInput.value);
-            
-            if (isNaN(guess) || guess < 1 || guess > maxNumber) {
-                gameFeedback.textContent = `Please enter a number between 1 and ${maxNumber}!`;
-                gameFeedback.style.color = 'var(--reset-color)';
-                return;
-            }
-
-            guessesLeft--;
-            guessesLeftDisplay.textContent = guessesLeft;
-
-            if (guess === targetNumber) {
-                gameFeedback.textContent = `CORRECT! The number was ${targetNumber}!`;
-                gameFeedback.style.color = '#2ecc71';
-                endGuessingGame(true);
-            } else if (guessesLeft <= 0) {
-                gameFeedback.textContent = `GAME OVER! The number was ${targetNumber}.`;
-                gameFeedback.style.color = 'var(--reset-color)';
-                endGuessingGame(false);
-            } else {
-                gameFeedback.textContent = guess < targetNumber ? "HIGHER!" : "LOWER!";
-                gameFeedback.style.color = 'var(--accent-color)';
-            }
-            
-            guessInput.value = "";
-            guessInput.focus();
-        }
-
-        function endGuessingGame(won) {
-            guessingGameActive = false;
-            guessInput.disabled = true;
-            guessBtn.disabled = true;
-        }
-
-        guessBtn.addEventListener('click', makeGuess);
-        guessInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') makeGuess();
-        });
-        gameResetBtn.addEventListener('click', initGuessingGame);
+        function initGuessingGame() { targetNumber = Math.floor(Math.random() * maxNumber) + 1; guessesLeft = Math.ceil(Math.log2(maxNumber)) + 1; guessesLeftDisplay.textContent = guessesLeft; gameFeedback.textContent = ""; gameFeedback.style.color = 'var(--text-color)'; guessInput.value = ""; guessInput.disabled = false; guessBtn.disabled = false; guessingGameActive = true; gamePrompt.textContent = `I'm thinking of a number between 1 and ${maxNumber}.`; }
+        diffBtns.forEach(btn => { btn.addEventListener('click', () => { diffBtns.forEach(b => b.classList.remove('active')); btn.classList.add('active'); maxNumber = parseInt(btn.dataset.max); initGuessingGame(); }); });
+        function makeGuess() { if (!guessingGameActive) return; const guess = parseInt(guessInput.value); if (isNaN(guess) || guess < 1 || guess > maxNumber) { gameFeedback.textContent = `Please enter a number between 1 and ${maxNumber}!`; gameFeedback.style.color = 'var(--reset-color)'; return; } guessesLeft--; guessesLeftDisplay.textContent = guessesLeft; if (guess === targetNumber) { gameFeedback.textContent = `CORRECT! The number was ${targetNumber}!`; gameFeedback.style.color = '#2ecc71'; endGuessingGame(true); } else if (guessesLeft <= 0) { gameFeedback.textContent = `GAME OVER! The number was ${targetNumber}.`; gameFeedback.style.color = 'var(--reset-color)'; endGuessingGame(false); } else { gameFeedback.textContent = guess < targetNumber ? "HIGHER!" : "LOWER!"; gameFeedback.style.color = 'var(--accent-color)'; } guessInput.value = ""; guessInput.focus(); }
+        function endGuessingGame(won) { guessingGameActive = false; guessInput.disabled = true; guessBtn.disabled = true; }
+        guessBtn.addEventListener('click', makeGuess); guessInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') makeGuess(); }); gameResetBtn.addEventListener('click', initGuessingGame);
         initGuessingGame();
 
-        // --- Games Section Logic ---
         const gameIframe = document.getElementById('gameIframe');
         const emulatorContainer = document.getElementById('emulator-container');
         const emulatorSetup = document.getElementById('emulator-setup');
@@ -1456,7 +1007,7 @@
                 title: "Paper Minecraft v11.7",
                 type: "iframe",
                 url: "https://turbowarp.org/10128407/embed?addons=pause%2Cfullscreen&fps=60",
-                credits: "<p>Game made by Griffpatch</p>",
+                credits: "<p>Game made by Griffpatch</p><p>Ported by DiddyEater67</p>",
                 controls: `<ul class="controls-list">
                     <li><strong>[1 to 9]</strong> - Select Item</li>
                     <li><strong>[Click]</strong> - Place or Mine</li>
@@ -1535,6 +1086,10 @@
                 };
                 document.body.appendChild(script);
             } else {
+                // For subsequent loads, we might need a refresh or more complex logic
+                // For now, we'll assume first-time load per session or refresh.
+                console.log("Emulator script already loaded. Refreshing might be needed for new ROM.");
+                // Re-trigger loader if possible or just update global vars
                 if (typeof EJS_reinit === 'function') EJS_reinit();
             }
         }
