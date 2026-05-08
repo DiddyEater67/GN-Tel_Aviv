@@ -541,7 +541,10 @@
     <div class="top-controls">
         <button id="particleShapeBtn" class="control-btn" title="Toggle Particle Shape">⏺️</button>
         <button id="particleToggle" class="control-btn" title="Toggle Particle Movement">🔵</button>
-        <button id="particleColorBtn" class="control-btn" title="Toggle Particle Color">🟦</button>
+        <div class="control-btn-group">
+            <button id="particleColorBtn" class="control-btn" title="Toggle Particle Color">🎨</button>
+            <input type="color" id="particleColorPicker" value="#5dade2" style="display: none;">
+        </div>
         <button id="themeToggle" class="control-btn" title="Toggle Theme">🌙</button>
     </div>
 
@@ -752,15 +755,15 @@
         let particles = [];
         let particlesEnabled = true;
         let particleModeState = 0;
-        let particleColorState = 0;
+        let particleColorState = 0; // 0: Hex Picker, 1: Rainbow
         let particleShapeState = 0;
         let rainbowHue = 0;
+        let selectedParticleColor = '#5dade2';
         const maxParticles = 100;
 
         const modeIcons = ['🔵', '🔥', '❄️', '💨', '🌧️', '🫧', '🚫'];
-        const colorIcons = ['🟦', '🟥', '🟩', '🟨', '🟪', '🌈'];
+        const colorIcons = ['🎨', '🌈'];
         const shapeIcons = ['⏺️', '⏹️', '🔼', '⭐', '🔷', '❤️'];
-        const particleColors = ['#5dade2', '#e74c3c', '#2ecc71', '#f1c40f', '#9b59b6', 'rainbow'];
 
         let mouse = { x: null, y: null, isOverContainer: false };
 
@@ -818,8 +821,8 @@
             draw() {
                 ctx.globalAlpha = this.alpha;
                 let color;
-                if (particleColors[particleColorState] === 'rainbow') color = `hsla(${rainbowHue}, 70%, 60%, ${this.alpha})`;
-                else color = particleColors[particleColorState];
+                if (particleColorState === 1) color = `hsla(${rainbowHue}, 70%, 60%, ${this.alpha})`;
+                else color = selectedParticleColor;
                 ctx.fillStyle = color; ctx.shadowBlur = 10; ctx.shadowColor = color;
                 if (this.popping) { ctx.beginPath(); ctx.arc(this.x, this.y, this.size * (1 + this.popProgress), 0, Math.PI * 2); ctx.strokeStyle = color; ctx.globalAlpha = this.alpha * (1 - this.popProgress); ctx.stroke(); ctx.shadowBlur = 0; return; }
                 if (particleModeState === 4) { ctx.beginPath(); ctx.lineWidth = 2; ctx.strokeStyle = color; ctx.moveTo(this.x, this.y); ctx.lineTo(this.x - this.speedX, this.y - this.speedY); ctx.stroke(); }
@@ -862,7 +865,20 @@
             particleToggle.blur();
         });
 
-        particleColorBtn.addEventListener('click', () => { particleColorState = (particleColorState + 1) % particleColors.length; particleColorBtn.textContent = colorIcons[particleColorState]; particleColorBtn.blur(); });
+        const particleColorPicker = document.getElementById('particleColorPicker');
+        particleColorBtn.addEventListener('click', () => { 
+            particleColorState = (particleColorState + 1) % 2; 
+            particleColorBtn.textContent = colorIcons[particleColorState];
+            if (particleColorState === 0) {
+                particleColorPicker.click();
+            }
+            particleColorBtn.blur(); 
+        });
+        particleColorPicker.addEventListener('input', (e) => {
+            selectedParticleColor = e.target.value;
+            particleColorState = 0;
+            particleColorBtn.textContent = colorIcons[0];
+        });
         particleShapeBtn.addEventListener('click', () => { particleShapeState = (particleShapeState + 1) % shapeIcons.length; particleShapeBtn.textContent = shapeIcons[particleShapeState]; particleShapeBtn.blur(); });
 
         const bgMusic = document.getElementById('bgMusic');
