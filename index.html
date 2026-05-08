@@ -306,6 +306,51 @@
             align-items: center;
         }
 
+        .bg-customizer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            background: var(--container-bg);
+            padding: 15px;
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 4px 15px var(--shadow);
+            transition: transform 0.3s;
+        }
+
+        .bg-customizer.minimized {
+            transform: translateY(calc(100% - 40px));
+        }
+
+        .bg-customizer h4 { margin: 0; font-size: 0.9em; color: var(--accent-color); display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+
+        .bg-options { display: flex; gap: 8px; flex-wrap: wrap; }
+        .bg-opt { width: 30px; height: 30px; border-radius: 6px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; background-size: cover; }
+        .bg-opt:hover { transform: scale(1.1); }
+        .bg-opt.active { border-color: var(--accent-color); }
+
+        #customBgInput { display: none; }
+        .upload-bg-btn { 
+            font-size: 0.8em; 
+            padding: 5px 10px; 
+            background: var(--accent-color); 
+            color: white; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            text-align: center;
+        }
+
+        body {
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
         .control-btn {
             background-color: var(--accent-color);
             color: white;
@@ -498,6 +543,19 @@
         <button id="particleToggle" class="control-btn" title="Toggle Particle Movement">🔵</button>
         <button id="particleColorBtn" class="control-btn" title="Toggle Particle Color">🟦</button>
         <button id="themeToggle" class="control-btn" title="Toggle Theme">🌙</button>
+    </div>
+
+    <div class="bg-customizer" id="bgCustomizer">
+        <h4 id="bgHeader">Background <span>▼</span></h4>
+        <div class="bg-options">
+            <div class="bg-opt active" data-bg="default" style="background: #0a0a0a;" title="Default"></div>
+            <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?auto=format&fit=crop&w=100&q=80')" title="Starry Night"></div>
+            <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=100&q=80')" title="Deep Space"></div>
+            <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=100&q=80')" title="Mountains"></div>
+            <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=100&q=80')" title="Beach"></div>
+        </div>
+        <label for="customBgInput" class="upload-bg-btn">Upload Custom</label>
+        <input type="file" id="customBgInput" accept="image/*">
     </div>
 
     <button id="prevPageBtn" class="nav-arrow">❮</button>
@@ -963,6 +1021,57 @@
         prevGameBtn.addEventListener('click', () => { currentGameIndex = (currentGameIndex - 1 + gamesList.length) % gamesList.length; updateGame(); });
         nextGameBtn.addEventListener('click', () => { currentGameIndex = (currentGameIndex + 1) % gamesList.length; updateGame(); });
         updateGame();
+
+        // Background Customizer Logic
+        const bgCustomizer = document.getElementById('bgCustomizer');
+        const bgHeader = document.getElementById('bgHeader');
+        const bgOpts = document.querySelectorAll('.bg-opt');
+        const customBgInput = document.getElementById('customBgInput');
+
+        bgHeader.addEventListener('click', () => {
+            bgCustomizer.classList.toggle('minimized');
+            bgHeader.querySelector('span').textContent = bgCustomizer.classList.contains('minimized') ? '▲' : '▼';
+        });
+
+        bgOpts.forEach(opt => {
+            opt.addEventListener('click', () => {
+                bgOpts.forEach(o => o.classList.remove('active'));
+                opt.classList.add('active');
+                const bg = opt.dataset.bg;
+                if (bg === 'default') {
+                    document.body.style.backgroundImage = 'none';
+                } else {
+                    document.body.style.backgroundImage = bg;
+                }
+                localStorage.setItem('gn_customBg', bg);
+            });
+        });
+
+        customBgInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const bgUrl = `url('${event.target.result}')`;
+                    document.body.style.backgroundImage = bgUrl;
+                    bgOpts.forEach(o => o.classList.remove('active'));
+                    localStorage.setItem('gn_customBg', bgUrl);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Load saved background
+        const savedBg = localStorage.getItem('gn_customBg');
+        if (savedBg) {
+            if (savedBg !== 'default') {
+                document.body.style.backgroundImage = savedBg;
+            }
+            bgOpts.forEach(o => {
+                if (o.dataset.bg === savedBg) o.classList.add('active');
+                else o.classList.remove('active');
+            });
+        }
     </script>
 </body>
 </html>
