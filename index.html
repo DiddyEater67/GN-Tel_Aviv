@@ -63,13 +63,12 @@
             transition: background-color 0.3s, color 0.3s;
             overflow-x: hidden;
             position: relative;
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            zoom: 0.75;
-            -moz-transform: scale(0.75);
-            -moz-transform-origin: top center;
+            justify-content: center;
+            box-sizing: border-box;
         }
 
         #particleCanvas {
@@ -137,19 +136,21 @@
         }
 
         .container {
-            width: 95%;
-            max-width: 1400px;
+            width: 98%;
+            max-width: 1600px;
+            height: 90vh;
             background: var(--container-bg);
             padding: 20px;
             border-radius: 24px;
             box-shadow: 0 8px 32px var(--shadow);
-            margin-top: 10px;
             z-index: 1;
             transition: background-color 0.3s, box-shadow 0.3s;
             box-sizing: border-box;
-            min-height: 850px;
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .blank-container {
@@ -443,7 +444,7 @@
 
         .game-frame-wrapper {
             width: 100%;
-            aspect-ratio: 16 / 9;
+            height: 65vh;
             background: #000;
             border-radius: 12px;
             overflow: hidden;
@@ -499,11 +500,15 @@
 
         .music-player {
             width: 100%;
-            max-width: 600px;
+            max-width: 800px;
+            height: 70vh;
             background: var(--box-bg);
-            padding: 30px;
+            padding: 40px;
             border-radius: 20px;
             border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .music-info { margin-bottom: 20px; }
