@@ -179,17 +179,19 @@
         .side-box {
             flex: 1;
             background: var(--box-bg);
-            padding: 20px;
+            padding: 15px;
             border-radius: 16px;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9em;
+            align-items: flex-start;
+            justify-content: flex-start;
+            font-size: 0.85em;
             color: var(--p-color);
             border: 1px solid rgba(255, 255, 255, 0.05);
             text-align: left;
             backdrop-filter: blur(8px);
+            max-height: 60vh;
+            overflow-y: auto;
         }
 
         .center-content {
@@ -462,29 +464,29 @@
 
         .game-nav-arrow {
             position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
+            top: 30vh;
             background: rgba(0,0,0,0.5);
             color: var(--accent-color);
             border: 1px solid var(--accent-color);
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            z-index: 5;
+            z-index: 10;
             transition: all 0.3s;
         }
 
         .game-nav-arrow:hover {
             background: var(--accent-color);
             color: white;
+            box-shadow: 0 0 15px var(--accent-color);
         }
 
-        #prevGameBtn { left: -20px; }
-        #nextGameBtn { right: -20px; }
+        #prevGameBtn { left: -55px; }
+        #nextGameBtn { right: -55px; }
 
         .controls-list {
             list-style: none;
