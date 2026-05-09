@@ -572,9 +572,30 @@
     <canvas id="particleCanvas"></canvas>
 
     <div class="top-controls">
-        <button id="particleShapeBtn" class="control-btn" title="Toggle Particle Shape">⏺️</button>
-        <button id="particleToggle" class="control-btn" title="Toggle Particle Movement">🔵</button>
-        <div class="control-btn-group" id="colorBtnGroup">
+        <div class="control-btn-group">
+            <button id="particleShapeBtn" class="control-btn" title="Particle Shape Options">⏺️</button>
+            <div class="dropdown-menu" id="shapeDropdown">
+                <div class="dropdown-item" data-shape="0">⏺️ Circle</div>
+                <div class="dropdown-item" data-shape="1">⏹️ Square</div>
+                <div class="dropdown-item" data-shape="2">🔼 Triangle</div>
+                <div class="dropdown-item" data-shape="3">⭐ Star</div>
+                <div class="dropdown-item" data-shape="4">🔷 Diamond</div>
+                <div class="dropdown-item" data-shape="5">❤️ Heart</div>
+            </div>
+        </div>
+        <div class="control-btn-group">
+            <button id="particleToggle" class="control-btn" title="Particle Movement Options">🔵</button>
+            <div class="dropdown-menu" id="modeDropdown">
+                <div class="dropdown-item" data-mode="0">🔵 Default</div>
+                <div class="dropdown-item" data-mode="1">🔥 Fire</div>
+                <div class="dropdown-item" data-mode="2">❄️ Snow</div>
+                <div class="dropdown-item" data-mode="3">💨 Wind</div>
+                <div class="dropdown-item" data-mode="4">🌧️ Rain</div>
+                <div class="dropdown-item" data-mode="5">🫧 Bubbles</div>
+                <div class="dropdown-item" data-mode="6">🚫 Off</div>
+            </div>
+        </div>
+        <div class="control-btn-group">
             <button id="particleColorBtn" class="control-btn" title="Particle Color Options">🎨</button>
             <div class="dropdown-menu" id="colorDropdown">
                 <div class="dropdown-item" id="hexOption">🎨 Custom Color</div>
@@ -582,7 +603,13 @@
             </div>
             <input type="color" id="particleColorPicker" value="#5dade2" style="display: none;">
         </div>
-        <button id="themeToggle" class="control-btn" title="Toggle Theme">🌙</button>
+        <div class="control-btn-group">
+            <button id="themeToggle" class="control-btn" title="Theme Options">🌙</button>
+            <div class="dropdown-menu" id="themeDropdown">
+                <div class="dropdown-item" id="darkTheme">🌙 Dark Mode</div>
+                <div class="dropdown-item" id="lightTheme">☀️ Light Mode</div>
+            </div>
+        </div>
     </div>
 
     <div class="bg-customizer" id="bgCustomizer">
@@ -777,11 +804,6 @@
         });
 
         const themeToggle = document.getElementById('themeToggle');
-        themeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('light-mode');
-            themeToggle.textContent = document.body.classList.contains('light-mode') ? '☀️' : '🌙';
-            themeToggle.blur();
-        });
 
         const canvas = document.getElementById('particleCanvas');
         const ctx = canvas.getContext('2d');
@@ -895,26 +917,53 @@
 
         createParticles(); animateParticles();
 
-        particleToggle.addEventListener('click', () => {
-            particleModeState = (particleModeState + 1) % modeIcons.length;
-            if (particleModeState === 6) { particlesEnabled = false; particleToggle.textContent = modeIcons[6]; particleColorBtn.style.display = 'none'; particleShapeBtn.style.display = 'none'; }
-            else { particlesEnabled = true; particleToggle.textContent = modeIcons[particleModeState]; particleColorBtn.style.display = 'flex'; particleShapeBtn.style.display = 'flex'; particles = []; createParticles(); }
-            particleToggle.blur();
-        });
+        // Dropdown Logic for all controls
+        const dropdowns = document.querySelectorAll('.dropdown-menu');
+        const controlBtns = document.querySelectorAll('.control-btn');
 
-        const particleColorPicker = document.getElementById('particleColorPicker');
-        const colorDropdown = document.getElementById('colorDropdown');
-        const hexOption = document.getElementById('hexOption');
-        const rainbowOption = document.getElementById('rainbowOption');
-
-        particleColorBtn.addEventListener('click', (e) => { 
-            e.stopPropagation();
-            colorDropdown.classList.toggle('active');
+        controlBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const targetDropdown = btn.nextElementSibling;
+                dropdowns.forEach(d => { if (d !== targetDropdown) d.classList.remove('active'); });
+                targetDropdown.classList.toggle('active');
+            });
         });
 
         document.addEventListener('click', () => {
-            colorDropdown.classList.remove('active');
+            dropdowns.forEach(d => d.classList.remove('active'));
         });
+
+        // Particle Shape Logic
+        const shapeDropdown = document.getElementById('shapeDropdown');
+        shapeDropdown.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', () => {
+                particleShapeState = parseInt(item.dataset.shape);
+                particleShapeBtn.textContent = shapeIcons[particleShapeState];
+            });
+        });
+
+        // Particle Mode Logic
+        const modeDropdown = document.getElementById('modeDropdown');
+        modeDropdown.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', () => {
+                particleModeState = parseInt(item.dataset.mode);
+                if (particleModeState === 6) {
+                    particlesEnabled = false;
+                    particleToggle.textContent = modeIcons[6];
+                } else {
+                    particlesEnabled = true;
+                    particleToggle.textContent = modeIcons[particleModeState];
+                    particles = [];
+                    createParticles();
+                }
+            });
+        });
+
+        // Particle Color Logic
+        const particleColorPicker = document.getElementById('particleColorPicker');
+        const hexOption = document.getElementById('hexOption');
+        const rainbowOption = document.getElementById('rainbowOption');
 
         hexOption.addEventListener('click', () => {
             particleColorPicker.click();
@@ -932,7 +981,18 @@
             particleColorState = 0;
             particleColorBtn.textContent = '🎨';
         });
-        particleShapeBtn.addEventListener('click', () => { particleShapeState = (particleShapeState + 1) % shapeIcons.length; particleShapeBtn.textContent = shapeIcons[particleShapeState]; particleShapeBtn.blur(); });
+
+        // Theme Logic
+        const darkTheme = document.getElementById('darkTheme');
+        const lightTheme = document.getElementById('lightTheme');
+        darkTheme.addEventListener('click', () => {
+            document.body.classList.remove('light-mode');
+            themeToggle.textContent = '🌙';
+        });
+        lightTheme.addEventListener('click', () => {
+            document.body.classList.add('light-mode');
+            themeToggle.textContent = '☀️';
+        });
 
         const bgMusic = document.getElementById('bgMusic');
         const playPauseBtn = document.getElementById('playPauseBtn');
