@@ -363,7 +363,40 @@
             height: 40px;
             box-sizing: border-box;
             border-radius: 10px;
+            position: relative;
         }
+
+        .control-btn-group { position: relative; }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-top: 5px;
+            z-index: 1000;
+            padding: 5px;
+            flex-direction: column;
+            gap: 5px;
+            min-width: 100px;
+            backdrop-filter: blur(10px);
+        }
+        .dropdown-menu.active { display: flex; }
+        .dropdown-item {
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 5px;
+            color: var(--text-color);
+            font-size: 0.9em;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .dropdown-item:hover { background: var(--accent-color); color: white; }
 
         .music-control {
             margin-top: 15px;
@@ -541,8 +574,12 @@
     <div class="top-controls">
         <button id="particleShapeBtn" class="control-btn" title="Toggle Particle Shape">⏺️</button>
         <button id="particleToggle" class="control-btn" title="Toggle Particle Movement">🔵</button>
-        <div class="control-btn-group">
-            <button id="particleColorBtn" class="control-btn" title="Toggle Particle Color">🎨</button>
+        <div class="control-btn-group" id="colorBtnGroup">
+            <button id="particleColorBtn" class="control-btn" title="Particle Color Options">🎨</button>
+            <div class="dropdown-menu" id="colorDropdown">
+                <div class="dropdown-item" id="hexOption">🎨 Custom Color</div>
+                <div class="dropdown-item" id="rainbowOption">🌈 Rainbow</div>
+            </div>
             <input type="color" id="particleColorPicker" value="#5dade2" style="display: none;">
         </div>
         <button id="themeToggle" class="control-btn" title="Toggle Theme">🌙</button>
@@ -866,18 +903,34 @@
         });
 
         const particleColorPicker = document.getElementById('particleColorPicker');
-        particleColorBtn.addEventListener('click', () => { 
-            particleColorState = (particleColorState + 1) % 2; 
-            particleColorBtn.textContent = colorIcons[particleColorState];
-            if (particleColorState === 0) {
-                particleColorPicker.click();
-            }
-            particleColorBtn.blur(); 
+        const colorDropdown = document.getElementById('colorDropdown');
+        const hexOption = document.getElementById('hexOption');
+        const rainbowOption = document.getElementById('rainbowOption');
+
+        particleColorBtn.addEventListener('click', (e) => { 
+            e.stopPropagation();
+            colorDropdown.classList.toggle('active');
         });
+
+        document.addEventListener('click', () => {
+            colorDropdown.classList.remove('active');
+        });
+
+        hexOption.addEventListener('click', () => {
+            particleColorPicker.click();
+            particleColorState = 0;
+            particleColorBtn.textContent = '🎨';
+        });
+
+        rainbowOption.addEventListener('click', () => {
+            particleColorState = 1;
+            particleColorBtn.textContent = '🌈';
+        });
+
         particleColorPicker.addEventListener('input', (e) => {
             selectedParticleColor = e.target.value;
             particleColorState = 0;
-            particleColorBtn.textContent = colorIcons[0];
+            particleColorBtn.textContent = '🎨';
         });
         particleShapeBtn.addEventListener('click', () => { particleShapeState = (particleShapeState + 1) % shapeIcons.length; particleShapeBtn.textContent = shapeIcons[particleShapeState]; particleShapeBtn.blur(); });
 
