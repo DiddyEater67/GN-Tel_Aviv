@@ -839,6 +839,7 @@
                     <button id="eraserTool" class="tool-btn">🧽 Eraser</button>
                     <button id="fillTool" class="tool-btn">🪣 Fill</button>
                     <button id="textTool" class="tool-btn">💬 Text</button>
+                    <button id="circleTool" class="tool-btn">⭕ Circle</button>
                 </div>
             </div>
             <div class="canvas-controls">
@@ -858,9 +859,17 @@
                     <label>Text Size:</label>
                     <input type="number" id="textSize" min="1" max="200" value="30" style="width: 60px;">
                 </div>
+                <div id="circleSizeGroup" class="input-group" style="display: none;">
+                    <label>Circle Size:</label>
+                    <input type="number" id="circleSize" min="1" max="500" value="50" style="width: 60px;">
+                </div>
                 <div id="rotationGroup" class="input-group" style="display: none;">
                     <label>Rotate (°):</label>
                     <input type="number" id="textRotation" min="0" max="360" value="0" style="width: 60px;">
+                </div>
+                <div id="fillGroup" class="input-group" style="display: none;">
+                    <label>Filled:</label>
+                    <input type="checkbox" id="shapeFilled" style="width: 20px; height: 20px;">
                 </div>
                 <button id="clearCanvas" class="reset-btn">Clear</button>
             </div>
@@ -1377,11 +1386,16 @@
         const brushSizeGroup = document.getElementById('brushSizeGroup');
         const eraserSizeGroup = document.getElementById('eraserSizeGroup');
         const textSizeGroup = document.getElementById('textSizeGroup');
+        const circleSize = document.getElementById('circleSize');
+        const circleSizeGroup = document.getElementById('circleSizeGroup');
+        const shapeFilled = document.getElementById('shapeFilled');
+        const fillGroup = document.getElementById('fillGroup');
         const clearBtn = document.getElementById('clearCanvas');
         const brushTool = document.getElementById('brushTool');
         const eraserTool = document.getElementById('eraserTool');
         const fillTool = document.getElementById('fillTool');
         const textTool = document.getElementById('textTool');
+        const circleTool = document.getElementById('circleTool');
         const textRotation = document.getElementById('textRotation');
         const rotationGroup = document.getElementById('rotationGroup');
         const undoBtn = document.getElementById('undoBtn');
@@ -1393,6 +1407,7 @@
         let historyStep = -1;
         
         let activeText = null; // { text, x, y, size, rotation, color }
+        let activeCircle = null; // { x, y, radius, rotation, color, filled }
 
         function saveHistory() {
             historyStep++;
@@ -1427,7 +1442,7 @@
             img.src = history[historyStep];
             img.onload = () => {
                 drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-                drawCtx.drawImage(img, 0, 0); if(activeText) renderCanvasWithPreview();
+                drawCtx.drawImage(img, 0, 0); if(activeText || activeCircle) renderCanvasWithPreview();
                 updateHistoryButtons();
             };
         }
@@ -1459,16 +1474,20 @@
         eraserTool.onclick = () => { currentTool = 'eraser'; updateToolUI(); };
         fillTool.onclick = () => { currentTool = 'fill'; updateToolUI(); };
         textTool.onclick = () => { currentTool = 'text'; updateToolUI(); };
+        circleTool.onclick = () => { currentTool = 'circle'; updateToolUI(); };
 
         function updateToolUI() {
             if (activeText) commitText();
-            [brushTool, eraserTool, fillTool, textTool].forEach(btn => btn.classList.remove('active'));
+            if (activeCircle) commitCircle();
+            [brushTool, eraserTool, fillTool, textTool, circleTool].forEach(btn => btn.classList.remove('active'));
             
             // Hide all tool-specific groups first
             brushSizeGroup.style.display = 'none';
             eraserSizeGroup.style.display = 'none';
             textSizeGroup.style.display = 'none';
+            circleSizeGroup.style.display = 'none';
             rotationGroup.style.display = 'none';
+            fillGroup.style.display = 'none';
 
             if (currentTool === 'brush') {
                 brushTool.classList.add('active');
@@ -1486,6 +1505,12 @@
                 textSizeGroup.style.display = 'flex';
                 rotationGroup.style.display = 'flex';
             }
+            if (currentTool === 'circle') {
+                circleTool.classList.add('active');
+                circleSizeGroup.style.display = 'flex';
+                rotationGroup.style.display = 'flex';
+                fillGroup.style.display = 'flex';
+            }
         }
 
         drawCanvas.addEventListener('mousedown', (e) => {
@@ -1497,11 +1522,17 @@
                 commitText();
                 return;
             }
+            if (activeCircle) {
+                commitCircle();
+                return;
+            }
 
             if (currentTool === 'fill') {
                 floodFill(Math.floor(x), Math.floor(y), drawColor.value); saveHistory();
             } else if (currentTool === 'text') {
                 startTextEntry(x, y);
+            } else if (currentTool === 'circle') {
+                startCircleEntry(x, y);
             } else {
                 startDrawing(e);
             }
@@ -1536,7 +1567,7 @@
         }
 
         function draw(e) {
-            if (!drawing || currentTool === 'fill' || currentTool === 'text') return;
+            if (!drawing || currentTool === 'fill' || currentTool === 'text' || currentTool === 'circle') return;
             const rect = drawCanvas.getBoundingClientRect();
             const x = (e.clientX || e.pageX) - rect.left;
             const y = (e.clientY || e.pageY) - rect.top;
@@ -1558,6 +1589,7 @@
 
         clearBtn.addEventListener('click', () => {
             if (activeText) activeText = null;
+            if (activeCircle) activeCircle = null;
             drawCtx.fillStyle = '#ffffff';
             drawCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
             saveHistory();
@@ -1604,6 +1636,50 @@
             ctx.restore();
         }
 
+        function startCircleEntry(x, y) {
+            activeCircle = {
+                x: x,
+                y: y,
+                radius: circleSize.value / 2,
+                rotation: textRotation.value,
+                color: drawColor.value,
+                filled: shapeFilled.checked
+            };
+            renderCanvasWithPreview();
+        }
+
+        function commitCircle() {
+            if (!activeCircle) return;
+            const circleToCommit = activeCircle;
+            activeCircle = null;
+            
+            const img = new Image();
+            img.src = history[historyStep];
+            img.onload = () => {
+                drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+                drawCtx.drawImage(img, 0, 0);
+                drawCircle(circleToCommit, drawCtx);
+                saveHistory();
+            };
+        }
+
+        function drawCircle(c, ctx) {
+            ctx.save();
+            ctx.translate(c.x, c.y);
+            ctx.rotate((c.rotation * Math.PI) / 180);
+            ctx.beginPath();
+            ctx.arc(0, 0, c.radius, 0, Math.PI * 2);
+            if (c.filled) {
+                ctx.fillStyle = c.color;
+                ctx.fill();
+            } else {
+                ctx.strokeStyle = c.color;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
         function renderCanvasWithPreview() {
             // Load the last saved state
             const img = new Image();
@@ -1639,15 +1715,38 @@
                     drawCtx.setLineDash([]); // Reset dash for other tools
                     drawCtx.restore();
                 }
+                if (activeCircle) {
+                    activeCircle.radius = circleSize.value / 2;
+                    activeCircle.rotation = textRotation.value;
+                    activeCircle.color = drawColor.value;
+                    activeCircle.filled = shapeFilled.checked;
+
+                    drawCircle(activeCircle, drawCtx);
+
+                    // Draw dashed box for circle
+                    drawCtx.save();
+                    drawCtx.translate(activeCircle.x, activeCircle.y);
+                    drawCtx.rotate((activeCircle.rotation * Math.PI) / 180);
+                    drawCtx.setLineDash([5, 5]);
+                    drawCtx.lineWidth = 1;
+                    drawCtx.strokeStyle = 'rgba(153, 153, 153, 0.8)';
+                    const size = activeCircle.radius * 2 + 8;
+                    drawCtx.strokeRect(-size/2, -size/2, size, size);
+                    drawCtx.setLineDash([]);
+                    drawCtx.restore();
+                }
             };
         }
 
         // Update preview when inputs change
         textSize.addEventListener('change', () => { if(activeText) renderCanvasWithPreview(); });
         textSize.addEventListener('input', () => { if(activeText) renderCanvasWithPreview(); });
-        textRotation.addEventListener('change', () => { if(activeText) renderCanvasWithPreview(); });
-        textRotation.addEventListener('input', () => { if(activeText) renderCanvasWithPreview(); });
-        drawColor.addEventListener('input', () => { if(activeText) renderCanvasWithPreview(); });
+        circleSize.addEventListener('change', () => { if(activeCircle) renderCanvasWithPreview(); });
+        circleSize.addEventListener('input', () => { if(activeCircle) renderCanvasWithPreview(); });
+        shapeFilled.addEventListener('change', () => { if(activeCircle) renderCanvasWithPreview(); });
+        textRotation.addEventListener('change', () => { if(activeText || activeCircle) renderCanvasWithPreview(); });
+        textRotation.addEventListener('input', () => { if(activeText || activeCircle) renderCanvasWithPreview(); });
+        drawColor.addEventListener('input', () => { if(activeText || activeCircle) renderCanvasWithPreview(); });
         function floodFill(startX, startY, fillColor) {
             const imageData = drawCtx.getImageData(0, 0, drawCanvas.width, drawCanvas.height);
             const data = imageData.data;
