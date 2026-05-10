@@ -887,7 +887,7 @@
                         <button id="triTool">▲ Triangle</button>
                         <button id="starTool">⭐ Star</button>
                         <button id="heartTool">❤️ Heart</button>
-                        <button id="crescentTool">🌙 Crescent</button>
+
                         <button id="arrowTool">➔ Arrow</button>
                     </div>
                 </div>
@@ -1457,7 +1457,7 @@
         const triTool = document.getElementById('triTool');
         const starTool = document.getElementById('starTool');
         const heartTool = document.getElementById('heartTool');
-        const crescentTool = document.getElementById('crescentTool');
+
         const arrowTool = document.getElementById('arrowTool');
         const textRotation = document.getElementById('textRotation');
         const rotationGroup = document.getElementById('rotationGroup');
@@ -1561,7 +1561,7 @@
             { id: 'triTool', name: 'Triangle', tool: 'tri' },
             { id: 'starTool', name: 'Star', tool: 'star' },
             { id: 'heartTool', name: 'Heart', tool: 'heart' },
-            { id: 'crescentTool', name: 'Crescent', tool: 'crescent' },
+
             { id: 'arrowTool', name: 'Arrow', tool: 'arrow' }
         ];
 
@@ -1631,7 +1631,7 @@
                 floodFill(Math.floor(x), Math.floor(y), drawColor.value); saveHistory();
             } else if (currentTool === 'text') {
                 startTextEntry(x, y);
-            } else if (['circle', 'square', 'rect', 'tri', 'star', 'heart', 'crescent', 'arrow'].includes(currentTool)) {
+            } else if (['circle', 'square', 'rect', 'tri', 'star', 'heart', 'arrow'].includes(currentTool)) {
                 startShapeEntry(x, y);
             } else {
                 startDrawing(e);
@@ -1663,11 +1663,15 @@
 
         function startDrawing(e) {
             drawing = true;
-            draw(e);
+            const rect = drawCanvas.getBoundingClientRect();
+            const x = (e.clientX || e.pageX) - rect.left;
+            const y = (e.clientY || e.pageY) - rect.top;
+            drawCtx.beginPath();
+            drawCtx.moveTo(x, y);
         }
 
         function draw(e) {
-            if (!drawing || currentTool === 'fill' || currentTool === 'text' || ['circle', 'square', 'rect', 'tri', 'star', 'heart', 'crescent', 'arrow'].includes(currentTool)) return;
+            if (!drawing || currentTool === 'fill' || currentTool === 'text' || ['circle', 'square', 'rect', 'tri', 'star', 'heart', 'arrow'].includes(currentTool)) return;
             const rect = drawCanvas.getBoundingClientRect();
             const x = (e.clientX || e.pageX) - rect.left;
             const y = (e.clientY || e.pageY) - rect.top;
@@ -1713,17 +1717,9 @@
 
         function commitText() {
             if (!activeText) return;
-            const textToCommit = activeText;
+            drawText(activeText, drawCtx);
             activeText = null;
-            
-            const img = new Image();
-            img.src = history[historyStep];
-            img.onload = () => {
-                drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-                drawCtx.drawImage(img, 0, 0);
-                drawText(textToCommit, drawCtx);
-                saveHistory();
-            };
+            saveHistory();
         }
 
         function drawText(t, ctx) {
@@ -1752,17 +1748,9 @@
 
         function commitShape() {
             if (!activeShape) return;
-            const shapeToCommit = activeShape;
+            drawShape(activeShape, drawCtx);
             activeShape = null;
-            
-            const img = new Image();
-            img.src = history[historyStep];
-            img.onload = () => {
-                drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-                drawCtx.drawImage(img, 0, 0);
-                drawShape(shapeToCommit, drawCtx);
-                saveHistory();
-            };
+            saveHistory();
         }
 
         function drawShape(s, ctx) {
@@ -1794,10 +1782,6 @@
                 ctx.moveTo(0, h / 2);
                 ctx.bezierCurveTo(h, -h / 2, h * 2, h, 0, h * 2);
                 ctx.bezierCurveTo(-h * 2, h, -h, -h / 2, 0, h / 2);
-            } else if (s.type === 'crescent') {
-                ctx.arc(0, 0, size / 2, 0.2 * Math.PI, 1.8 * Math.PI);
-                // Deepen the indent by moving the control point closer to the outer arc's center
-                ctx.quadraticCurveTo(size / 3.5, 0, size / 2 * Math.cos(0.2 * Math.PI), size / 2 * Math.sin(0.2 * Math.PI));
             } else if (s.type === 'arrow') {
                 ctx.moveTo(-size / 2, -size / 4);
                 ctx.lineTo(0, -size / 4);
@@ -1875,8 +1859,6 @@
                         offsetY = h * 0.75;
                     } else if (activeShape.type === 'star') {
                         bW = sSize * 0.95; bH = sSize * 0.9;
-                    } else if (activeShape.type === 'crescent') {
-                        bW = sSize; bH = sSize;
                     }
                     const boxSizeW = bW + 4, boxSizeH = bH + 4;
                     drawCtx.strokeRect(-bW / 2 - 2, -bH / 2 - 2 + offsetY, boxSizeW, boxSizeH);
@@ -1893,7 +1875,7 @@
         shapeSize.addEventListener('input', () => { if(activeShape) renderCanvasWithPreview(); });
         shapeFilled.addEventListener('change', () => { 
             if(activeShape) renderCanvasWithPreview();
-            else if(['circle', 'square', 'rect', 'tri', 'star', 'heart', 'crescent', 'arrow'].includes(currentTool)) outlineSizeGroup.style.display = shapeFilled.checked ? 'none' : 'flex';
+            else if(['circle', 'square', 'rect', 'tri', 'star', 'heart', 'arrow'].includes(currentTool)) outlineSizeGroup.style.display = shapeFilled.checked ? 'none' : 'flex';
         });
         outlineSize.addEventListener('input', () => { if(activeShape) renderCanvasWithPreview(); });
         textRotation.addEventListener('change', () => { if(activeText || activeShape) renderCanvasWithPreview(); });
