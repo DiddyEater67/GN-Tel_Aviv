@@ -1577,14 +1577,24 @@
                     activeText.rotation = textRotation.value;
                     activeText.color = drawColor.value;
                     
-                    // Draw preview with a dashed box
+                    // Draw preview
                     drawText(activeText, drawCtx);
                     
-                    // Draw a simple indicator
+                    // Draw a dashed box that rotates with the text
+                    drawCtx.save();
+                    drawCtx.translate(activeText.x, activeText.y);
+                    drawCtx.rotate((activeText.rotation * Math.PI) / 180);
+                    
+                    drawCtx.font = `${activeText.size}px Arial`;
+                    const metrics = drawCtx.measureText(activeText.text);
+                    const width = metrics.width;
+                    const height = activeText.size;
+                    
                     drawCtx.setLineDash([5, 5]);
-                    drawCtx.strokeStyle = '#999';
-                    drawCtx.strokeRect(activeText.x - 5, activeText.y - activeText.size, drawCtx.measureText(activeText.text).width + 10, activeText.size + 10);
-                    drawCtx.setLineDash([]);
+                    drawCtx.strokeStyle = 'rgba(153, 153, 153, 0.8)';
+                    // Adjust box to wrap text correctly (text baseline is usually at the bottom)
+                    drawCtx.strokeRect(-2, -height + 2, width + 4, height + 4);
+                    drawCtx.restore();
                 }
             };
         }
