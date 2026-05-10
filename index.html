@@ -637,6 +637,31 @@
             color: white;
             box-shadow: 0 0 10px var(--accent-color);
         }
+    
+        .history-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 5px;
+        }
+        .history-btn {
+            padding: 5px 12px;
+            font-size: 12px;
+            background: var(--box-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .history-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .canvas-title-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
     </style>
 </head>
 <body>
@@ -802,7 +827,13 @@
     <div id="page7" class="page">
         <div class="container">
             <div class="canvas-header">
-                <h1><strong>Drawing Canvas</strong></h1>
+                <div class="canvas-title-group">
+                    <h1><strong>Drawing Canvas</strong></h1>
+                    <div class="history-buttons">
+                        <button id="undoBtn" class="history-btn" title="Undo">↩️ Undo</button>
+                        <button id="redoBtn" class="history-btn" title="Redo">↪️ Redo</button>
+                    </div>
+                </div>
                 <div class="tool-buttons">
                     <button id="brushTool" class="tool-btn active">🖌️ Brush</button>
                     <button id="eraserTool" class="tool-btn">🧽 Eraser</button>
@@ -1332,16 +1363,63 @@
         const brushTool = document.getElementById('brushTool');
         const eraserTool = document.getElementById('eraserTool');
         const fillTool = document.getElementById('fillTool');
+        const undoBtn = document.getElementById('undoBtn');
+        const redoBtn = document.getElementById('redoBtn');
         
         let drawing = false;
         let currentTool = 'brush';
+        let history = [];
+        let historyStep = -1;
+
+        function saveHistory() {
+            historyStep++;
+            if (historyStep < history.length) {
+                history.length = historyStep;
+            }
+            history.push(drawCanvas.toDataURL());
+            updateHistoryButtons();
+        }
+
+        function updateHistoryButtons() {
+            undoBtn.disabled = historyStep <= 0;
+            redoBtn.disabled = historyStep >= history.length - 1;
+        }
+
+        undoBtn.onclick = () => {
+            if (historyStep > 0) {
+                historyStep--;
+                loadHistory();
+            }
+        };
+
+        redoBtn.onclick = () => {
+            if (historyStep < history.length - 1) {
+                historyStep++;
+                loadHistory();
+            }
+        };
+
+        function loadHistory() {
+            const img = new Image();
+            img.src = history[historyStep];
+            img.onload = () => {
+                drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+                drawCtx.drawImage(img, 0, 0);
+                updateHistoryButtons();
+            };
+        }
 
         function resizeDrawCanvas() {
             const rect = drawCanvas.parentElement.getBoundingClientRect();
             drawCanvas.width = rect.width;
             drawCanvas.height = rect.height;
             drawCtx.fillStyle = '#ffffff';
-            drawCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
+            drawCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height); saveHistory();
+            
+            // Initialize history
+            history = [drawCanvas.toDataURL()];
+            historyStep = 0;
+            updateHistoryButtons();
         }
 
         const observer = new MutationObserver((mutations) => {
@@ -1368,13 +1446,13 @@
         drawCanvas.addEventListener('mousedown', (e) => {
             if (currentTool === 'fill') {
                 const rect = drawCanvas.getBoundingClientRect();
-                floodFill(Math.floor(e.clientX - rect.left), Math.floor(e.clientY - rect.top), drawColor.value);
+                floodFill(Math.floor(e.clientX - rect.left), Math.floor(e.clientY - rect.top), drawColor.value); saveHistory();
             } else {
                 startDrawing(e);
             }
         });
         drawCanvas.addEventListener('mousemove', draw);
-        drawCanvas.addEventListener('mouseup', stopDrawing);
+        drawCanvas.addEventListener('mouseup', () => { if(drawing) { stopDrawing(); saveHistory(); } });
         drawCanvas.addEventListener('mouseout', stopDrawing);
 
         // Touch support
@@ -1383,7 +1461,7 @@
                 e.preventDefault(); 
                 if (currentTool === 'fill') {
                     const rect = drawCanvas.getBoundingClientRect();
-                    floodFill(Math.floor(e.touches[0].clientX - rect.left), Math.floor(e.touches[0].clientY - rect.top), drawColor.value);
+                    floodFill(Math.floor(e.touches[0].clientX - rect.left), Math.floor(e.touches[0].clientY - rect.top), drawColor.value); saveHistory();
                 } else {
                     startDrawing(e.touches[0]); 
                 }
@@ -1395,7 +1473,7 @@
                 draw(e.touches[0]); 
             }
         }, { passive: false });
-        drawCanvas.addEventListener('touchend', stopDrawing);
+        drawCanvas.addEventListener('touchend', () => { if(drawing) { stopDrawing(); saveHistory(); } });
 
         function startDrawing(e) {
             drawing = true;
