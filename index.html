@@ -1546,12 +1546,20 @@
             renderCanvasWithPreview();
         }
 
-        function commitText() {
+                function commitText() {
             if (!activeText) return;
-            drawText(activeText, drawCtx);
-            activeText = null;
-            saveHistory();
-            renderCanvasWithPreview();
+            
+            // Draw the final text onto the actual canvas state
+            const img = new Image();
+            img.src = history[historyStep];
+            img.onload = () => {
+                drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+                drawCtx.drawImage(img, 0, 0);
+                drawText(activeText, drawCtx);
+                activeText = null;
+                saveHistory();
+                // No need to call renderCanvasWithPreview here as we just saved the final state
+            };
         }
 
         function drawText(t, ctx) {
@@ -1564,15 +1572,14 @@
             ctx.restore();
         }
 
-        function renderCanvasWithPreview() {
-            // Load the last saved state
+                function renderCanvasWithPreview() {
             const img = new Image();
             img.src = history[historyStep];
             img.onload = () => {
                 drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-                drawCtx.drawImage(img, 0, 0); if(activeText) renderCanvasWithPreview();
+                drawCtx.drawImage(img, 0, 0);
+                
                 if (activeText) {
-                    // Update active text from controls
                     activeText.size = brushSize.value;
                     activeText.rotation = textRotation.value;
                     activeText.color = drawColor.value;
@@ -1587,13 +1594,35 @@
                     
                     drawCtx.font = `${activeText.size}px Arial`;
                     const metrics = drawCtx.measureText(activeText.text);
+                    const fontHeight = parseInt(activeText.size);
                     const width = metrics.width;
-                    const height = activeText.size;
+                    const ascent = metrics.actualBoundingBoxAscent || fontHeight * 0.8;
+                    const descent = metrics.actualBoundingBoxDescent || fontHeight * 0.2;
                     
                     drawCtx.setLineDash([5, 5]);
                     drawCtx.strokeStyle = 'rgba(153, 153, 153, 0.8)';
-                    // Adjust box to wrap text correctly (text baseline is usually at the bottom)
-                    drawCtx.strokeRect(-2, -height + 2, width + 4, height + 4);
+                    drawCtx.lineWidth = 1;
+                    drawCtx.strokeRect(-2, -ascent - 2, width + 4, ascent + descent + 4);
+                    drawCtx.restore();
+                }
+            };
+        }px Arial`;
+                    const metrics = drawCtx.measureText(activeText.text);
+                    
+                    // Use more precise metrics for the box
+                    const fontHeight = parseInt(activeText.size);
+                    const width = metrics.width;
+                    
+                    // Approximation for height if advanced metrics aren't used
+                    const ascent = metrics.actualBoundingBoxAscent || fontHeight * 0.8;
+                    const descent = metrics.actualBoundingBoxDescent || fontHeight * 0.2;
+                    
+                    drawCtx.setLineDash([5, 5]);
+                    drawCtx.strokeStyle = 'rgba(153, 153, 153, 0.8)';
+                    drawCtx.lineWidth = 1;
+                    
+                    // Draw box around the text based on baseline
+                    drawCtx.strokeRect(-2, -ascent - 2, width + 4, ascent + descent + 4);
                     drawCtx.restore();
                 }
             };
