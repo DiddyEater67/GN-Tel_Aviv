@@ -871,6 +871,10 @@
                     <label>Filled:</label>
                     <input type="checkbox" id="shapeFilled" style="width: 20px; height: 20px;">
                 </div>
+                <div id="outlineSizeGroup" class="input-group" style="display: none;">
+                    <label>Outline Size:</label>
+                    <input type="number" id="outlineSize" min="1" max="50" value="2" style="width: 60px;">
+                </div>
                 <button id="clearCanvas" class="reset-btn">Clear</button>
             </div>
             <div class="canvas-wrapper">
@@ -1390,6 +1394,8 @@
         const circleSizeGroup = document.getElementById('circleSizeGroup');
         const shapeFilled = document.getElementById('shapeFilled');
         const fillGroup = document.getElementById('fillGroup');
+        const outlineSize = document.getElementById('outlineSize');
+        const outlineSizeGroup = document.getElementById('outlineSizeGroup');
         const clearBtn = document.getElementById('clearCanvas');
         const brushTool = document.getElementById('brushTool');
         const eraserTool = document.getElementById('eraserTool');
@@ -1407,7 +1413,7 @@
         let historyStep = -1;
         
         let activeText = null; // { text, x, y, size, rotation, color }
-        let activeCircle = null; // { x, y, radius, rotation, color, filled }
+        let activeCircle = null; // { x, y, radius, rotation, color, filled, outlineSize }
 
         function saveHistory() {
             historyStep++;
@@ -1488,6 +1494,7 @@
             circleSizeGroup.style.display = 'none';
             rotationGroup.style.display = 'none';
             fillGroup.style.display = 'none';
+            outlineSizeGroup.style.display = 'none';
 
             if (currentTool === 'brush') {
                 brushTool.classList.add('active');
@@ -1510,6 +1517,7 @@
                 circleSizeGroup.style.display = 'flex';
                 rotationGroup.style.display = 'flex';
                 fillGroup.style.display = 'flex';
+                outlineSizeGroup.style.display = shapeFilled.checked ? 'none' : 'flex';
             }
         }
 
@@ -1643,7 +1651,8 @@
                 radius: circleSize.value / 2,
                 rotation: textRotation.value,
                 color: drawColor.value,
-                filled: shapeFilled.checked
+                filled: shapeFilled.checked,
+                outlineSize: outlineSize.value
             };
             renderCanvasWithPreview();
         }
@@ -1674,7 +1683,7 @@
                 ctx.fill();
             } else {
                 ctx.strokeStyle = c.color;
-                ctx.lineWidth = 2;
+                ctx.lineWidth = c.outlineSize;
                 ctx.stroke();
             }
             ctx.restore();
@@ -1720,6 +1729,10 @@
                     activeCircle.rotation = textRotation.value;
                     activeCircle.color = drawColor.value;
                     activeCircle.filled = shapeFilled.checked;
+                    activeCircle.outlineSize = outlineSize.value;
+
+                    // Toggle outline size control visibility
+                    outlineSizeGroup.style.display = activeCircle.filled ? 'none' : 'flex';
 
                     drawCircle(activeCircle, drawCtx);
 
@@ -1743,7 +1756,11 @@
         textSize.addEventListener('input', () => { if(activeText) renderCanvasWithPreview(); });
         circleSize.addEventListener('change', () => { if(activeCircle) renderCanvasWithPreview(); });
         circleSize.addEventListener('input', () => { if(activeCircle) renderCanvasWithPreview(); });
-        shapeFilled.addEventListener('change', () => { if(activeCircle) renderCanvasWithPreview(); });
+        shapeFilled.addEventListener('change', () => { 
+            if(activeCircle) renderCanvasWithPreview();
+            else if(currentTool === 'circle') outlineSizeGroup.style.display = shapeFilled.checked ? 'none' : 'flex';
+        });
+        outlineSize.addEventListener('input', () => { if(activeCircle) renderCanvasWithPreview(); });
         textRotation.addEventListener('change', () => { if(activeText || activeCircle) renderCanvasWithPreview(); });
         textRotation.addEventListener('input', () => { if(activeText || activeCircle) renderCanvasWithPreview(); });
         drawColor.addEventListener('input', () => { if(activeText || activeCircle) renderCanvasWithPreview(); });
