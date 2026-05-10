@@ -403,6 +403,11 @@
             gap: 8px;
         }
         .dropdown-item:hover { background: var(--accent-color); color: white; }
+        .dropdown-item.selected::after {
+            content: '✓';
+            margin-left: auto;
+            font-weight: bold;
+        }
 
         .music-control {
             margin-top: 15px;
@@ -945,20 +950,32 @@
             dropdowns.forEach(d => d.classList.remove('active'));
         });
 
+        function updateDropdownSelection(dropdownId, selectedItem) {
+            const dropdown = document.getElementById(dropdownId);
+            dropdown.querySelectorAll('.dropdown-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            if (selectedItem) selectedItem.classList.add('selected');
+        }
+
         // Particle Shape Logic
         const shapeDropdown = document.getElementById('shapeDropdown');
+        updateDropdownSelection('shapeDropdown', shapeDropdown.querySelector('[data-shape="0"]'));
         shapeDropdown.querySelectorAll('.dropdown-item').forEach(item => {
             item.addEventListener('click', () => {
                 particleShapeState = parseInt(item.dataset.shape);
                 particleShapeBtn.textContent = shapeIcons[particleShapeState];
+                updateDropdownSelection('shapeDropdown', item);
             });
         });
 
         // Particle Mode Logic
         const modeDropdown = document.getElementById('modeDropdown');
+        updateDropdownSelection('modeDropdown', modeDropdown.querySelector('[data-mode="0"]'));
         modeDropdown.querySelectorAll('.dropdown-item').forEach(item => {
             item.addEventListener('click', () => {
                 particleModeState = parseInt(item.dataset.mode);
+                updateDropdownSelection('modeDropdown', item);
                 if (particleModeState === 6) {
                     particlesEnabled = false;
                     particleToggle.textContent = modeIcons[6];
@@ -975,34 +992,41 @@
         const particleColorPicker = document.getElementById('particleColorPicker');
         const hexOption = document.getElementById('hexOption');
         const rainbowOption = document.getElementById('rainbowOption');
+        updateDropdownSelection('colorDropdown', hexOption);
 
         hexOption.addEventListener('click', () => {
             particleColorPicker.click();
             particleColorState = 0;
             particleColorBtn.textContent = '🎨';
+            updateDropdownSelection('colorDropdown', hexOption);
         });
 
         rainbowOption.addEventListener('click', () => {
             particleColorState = 1;
             particleColorBtn.textContent = '🌈';
+            updateDropdownSelection('colorDropdown', rainbowOption);
         });
 
         particleColorPicker.addEventListener('input', (e) => {
             selectedParticleColor = e.target.value;
             particleColorState = 0;
             particleColorBtn.textContent = '🎨';
+            updateDropdownSelection('colorDropdown', hexOption);
         });
 
         // Theme Logic
         const darkTheme = document.getElementById('darkTheme');
         const lightTheme = document.getElementById('lightTheme');
+        updateDropdownSelection('themeDropdown', darkTheme);
         darkTheme.addEventListener('click', () => {
             document.body.classList.remove('light-mode');
             themeToggle.textContent = '🌙';
+            updateDropdownSelection('themeDropdown', darkTheme);
         });
         lightTheme.addEventListener('click', () => {
             document.body.classList.add('light-mode');
             themeToggle.textContent = '☀️';
+            updateDropdownSelection('themeDropdown', lightTheme);
         });
 
         const bgMusic = document.getElementById('bgMusic');
