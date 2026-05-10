@@ -1860,21 +1860,25 @@
                     drawCtx.setLineDash([5, 5]);
                     drawCtx.lineWidth = 1;
                     drawCtx.strokeStyle = 'rgba(153, 153, 153, 0.8)';
-                    let bW = activeShape.size, bH = activeShape.size;
+                    const sSize = parseFloat(activeShape.size);
+                    let bW = sSize, bH = sSize;
                     let offsetY = 0;
                     if (activeShape.type === 'rect') {
-                        bW *= 2;
+                        bW = sSize * 2;
                     } else if (activeShape.type === 'tri') {
-                        offsetY = activeShape.size / 6;
+                        bW = sSize; bH = sSize;
                     } else if (activeShape.type === 'heart') {
-                        bH *= 1.5;
-                        offsetY = activeShape.size * 0.75;
+                        const h = sSize / 2;
+                        bW = h * 4;
+                        bH = h * 2.5;
+                        offsetY = h * 0.75;
                     } else if (activeShape.type === 'star') {
-                        // Star is slightly smaller than the bounding box of its points
-                        bW *= 0.95; bH *= 0.95;
+                        bW = sSize * 0.95; bH = sSize * 0.9;
+                    } else if (activeShape.type === 'crescent') {
+                        bW = sSize; bH = sSize;
                     }
-                    const boxSizeW = bW + 8, boxSizeH = bH + 8;
-                    drawCtx.strokeRect(-boxSizeW / 2, -boxSizeH / 2 + offsetY, boxSizeW, boxSizeH);
+                    const boxSizeW = bW + 4, boxSizeH = bH + 4;
+                    drawCtx.strokeRect(-bW / 2 - 2, -bH / 2 - 2 + offsetY, boxSizeW, boxSizeH);
                     drawCtx.setLineDash([]);
                     drawCtx.restore();
                 }
