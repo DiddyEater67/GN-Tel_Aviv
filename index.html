@@ -587,6 +587,29 @@
             font-size: 0.9em;
             color: var(--hint-color);
         }
+    
+        .canvas-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: center;
+            justify-content: center;
+        }
+        .canvas-wrapper {
+            flex: 1;
+            width: 100%;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: crosshair;
+            position: relative;
+            min-height: 400px;
+        }
+        #drawingCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -750,10 +773,21 @@
 
     
     <div id="page7" class="page">
-        <div class="container blank-container">
-            <div class="about-text">
-                <h1><strong>new page - blank</strong></h1>
-                <p>This is a new blank page added to the roll.</p>
+        <div class="container">
+            <h1><strong>Drawing Canvas</strong></h1>
+            <div class="canvas-controls">
+                <div class="input-group">
+                    <label>Color:</label>
+                    <input type="color" id="drawColor" value="#5dade2">
+                </div>
+                <div class="input-group">
+                    <label>Size:</label>
+                    <input type="range" id="brushSize" min="1" max="50" value="5">
+                </div>
+                <button id="clearCanvas" class="reset-btn">Clear</button>
+            </div>
+            <div class="canvas-wrapper">
+                <canvas id="drawingCanvas"></canvas>
             </div>
         </div>
     </div>
@@ -1254,6 +1288,84 @@
                 else o.classList.remove('active');
             });
         }
+    
+        // Drawing Canvas Logic
+        const drawCanvas = document.getElementById('drawingCanvas');
+        const drawCtx = drawCanvas.getContext('2d');
+        const drawColor = document.getElementById('drawColor');
+        const brushSize = document.getElementById('brushSize');
+        const clearBtn = document.getElementById('clearCanvas');
+        let drawing = false;
+
+        function resizeDrawCanvas() {
+            const rect = drawCanvas.parentElement.getBoundingClientRect();
+            drawCanvas.width = rect.width;
+            drawCanvas.height = rect.height;
+            // Set background to white after resize as clearRect clears to transparent
+            drawCtx.fillStyle = '#ffffff';
+            drawCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
+        }
+
+        // Resize when page becomes active
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.target.classList.contains('active')) {
+                    setTimeout(resizeDrawCanvas, 100);
+                }
+            });
+        });
+        observer.observe(document.getElementById('page7'), { attributes: true, attributeFilter: ['class'] });
+
+        drawCanvas.addEventListener('mousedown', startDrawing);
+        drawCanvas.addEventListener('mousemove', draw);
+        drawCanvas.addEventListener('mouseup', stopDrawing);
+        drawCanvas.addEventListener('mouseout', stopDrawing);
+
+        // Touch support
+        drawCanvas.addEventListener('touchstart', (e) => { 
+            if (document.querySelector('#page7.active')) {
+                e.preventDefault(); 
+                startDrawing(e.touches[0]); 
+            }
+        }, { passive: false });
+        drawCanvas.addEventListener('touchmove', (e) => { 
+            if (document.querySelector('#page7.active')) {
+                e.preventDefault(); 
+                draw(e.touches[0]); 
+            }
+        }, { passive: false });
+        drawCanvas.addEventListener('touchend', stopDrawing);
+
+        function startDrawing(e) {
+            drawing = true;
+            draw(e);
+        }
+
+        function draw(e) {
+            if (!drawing) return;
+            const rect = drawCanvas.getBoundingClientRect();
+            const x = (e.clientX || e.pageX) - rect.left;
+            const y = (e.clientY || e.pageY) - rect.top;
+
+            drawCtx.lineWidth = brushSize.value;
+            drawCtx.lineCap = 'round';
+            drawCtx.strokeStyle = drawColor.value;
+
+            drawCtx.lineTo(x, y);
+            drawCtx.stroke();
+            drawCtx.beginPath();
+            drawCtx.moveTo(x, y);
+        }
+
+        function stopDrawing() {
+            drawing = false;
+            drawCtx.beginPath();
+        }
+
+        clearBtn.addEventListener('click', () => {
+            drawCtx.fillStyle = '#ffffff';
+            drawCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
+        });
     </script>
 </body>
 </html>
