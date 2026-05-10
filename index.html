@@ -1360,7 +1360,6 @@
         }
     
         // Drawing Canvas Logic
-        // Drawing Canvas Logic
         const drawCanvas = document.getElementById('drawingCanvas');
         const drawCtx = drawCanvas.getContext('2d');
         const drawColor = document.getElementById('drawColor');
@@ -1379,7 +1378,8 @@
         let currentTool = 'brush';
         let history = [];
         let historyStep = -1;
-        let activeText = null;
+        
+        let activeText = null; // { text, x, y, size, rotation, color }
 
         function saveHistory() {
             historyStep++;
@@ -1414,8 +1414,7 @@
             img.src = history[historyStep];
             img.onload = () => {
                 drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-                drawCtx.drawImage(img, 0, 0);
-                if (activeText) renderCanvasWithPreview();
+                drawCtx.drawImage(img, 0, 0); if(activeText) renderCanvasWithPreview();
                 updateHistoryButtons();
             };
         }
@@ -1425,8 +1424,9 @@
             drawCanvas.width = rect.width;
             drawCanvas.height = rect.height;
             drawCtx.fillStyle = '#ffffff';
-            drawCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
+            drawCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height); saveHistory();
             
+            // Initialize history
             history = [drawCanvas.toDataURL()];
             historyStep = 0;
             updateHistoryButtons();
@@ -1441,6 +1441,7 @@
         });
         observer.observe(document.getElementById('page7'), { attributes: true, attributeFilter: ['class'] });
 
+        // Tool Selection
         brushTool.onclick = () => { currentTool = 'brush'; updateToolUI(); };
         eraserTool.onclick = () => { currentTool = 'eraser'; updateToolUI(); };
         fillTool.onclick = () => { currentTool = 'fill'; updateToolUI(); };
@@ -1467,44 +1468,35 @@
             }
 
             if (currentTool === 'fill') {
-                floodFill(Math.floor(x), Math.floor(y), drawColor.value);
-                saveHistory();
+                floodFill(Math.floor(x), Math.floor(y), drawColor.value); saveHistory();
             } else if (currentTool === 'text') {
                 startTextEntry(x, y);
             } else {
                 startDrawing(e);
             }
         });
-
         drawCanvas.addEventListener('mousemove', draw);
         drawCanvas.addEventListener('mouseup', () => { if(drawing) { stopDrawing(); saveHistory(); } });
         drawCanvas.addEventListener('mouseout', stopDrawing);
 
+        // Touch support
         drawCanvas.addEventListener('touchstart', (e) => { 
             if (document.querySelector('#page7.active')) {
                 e.preventDefault(); 
-                const rect = drawCanvas.getBoundingClientRect();
-                const x = e.touches[0].clientX - rect.left;
-                const y = e.touches[0].clientY - rect.top;
-                if (activeText) { commitText(); return; }
                 if (currentTool === 'fill') {
-                    floodFill(Math.floor(x), Math.floor(y), drawColor.value);
-                    saveHistory();
-                } else if (currentTool === 'text') {
-                    startTextEntry(x, y);
+                    const rect = drawCanvas.getBoundingClientRect();
+                    floodFill(Math.floor(e.touches[0].clientX - rect.left), Math.floor(e.touches[0].clientY - rect.top), drawColor.value); saveHistory();
                 } else {
                     startDrawing(e.touches[0]); 
                 }
             }
         }, { passive: false });
-
         drawCanvas.addEventListener('touchmove', (e) => { 
             if (document.querySelector('#page7.active')) {
                 e.preventDefault(); 
                 draw(e.touches[0]); 
             }
         }, { passive: false });
-
         drawCanvas.addEventListener('touchend', () => { if(drawing) { stopDrawing(); saveHistory(); } });
 
         function startDrawing(e) {
@@ -1513,7 +1505,7 @@
         }
 
         function draw(e) {
-            if (!drawing || currentTool === 'fill' || currentTool === 'text') return;
+            if (!drawing || currentTool === 'fill') return;
             const rect = drawCanvas.getBoundingClientRect();
             const x = (e.clientX || e.pageX) - rect.left;
             const y = (e.clientY || e.pageY) - rect.top;
@@ -1536,27 +1528,30 @@
         clearBtn.addEventListener('click', () => {
             drawCtx.fillStyle = '#ffffff';
             drawCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
-            saveHistory();
         });
+
 
         function startTextEntry(x, y) {
             const text = prompt("Enter text:");
             if (!text) return;
-            activeText = { text, x, y, size: brushSize.value, rotation: textRotation.value, color: drawColor.value };
+            
+            activeText = {
+                text: text,
+                x: x,
+                y: y,
+                size: brushSize.value,
+                rotation: textRotation.value,
+                color: drawColor.value
+            };
             renderCanvasWithPreview();
         }
 
         function commitText() {
             if (!activeText) return;
-            const img = new Image();
-            img.src = history[historyStep];
-            img.onload = () => {
-                drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-                drawCtx.drawImage(img, 0, 0);
-                drawText(activeText, drawCtx);
-                activeText = null;
-                saveHistory();
-            };
+            drawText(activeText, drawCtx);
+            activeText = null;
+            saveHistory();
+            renderCanvasWithPreview();
         }
 
         function drawText(t, ctx) {
@@ -1570,49 +1565,57 @@
         }
 
         function renderCanvasWithPreview() {
+            // Load the last saved state
             const img = new Image();
             img.src = history[historyStep];
             img.onload = () => {
                 drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-                drawCtx.drawImage(img, 0, 0);
+                drawCtx.drawImage(img, 0, 0); if(activeText) renderCanvasWithPreview();
                 if (activeText) {
+                    // Update active text from controls
                     activeText.size = brushSize.value;
                     activeText.rotation = textRotation.value;
                     activeText.color = drawColor.value;
+                    
+                    // Draw preview
                     drawText(activeText, drawCtx);
                     
+                    // Draw a dashed box that rotates with the text
                     drawCtx.save();
                     drawCtx.translate(activeText.x, activeText.y);
                     drawCtx.rotate((activeText.rotation * Math.PI) / 180);
+                    
                     drawCtx.font = `${activeText.size}px Arial`;
                     const metrics = drawCtx.measureText(activeText.text);
-                    const fontHeight = parseInt(activeText.size);
                     const width = metrics.width;
-                    const ascent = metrics.actualBoundingBoxAscent || fontHeight * 0.8;
-                    const descent = metrics.actualBoundingBoxDescent || fontHeight * 0.2;
+                    const height = activeText.size;
+                    
                     drawCtx.setLineDash([5, 5]);
                     drawCtx.strokeStyle = 'rgba(153, 153, 153, 0.8)';
-                    drawCtx.lineWidth = 1;
-                    drawCtx.strokeRect(-2, -ascent - 2, width + 4, ascent + descent + 4);
+                    // Adjust box to wrap text correctly (text baseline is usually at the bottom)
+                    drawCtx.strokeRect(-2, -height + 2, width + 4, height + 4);
                     drawCtx.restore();
                 }
             };
         }
 
+        // Update preview when sliders change
         brushSize.addEventListener('input', () => { if(activeText) renderCanvasWithPreview(); });
         textRotation.addEventListener('input', () => { if(activeText) renderCanvasWithPreview(); });
         drawColor.addEventListener('input', () => { if(activeText) renderCanvasWithPreview(); });
-
         function floodFill(startX, startY, fillColor) {
             const imageData = drawCtx.getImageData(0, 0, drawCanvas.width, drawCanvas.height);
             const data = imageData.data;
             const targetColor = getPixelColor(data, startX, startY);
             const fillRGB = hexToRgb(fillColor);
+
             if (colorsMatch(targetColor, [fillRGB.r, fillRGB.g, fillRGB.b, 255])) return;
+
             const stack = [[startX, startY]];
             while (stack.length > 0) {
                 const [x, y] = stack.pop();
                 const currentColor = getPixelColor(data, x, y);
+
                 if (colorsMatch(currentColor, targetColor)) {
                     setPixelColor(data, x, y, fillRGB);
                     if (x > 0) stack.push([x - 1, y]);
@@ -1642,6 +1645,6 @@
             const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
             return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null;
         }
-        </script>
+    </script>
 </body>
 </html>
