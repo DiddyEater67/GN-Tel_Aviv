@@ -846,9 +846,17 @@
                     <label>Color:</label>
                     <input type="color" id="drawColor" value="#5dade2">
                 </div>
-                <div class="input-group">
-                    <label>Size:</label>
-                    <input type="number" id="brushSize" min="1" max="200" value="20" style="width: 60px;">
+                <div id="brushSizeGroup" class="input-group">
+                    <label>Brush Size:</label>
+                    <input type="number" id="brushSize" min="1" max="100" value="5" style="width: 60px;">
+                </div>
+                <div id="eraserSizeGroup" class="input-group" style="display: none;">
+                    <label>Eraser Size:</label>
+                    <input type="number" id="eraserSize" min="1" max="100" value="20" style="width: 60px;">
+                </div>
+                <div id="textSizeGroup" class="input-group" style="display: none;">
+                    <label>Text Size:</label>
+                    <input type="number" id="textSize" min="1" max="200" value="30" style="width: 60px;">
                 </div>
                 <div id="rotationGroup" class="input-group" style="display: none;">
                     <label>Rotate (°):</label>
@@ -1364,6 +1372,11 @@
         const drawCtx = drawCanvas.getContext('2d');
         const drawColor = document.getElementById('drawColor');
         const brushSize = document.getElementById('brushSize');
+        const eraserSize = document.getElementById('eraserSize');
+        const textSize = document.getElementById('textSize');
+        const brushSizeGroup = document.getElementById('brushSizeGroup');
+        const eraserSizeGroup = document.getElementById('eraserSizeGroup');
+        const textSizeGroup = document.getElementById('textSizeGroup');
         const clearBtn = document.getElementById('clearCanvas');
         const brushTool = document.getElementById('brushTool');
         const eraserTool = document.getElementById('eraserTool');
@@ -1450,11 +1463,29 @@
         function updateToolUI() {
             if (activeText) commitText();
             [brushTool, eraserTool, fillTool, textTool].forEach(btn => btn.classList.remove('active'));
-            rotationGroup.style.display = currentTool === 'text' ? 'flex' : 'none';
-            if (currentTool === 'brush') brushTool.classList.add('active');
-            if (currentTool === 'eraser') eraserTool.classList.add('active');
-            if (currentTool === 'fill') fillTool.classList.add('active');
-            if (currentTool === 'text') textTool.classList.add('active');
+            
+            // Hide all tool-specific groups first
+            brushSizeGroup.style.display = 'none';
+            eraserSizeGroup.style.display = 'none';
+            textSizeGroup.style.display = 'none';
+            rotationGroup.style.display = 'none';
+
+            if (currentTool === 'brush') {
+                brushTool.classList.add('active');
+                brushSizeGroup.style.display = 'flex';
+            }
+            if (currentTool === 'eraser') {
+                eraserTool.classList.add('active');
+                eraserSizeGroup.style.display = 'flex';
+            }
+            if (currentTool === 'fill') {
+                fillTool.classList.add('active');
+            }
+            if (currentTool === 'text') {
+                textTool.classList.add('active');
+                textSizeGroup.style.display = 'flex';
+                rotationGroup.style.display = 'flex';
+            }
         }
 
         drawCanvas.addEventListener('mousedown', (e) => {
@@ -1505,12 +1536,12 @@
         }
 
         function draw(e) {
-            if (!drawing || currentTool === 'fill') return;
+            if (!drawing || currentTool === 'fill' || currentTool === 'text') return;
             const rect = drawCanvas.getBoundingClientRect();
             const x = (e.clientX || e.pageX) - rect.left;
             const y = (e.clientY || e.pageY) - rect.top;
 
-            drawCtx.lineWidth = brushSize.value;
+            drawCtx.lineWidth = currentTool === 'eraser' ? eraserSize.value : brushSize.value;
             drawCtx.lineCap = 'round';
             drawCtx.strokeStyle = currentTool === 'eraser' ? '#ffffff' : drawColor.value;
 
@@ -1541,7 +1572,7 @@
                 text: text,
                 x: x,
                 y: y,
-                size: brushSize.value,
+                size: textSize.value,
                 rotation: textRotation.value,
                 color: drawColor.value
             };
@@ -1582,7 +1613,7 @@
                 drawCtx.drawImage(img, 0, 0);
                 if (activeText) {
                     // Update active text from controls
-                    activeText.size = brushSize.value;
+                    activeText.size = textSize.value;
                     activeText.rotation = textRotation.value;
                     activeText.color = drawColor.value;
                     
@@ -1609,9 +1640,9 @@
             };
         }
 
-        // Update preview when sliders change
-        brushSize.addEventListener('change', () => { if(activeText) renderCanvasWithPreview(); });
-        brushSize.addEventListener('input', () => { if(activeText) renderCanvasWithPreview(); });
+        // Update preview when inputs change
+        textSize.addEventListener('change', () => { if(activeText) renderCanvasWithPreview(); });
+        textSize.addEventListener('input', () => { if(activeText) renderCanvasWithPreview(); });
         textRotation.addEventListener('change', () => { if(activeText) renderCanvasWithPreview(); });
         textRotation.addEventListener('input', () => { if(activeText) renderCanvasWithPreview(); });
         drawColor.addEventListener('input', () => { if(activeText) renderCanvasWithPreview(); });
