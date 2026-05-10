@@ -838,6 +838,7 @@
                     <button id="brushTool" class="tool-btn active">🖌️ Brush</button>
                     <button id="eraserTool" class="tool-btn">🧽 Eraser</button>
                     <button id="fillTool" class="tool-btn">🪣 Fill</button>
+                    <button id="textTool" class="tool-btn">💬 Text</button>
                 </div>
             </div>
             <div class="canvas-controls">
@@ -847,7 +848,11 @@
                 </div>
                 <div class="input-group">
                     <label>Size:</label>
-                    <input type="range" id="brushSize" min="1" max="50" value="5">
+                    <input type="range" id="brushSize" min="1" max="100" value="5">
+                </div>
+                <div id="rotationGroup" class="input-group" style="display: none;">
+                    <label>Rotate:</label>
+                    <input type="range" id="textRotation" min="0" max="360" value="0">
                 </div>
                 <button id="clearCanvas" class="reset-btn">Clear</button>
             </div>
@@ -1363,6 +1368,9 @@
         const brushTool = document.getElementById('brushTool');
         const eraserTool = document.getElementById('eraserTool');
         const fillTool = document.getElementById('fillTool');
+        const textTool = document.getElementById('textTool');
+        const textRotation = document.getElementById('textRotation');
+        const rotationGroup = document.getElementById('rotationGroup');
         const undoBtn = document.getElementById('undoBtn');
         const redoBtn = document.getElementById('redoBtn');
         
@@ -1435,18 +1443,26 @@
         brushTool.onclick = () => { currentTool = 'brush'; updateToolUI(); };
         eraserTool.onclick = () => { currentTool = 'eraser'; updateToolUI(); };
         fillTool.onclick = () => { currentTool = 'fill'; updateToolUI(); };
+        textTool.onclick = () => { currentTool = 'text'; updateToolUI(); };
 
         function updateToolUI() {
-            [brushTool, eraserTool, fillTool].forEach(btn => btn.classList.remove('active'));
+            [brushTool, eraserTool, fillTool, textTool].forEach(btn => btn.classList.remove('active'));
+            rotationGroup.style.display = currentTool === 'text' ? 'flex' : 'none';
             if (currentTool === 'brush') brushTool.classList.add('active');
             if (currentTool === 'eraser') eraserTool.classList.add('active');
             if (currentTool === 'fill') fillTool.classList.add('active');
+            if (currentTool === 'text') textTool.classList.add('active');
         }
 
         drawCanvas.addEventListener('mousedown', (e) => {
+            const rect = drawCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
             if (currentTool === 'fill') {
-                const rect = drawCanvas.getBoundingClientRect();
-                floodFill(Math.floor(e.clientX - rect.left), Math.floor(e.clientY - rect.top), drawColor.value); saveHistory();
+                floodFill(Math.floor(x), Math.floor(y), drawColor.value); saveHistory();
+            } else if (currentTool === 'text') {
+                addTextToCanvas(x, y);
             } else {
                 startDrawing(e);
             }
@@ -1506,6 +1522,20 @@
             drawCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
         });
 
+
+        function addTextToCanvas(x, y) {
+            const text = prompt("Enter text:");
+            if (!text) return;
+
+            drawCtx.save();
+            drawCtx.translate(x, y);
+            drawCtx.rotate((textRotation.value * Math.PI) / 180);
+            drawCtx.font = `${brushSize.value}px Arial`;
+            drawCtx.fillStyle = drawColor.value;
+            drawCtx.fillText(text, 0, 0);
+            drawCtx.restore();
+            saveHistory();
+        }
         function floodFill(startX, startY, fillColor) {
             const imageData = drawCtx.getImageData(0, 0, drawCanvas.width, drawCanvas.height);
             const data = imageData.data;
