@@ -1633,8 +1633,10 @@
                     const height = ascent + descent;
                     
                     drawCtx.setLineDash([5, 5]);
+                    drawCtx.lineWidth = 1;
                     drawCtx.strokeStyle = 'rgba(153, 153, 153, 0.8)';
                     drawCtx.strokeRect(-4, -ascent - 2, width + 8, height + 4);
+                    drawCtx.setLineDash([]); // Reset dash for other tools
                     drawCtx.restore();
                 }
             };
