@@ -1717,9 +1717,17 @@
 
         function commitText() {
             if (!activeText) return;
-            drawText(activeText, drawCtx);
+            const textToCommit = activeText;
             activeText = null;
-            saveHistory();
+            
+            const img = new Image();
+            img.src = history[historyStep];
+            img.onload = () => {
+                drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+                drawCtx.drawImage(img, 0, 0);
+                drawText(textToCommit, drawCtx);
+                saveHistory();
+            };
         }
 
         function drawText(t, ctx) {
@@ -1748,9 +1756,17 @@
 
         function commitShape() {
             if (!activeShape) return;
-            drawShape(activeShape, drawCtx);
+            const shapeToCommit = activeShape;
             activeShape = null;
-            saveHistory();
+            
+            const img = new Image();
+            img.src = history[historyStep];
+            img.onload = () => {
+                drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+                drawCtx.drawImage(img, 0, 0);
+                drawShape(shapeToCommit, drawCtx);
+                saveHistory();
+            };
         }
 
         function drawShape(s, ctx) {
