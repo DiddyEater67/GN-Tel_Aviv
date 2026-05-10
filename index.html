@@ -610,6 +610,33 @@
             height: 100%;
             display: block;
         }
+    
+        .canvas-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .tool-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        .tool-btn {
+            padding: 8px 15px;
+            font-size: 14px;
+            background: var(--box-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tool-btn.active {
+            background: var(--accent-color);
+            color: white;
+            box-shadow: 0 0 10px var(--accent-color);
+        }
     </style>
 </head>
 <body>
@@ -774,7 +801,14 @@
     
     <div id="page7" class="page">
         <div class="container">
-            <h1><strong>Drawing Canvas</strong></h1>
+            <div class="canvas-header">
+                <h1><strong>Drawing Canvas</strong></h1>
+                <div class="tool-buttons">
+                    <button id="brushTool" class="tool-btn active">🖌️ Brush</button>
+                    <button id="eraserTool" class="tool-btn">🧽 Eraser</button>
+                    <button id="fillTool" class="tool-btn">🪣 Fill</button>
+                </div>
+            </div>
             <div class="canvas-controls">
                 <div class="input-group">
                     <label>Color:</label>
@@ -1295,18 +1329,21 @@
         const drawColor = document.getElementById('drawColor');
         const brushSize = document.getElementById('brushSize');
         const clearBtn = document.getElementById('clearCanvas');
+        const brushTool = document.getElementById('brushTool');
+        const eraserTool = document.getElementById('eraserTool');
+        const fillTool = document.getElementById('fillTool');
+        
         let drawing = false;
+        let currentTool = 'brush';
 
         function resizeDrawCanvas() {
             const rect = drawCanvas.parentElement.getBoundingClientRect();
             drawCanvas.width = rect.width;
             drawCanvas.height = rect.height;
-            // Set background to white after resize as clearRect clears to transparent
             drawCtx.fillStyle = '#ffffff';
             drawCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
         }
 
-        // Resize when page becomes active
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 if (mutation.target.classList.contains('active')) {
@@ -1316,7 +1353,26 @@
         });
         observer.observe(document.getElementById('page7'), { attributes: true, attributeFilter: ['class'] });
 
-        drawCanvas.addEventListener('mousedown', startDrawing);
+        // Tool Selection
+        brushTool.onclick = () => { currentTool = 'brush'; updateToolUI(); };
+        eraserTool.onclick = () => { currentTool = 'eraser'; updateToolUI(); };
+        fillTool.onclick = () => { currentTool = 'fill'; updateToolUI(); };
+
+        function updateToolUI() {
+            [brushTool, eraserTool, fillTool].forEach(btn => btn.classList.remove('active'));
+            if (currentTool === 'brush') brushTool.classList.add('active');
+            if (currentTool === 'eraser') eraserTool.classList.add('active');
+            if (currentTool === 'fill') fillTool.classList.add('active');
+        }
+
+        drawCanvas.addEventListener('mousedown', (e) => {
+            if (currentTool === 'fill') {
+                const rect = drawCanvas.getBoundingClientRect();
+                floodFill(Math.floor(e.clientX - rect.left), Math.floor(e.clientY - rect.top), drawColor.value);
+            } else {
+                startDrawing(e);
+            }
+        });
         drawCanvas.addEventListener('mousemove', draw);
         drawCanvas.addEventListener('mouseup', stopDrawing);
         drawCanvas.addEventListener('mouseout', stopDrawing);
@@ -1325,7 +1381,12 @@
         drawCanvas.addEventListener('touchstart', (e) => { 
             if (document.querySelector('#page7.active')) {
                 e.preventDefault(); 
-                startDrawing(e.touches[0]); 
+                if (currentTool === 'fill') {
+                    const rect = drawCanvas.getBoundingClientRect();
+                    floodFill(Math.floor(e.touches[0].clientX - rect.left), Math.floor(e.touches[0].clientY - rect.top), drawColor.value);
+                } else {
+                    startDrawing(e.touches[0]); 
+                }
             }
         }, { passive: false });
         drawCanvas.addEventListener('touchmove', (e) => { 
@@ -1342,14 +1403,14 @@
         }
 
         function draw(e) {
-            if (!drawing) return;
+            if (!drawing || currentTool === 'fill') return;
             const rect = drawCanvas.getBoundingClientRect();
             const x = (e.clientX || e.pageX) - rect.left;
             const y = (e.clientY || e.pageY) - rect.top;
 
             drawCtx.lineWidth = brushSize.value;
             drawCtx.lineCap = 'round';
-            drawCtx.strokeStyle = drawColor.value;
+            drawCtx.strokeStyle = currentTool === 'eraser' ? '#ffffff' : drawColor.value;
 
             drawCtx.lineTo(x, y);
             drawCtx.stroke();
@@ -1366,6 +1427,49 @@
             drawCtx.fillStyle = '#ffffff';
             drawCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
         });
+
+        function floodFill(startX, startY, fillColor) {
+            const imageData = drawCtx.getImageData(0, 0, drawCanvas.width, drawCanvas.height);
+            const data = imageData.data;
+            const targetColor = getPixelColor(data, startX, startY);
+            const fillRGB = hexToRgb(fillColor);
+
+            if (colorsMatch(targetColor, [fillRGB.r, fillRGB.g, fillRGB.b, 255])) return;
+
+            const stack = [[startX, startY]];
+            while (stack.length > 0) {
+                const [x, y] = stack.pop();
+                const currentColor = getPixelColor(data, x, y);
+
+                if (colorsMatch(currentColor, targetColor)) {
+                    setPixelColor(data, x, y, fillRGB);
+                    if (x > 0) stack.push([x - 1, y]);
+                    if (x < drawCanvas.width - 1) stack.push([x + 1, y]);
+                    if (y > 0) stack.push([x, y - 1]);
+                    if (y < drawCanvas.height - 1) stack.push([x, y + 1]);
+                }
+            }
+            drawCtx.putImageData(imageData, 0, 0);
+        }
+
+        function getPixelColor(data, x, y) {
+            const i = (y * drawCanvas.width + x) * 4;
+            return [data[i], data[i+1], data[i+2], data[i+3]];
+        }
+
+        function setPixelColor(data, x, y, rgb) {
+            const i = (y * drawCanvas.width + x) * 4;
+            data[i] = rgb.r; data[i+1] = rgb.g; data[i+2] = rgb.b; data[i+3] = 255;
+        }
+
+        function colorsMatch(c1, c2) {
+            return c1[0] === c2[0] && c1[1] === c2[1] && c1[2] === c2[2] && c1[3] === c2[3];
+        }
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null;
+        }
     </script>
 </body>
 </html>
