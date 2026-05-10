@@ -1861,9 +1861,20 @@
                     drawCtx.lineWidth = 1;
                     drawCtx.strokeStyle = 'rgba(153, 153, 153, 0.8)';
                     let bW = activeShape.size, bH = activeShape.size;
-                    if (activeShape.type === 'rect') bW *= 2;
+                    let offsetY = 0;
+                    if (activeShape.type === 'rect') {
+                        bW *= 2;
+                    } else if (activeShape.type === 'tri') {
+                        offsetY = activeShape.size / 6;
+                    } else if (activeShape.type === 'heart') {
+                        bH *= 1.5;
+                        offsetY = activeShape.size * 0.75;
+                    } else if (activeShape.type === 'star') {
+                        // Star is slightly smaller than the bounding box of its points
+                        bW *= 0.95; bH *= 0.95;
+                    }
                     const boxSizeW = bW + 8, boxSizeH = bH + 8;
-                    drawCtx.strokeRect(-boxSizeW / 2, -boxSizeH / 2, boxSizeW, boxSizeH);
+                    drawCtx.strokeRect(-boxSizeW / 2, -boxSizeH / 2 + offsetY, boxSizeW, boxSizeH);
                     drawCtx.setLineDash([]);
                     drawCtx.restore();
                 }
