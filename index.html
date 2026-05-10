@@ -464,7 +464,7 @@
 
         .game-nav-arrow {
             position: absolute;
-            top: 15px;
+            top: 20px;
             background: rgba(0,0,0,0.5);
             color: var(--accent-color);
             border: 1px solid var(--accent-color);
@@ -475,7 +475,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            z-index: 10;
+            z-index: 100;
             transition: all 0.3s;
         }
 
@@ -705,12 +705,12 @@
 
     <div id="page3" class="page">
         <div class="container">
-            <div class="games-container">
+            <div class="games-container" style="position: relative;">
+                <button id="prevGameBtn" class="game-nav-arrow">❮</button>
+                <button id="nextGameBtn" class="game-nav-arrow">❯</button>
                 <h1><strong>Games Section</strong></h1>
                 <p>Enjoy these featured games!</p>
                 <div class="content-layout">
-                    <button id="prevGameBtn" class="game-nav-arrow">❮</button>
-                    <button id="nextGameBtn" class="game-nav-arrow">❯</button>
                     <div class="side-box" id="gameControlsBox">
                         <h3 style="margin-top: 0; color: var(--accent-color);">Controls</h3>
                         <div id="gameControlsContent"></div>
