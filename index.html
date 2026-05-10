@@ -1570,7 +1570,7 @@
             img.src = history[historyStep];
             img.onload = () => {
                 drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-                drawCtx.drawImage(img, 0, 0); if(activeText) renderCanvasWithPreview();
+                drawCtx.drawImage(img, 0, 0);
                 if (activeText) {
                     // Update active text from controls
                     activeText.size = brushSize.value;
@@ -1588,12 +1588,13 @@
                     drawCtx.font = `${activeText.size}px Arial`;
                     const metrics = drawCtx.measureText(activeText.text);
                     const width = metrics.width;
-                    const height = activeText.size;
+                    const ascent = metrics.actualBoundingBoxAscent || activeText.size * 0.8;
+                    const descent = metrics.actualBoundingBoxDescent || activeText.size * 0.2;
+                    const height = ascent + descent;
                     
                     drawCtx.setLineDash([5, 5]);
                     drawCtx.strokeStyle = 'rgba(153, 153, 153, 0.8)';
-                    // Adjust box to wrap text correctly (text baseline is usually at the bottom)
-                    drawCtx.strokeRect(-2, -height + 2, width + 4, height + 4);
+                    drawCtx.strokeRect(-4, -ascent - 2, width + 8, height + 4);
                     drawCtx.restore();
                 }
             };
