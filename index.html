@@ -618,24 +618,64 @@
             width: 100%;
             margin-bottom: 10px;
         }
-        .tool-buttons {
-            display: flex;
-            gap: 8px;
+        .tool-dropdown {
+            position: relative;
+            display: inline-block;
         }
-        .tool-btn {
-            padding: 8px 15px;
-            font-size: 14px;
-            background: var(--box-bg);
-            color: var(--text-color);
+        .tool-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: var(--container-bg);
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1000;
+            border-radius: 12px;
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
+            backdrop-filter: blur(12px);
+            max-height: 400px;
+            overflow-y: auto;
         }
-        .tool-btn.active {
+        .tool-dropdown-content button {
+            color: var(--text-color);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin: 0;
+            border-radius: 0;
+        }
+        .tool-dropdown-content button:last-child {
+            border-bottom: none;
+        }
+        .tool-dropdown-content button:hover {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        .tool-dropdown-content button.active {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        .show { display: block; }
+        
+        .tool-btn {
+            padding: 10px 20px;
+            font-size: 16px;
             background: var(--accent-color);
             color: white;
-            box-shadow: 0 0 10px var(--accent-color);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .tool-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
         }
     
         .history-buttons {
@@ -834,19 +874,22 @@
                         <button id="redoBtn" class="history-btn" title="Redo">↪️ Redo</button>
                     </div>
                 </div>
-                <div class="tool-buttons">
-                    <button id="brushTool" class="tool-btn active">🖌️ Brush</button>
-                    <button id="eraserTool" class="tool-btn">🧽 Eraser</button>
-                    <button id="fillTool" class="tool-btn">🪣 Fill</button>
-                    <button id="textTool" class="tool-btn">💬 Text</button>
-                    <button id="circleTool" class="tool-btn">⭕ Circle</button>
-                    <button id="squareTool" class="tool-btn">⬜ Square</button>
-                    <button id="rectTool" class="tool-btn">▭ Rect</button>
-                    <button id="triTool" class="tool-btn">▲ Triangle</button>
-                    <button id="starTool" class="tool-btn">⭐ Star</button>
-                    <button id="heartTool" class="tool-btn">❤️ Heart</button>
-                    <button id="crescentTool" class="tool-btn">🌙 Crescent</button>
-                    <button id="arrowTool" class="tool-btn">➔ Arrow</button>
+                <div class="tool-dropdown">
+                    <button id="toolDropdownBtn" class="tool-btn">🛠️ Tools: Brush</button>
+                    <div id="toolDropdownContent" class="tool-dropdown-content">
+                        <button id="brushTool" class="active">🖌️ Brush</button>
+                        <button id="eraserTool">🧽 Eraser</button>
+                        <button id="fillTool">🪣 Fill</button>
+                        <button id="textTool">💬 Text</button>
+                        <button id="circleTool">⭕ Circle</button>
+                        <button id="squareTool">⬜ Square</button>
+                        <button id="rectTool">▭ Rect</button>
+                        <button id="triTool">▲ Triangle</button>
+                        <button id="starTool">⭐ Star</button>
+                        <button id="heartTool">❤️ Heart</button>
+                        <button id="crescentTool">🌙 Crescent</button>
+                        <button id="arrowTool">➔ Arrow</button>
+                    </div>
                 </div>
             </div>
             <div class="canvas-controls">
@@ -1489,24 +1532,59 @@
         });
         observer.observe(document.getElementById('page7'), { attributes: true, attributeFilter: ['class'] });
 
+        // Tool Dropdown Logic
+        const toolDropdownBtn = document.getElementById('toolDropdownBtn');
+        const toolDropdownContent = document.getElementById('toolDropdownContent');
+
+        toolDropdownBtn.onclick = (e) => {
+            e.stopPropagation();
+            toolDropdownContent.classList.toggle('show');
+        };
+
+        window.onclick = (e) => {
+            if (!e.target.matches('#toolDropdownBtn')) {
+                if (toolDropdownContent.classList.contains('show')) {
+                    toolDropdownContent.classList.remove('show');
+                }
+            }
+        };
+
         // Tool Selection
-        brushTool.onclick = () => { currentTool = 'brush'; updateToolUI(); };
-        eraserTool.onclick = () => { currentTool = 'eraser'; updateToolUI(); };
-        fillTool.onclick = () => { currentTool = 'fill'; updateToolUI(); };
-        textTool.onclick = () => { currentTool = 'text'; updateToolUI(); };
-        circleTool.onclick = () => { currentTool = 'circle'; updateToolUI(); };
-        squareTool.onclick = () => { currentTool = 'square'; updateToolUI(); };
-        rectTool.onclick = () => { currentTool = 'rect'; updateToolUI(); };
-        triTool.onclick = () => { currentTool = 'tri'; updateToolUI(); };
-        starTool.onclick = () => { currentTool = 'star'; updateToolUI(); };
-        heartTool.onclick = () => { currentTool = 'heart'; updateToolUI(); };
-        crescentTool.onclick = () => { currentTool = 'crescent'; updateToolUI(); };
-        arrowTool.onclick = () => { currentTool = 'arrow'; updateToolUI(); };
+        const tools = [
+            { id: 'brushTool', name: 'Brush', tool: 'brush' },
+            { id: 'eraserTool', name: 'Eraser', tool: 'eraser' },
+            { id: 'fillTool', name: 'Fill', tool: 'fill' },
+            { id: 'textTool', name: 'Text', tool: 'text' },
+            { id: 'circleTool', name: 'Circle', tool: 'circle' },
+            { id: 'squareTool', name: 'Square', tool: 'square' },
+            { id: 'rectTool', name: 'Rect', tool: 'rect' },
+            { id: 'triTool', name: 'Triangle', tool: 'tri' },
+            { id: 'starTool', name: 'Star', tool: 'star' },
+            { id: 'heartTool', name: 'Heart', tool: 'heart' },
+            { id: 'crescentTool', name: 'Crescent', tool: 'crescent' },
+            { id: 'arrowTool', name: 'Arrow', tool: 'arrow' }
+        ];
+
+        tools.forEach(t => {
+            const btn = document.getElementById(t.id);
+            btn.onclick = () => {
+                currentTool = t.tool;
+                toolDropdownBtn.innerHTML = `🛠️ Tools: ${t.name}`;
+                toolDropdownContent.classList.remove('show');
+                updateToolUI();
+            };
+        });
 
         function updateToolUI() {
             if (activeText) commitText();
             if (activeShape) commitShape();
-            [brushTool, eraserTool, fillTool, textTool, circleTool, squareTool, rectTool, triTool, starTool, heartTool, crescentTool, arrowTool].forEach(btn => btn.classList.remove('active'));
+            
+            // Update active state in dropdown
+            tools.forEach(t => {
+                const btn = document.getElementById(t.id);
+                if (t.tool === currentTool) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
             
             // Hide all tool-specific groups first
             brushSizeGroup.style.display = 'none';
@@ -1518,21 +1596,16 @@
             outlineSizeGroup.style.display = 'none';
 
             if (currentTool === 'brush') {
-                brushTool.classList.add('active');
                 brushSizeGroup.style.display = 'flex';
             } else if (currentTool === 'eraser') {
-                eraserTool.classList.add('active');
                 eraserSizeGroup.style.display = 'flex';
             } else if (currentTool === 'fill') {
-                fillTool.classList.add('active');
+                // No extra controls
             } else if (currentTool === 'text') {
-                textTool.classList.add('active');
                 textSizeGroup.style.display = 'flex';
                 rotationGroup.style.display = 'flex';
             } else {
                 // All other shapes
-                const shapeBtn = document.getElementById(currentTool + 'Tool');
-                if (shapeBtn) shapeBtn.classList.add('active');
                 shapeSizeGroup.style.display = 'flex';
                 rotationGroup.style.display = 'flex';
                 fillGroup.style.display = 'flex';
