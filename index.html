@@ -848,11 +848,11 @@
                 </div>
                 <div class="input-group">
                     <label>Size:</label>
-                    <input type="range" id="brushSize" min="1" max="100" value="5">
+                    <input type="number" id="brushSize" min="1" max="200" value="20" style="width: 60px;">
                 </div>
                 <div id="rotationGroup" class="input-group" style="display: none;">
-                    <label>Rotate:</label>
-                    <input type="range" id="textRotation" min="0" max="360" value="0">
+                    <label>Rotate (°):</label>
+                    <input type="number" id="textRotation" min="0" max="360" value="0" style="width: 60px;">
                 </div>
                 <button id="clearCanvas" class="reset-btn">Clear</button>
             </div>
@@ -1610,7 +1610,9 @@
         }
 
         // Update preview when sliders change
+        brushSize.addEventListener('change', () => { if(activeText) renderCanvasWithPreview(); });
         brushSize.addEventListener('input', () => { if(activeText) renderCanvasWithPreview(); });
+        textRotation.addEventListener('change', () => { if(activeText) renderCanvasWithPreview(); });
         textRotation.addEventListener('input', () => { if(activeText) renderCanvasWithPreview(); });
         drawColor.addEventListener('input', () => { if(activeText) renderCanvasWithPreview(); });
         function floodFill(startX, startY, fillColor) {
