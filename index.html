@@ -1526,8 +1526,10 @@
         }
 
         clearBtn.addEventListener('click', () => {
+            if (activeText) activeText = null;
             drawCtx.fillStyle = '#ffffff';
             drawCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
+            saveHistory();
         });
 
 
