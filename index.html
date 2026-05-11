@@ -778,10 +778,11 @@
         .controls-list li {
             margin-bottom: 8px;
             padding-bottom: 8px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
         .music-player {
+            position: relative;
             width: 100%;
             max-width: 800px;
             height: 60vh;
@@ -793,8 +794,24 @@
             flex-direction: column;
             justify-content: center;
         }
-
-        .music-info { margin-bottom: 20px; }
+        .music-upload-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--accent-color);
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .music-upload-btn:hover { transform: scale(1.2); }
+        .music-warning {
+            font-size: 0.75em;
+            color: var(--hint-color);
+            margin-top: 15px;
+            opacity: 0.8;
+        } .music-info { margin-bottom: 20px; }
         .music-title { font-size: 1.8em; font-weight: bold; color: var(--accent-color); margin-bottom: 5px; }
 
         .progress-container { width: 100%; margin-bottom: 20px; }
@@ -1231,6 +1248,8 @@
     <div id="page5" class="page">
         <div class="container blank-container">
             <div class="music-player">
+                <button class="music-upload-btn" id="musicUploadBtn" title="Upload MP3s">📄</button>
+                <input type="file" id="musicFileInput" accept="audio/mpeg" multiple style="display: none;">
                 <div class="music-info">
                     <div class="music-title" id="playerTitle">Loading Playlist...</div>
                     <div id="playerStatus" style="font-size: 0.9em; color: var(--hint-color);">Ready to play</div>
@@ -1256,6 +1275,7 @@
                     <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
                     <span>🔊</span>
                 </div>
+                <div class="music-warning">⚠️ - Any MP3's uploaded will not be kept after site is left or reloaded.</div>
             </div>
         </div>
     </div>
@@ -1673,6 +1693,8 @@
         const nextBtn = document.getElementById('nextBtn');
         const playerMuteBtn = document.getElementById('playerMuteBtn');
         const progressBar = document.getElementById('progressBar');
+        const musicUploadBtn = document.getElementById('musicUploadBtn');
+        const musicFileInput = document.getElementById('musicFileInput');
         const progressFill = document.getElementById('progressFill');
         const currentTimeDisplay = document.getElementById('currentTime');
         const durationDisplay = document.getElementById('duration');
@@ -1710,6 +1732,30 @@
         volumeSlider.addEventListener('input', (e) => { bgMusic.volume = e.target.value; playerMuteBtn.textContent = bgMusic.volume === 0 ? '🔇' : '🔊'; });
         playerMuteBtn.addEventListener('click', () => { if (bgMusic.volume > 0) { bgMusic.dataset.lastVolume = bgMusic.volume; bgMusic.volume = 0; volumeSlider.value = 0; playerMuteBtn.textContent = '🔇'; } else { bgMusic.volume = bgMusic.dataset.lastVolume || 0.5; volumeSlider.value = bgMusic.volume; playerMuteBtn.textContent = '🔊'; } });
         progressBar.addEventListener('click', (e) => { if (playlist.length === 0) return; const rect = progressBar.getBoundingClientRect(); const pos = (e.clientX - rect.left) / rect.width; bgMusic.currentTime = pos * bgMusic.duration; });
+
+        musicUploadBtn.addEventListener('click', () => musicFileInput.click());
+        musicFileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            if (files.length === 0) return;
+
+            files.forEach(file => {
+                if (file.type === 'audio/mpeg' || file.name.toLowerCase().endsWith('.mp3')) {
+                    const url = URL.createObjectURL(file);
+                    const title = file.name.replace(/\.[^/.]+$/, "");
+                    playlist.push({ title: title, url: url });
+                }
+            });
+
+            if (playlist.length > 0 && currentTrackIndex === -1) {
+                loadTrack(0);
+            } else if (playlist.length === files.length) {
+                // If it was empty before
+                loadTrack(0);
+            }
+            
+            playerStatus.textContent = `${playlist.length} tracks in playlist`;
+            musicFileInput.value = ''; // Reset for next upload
+        });
 
         // Mini Player Functionality
         const miniPlayer = document.getElementById('miniPlayer');
