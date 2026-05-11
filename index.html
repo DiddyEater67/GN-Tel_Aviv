@@ -262,22 +262,43 @@
             left: 24px;
         }
 
-        .upload-bg-btn {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 10px 20px;
-            background-color: var(--accent-color);
-            color: white;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.95em;
-            transition: all 0.3s;
-            text-align: center;
+        .bg-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-wrap: nowrap;
+            white-space: nowrap;
+            overflow-x: auto;
         }
 
-        .upload-bg-btn:hover {
-            background-color: var(--accent-hover);
-            box-shadow: 0 0 15px var(--accent-color);
+        .bg-label {
+            color: var(--text-color);
+            font-size: 1em;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .bg-row .bg-options {
+            display: flex;
+            gap: 8px;
+            flex-wrap: nowrap;
+            flex-shrink: 0;
+        }
+
+        .upload-arrow-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2em;
+            flex-shrink: 0;
+            transition: transform 0.2s;
+        }
+
+        .upload-arrow-btn:hover {
+            transform: scale(1.15);
         }
 
 
@@ -918,18 +939,18 @@
                 <label for="clockToggle">Show Clock</label>
                 <div class="toggle-switch active" id="clockToggle"></div>
             </div>
-            <div class="settings-option">
-                <label>Background</label>
+            <div class="bg-row">
+                <label class="bg-label">Background</label>
+                <div class="bg-options" id="settingsBgOptions">
+                    <div class="bg-opt active" data-bg="default" style="background: #0a0a0a;" title="Default"></div>
+                    <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?auto=format&fit=crop&w=100&q=80')" title="Starry Night"></div>
+                    <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=100&q=80')" title="Deep Space"></div>
+                    <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=100&q=80')" title="Mountains"></div>
+                    <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=100&q=80')" title="Beach"></div>
+                </div>
+                <label for="customBgInput" class="upload-arrow-btn" title="Upload Custom Background">⬆️</label>
+                <input type="file" id="customBgInput" accept="image/*">
             </div>
-            <div class="bg-options" id="settingsBgOptions">
-                <div class="bg-opt active" data-bg="default" style="background: #0a0a0a;" title="Default"></div>
-                <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?auto=format&fit=crop&w=100&q=80')" title="Starry Night"></div>
-                <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=100&q=80')" title="Deep Space"></div>
-                <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=100&q=80')" title="Mountains"></div>
-                <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=100&q=80')" title="Beach"></div>
-            </div>
-            <label for="customBgInput" class="upload-bg-btn">Upload Custom Background</label>
-            <input type="file" id="customBgInput" accept="image/*">
         </div>
     </div>
     <canvas id="particleCanvas"></canvas>
