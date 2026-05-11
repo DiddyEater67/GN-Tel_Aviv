@@ -310,6 +310,13 @@
             transform: scale(1.1);
         }
 
+        /* Hide UI Mode */
+        body.hide-ui .container,
+        body.hide-ui .nav-arrow,
+        body.hide-ui .page {
+            display: none !important;
+        }
+
 
 
         /* Navigation Arrows */
@@ -948,6 +955,10 @@
                 <label for="clockToggle">Show Clock</label>
                 <div class="toggle-switch active" id="clockToggle"></div>
             </div>
+            <div class="settings-option">
+                <label for="hideUIToggle">Hide UI</label>
+                <div class="toggle-switch" id="hideUIToggle"></div>
+            </div>
             <div class="bg-row">
                 <label class="bg-label">Background</label>
                 <div class="bg-options" id="settingsBgOptions">
@@ -1292,6 +1303,25 @@
             clockToggle.classList.toggle('active');
             clock.style.display = clockVisible ? 'flex' : 'none';
         });
+
+        // Hide UI Toggle
+        const hideUIToggle = document.getElementById('hideUIToggle');
+        let uiHidden = false;
+
+        hideUIToggle.addEventListener('click', () => {
+            uiHidden = !uiHidden;
+            hideUIToggle.classList.toggle('active');
+            document.body.classList.toggle('hide-ui');
+            localStorage.setItem('gn_hideUI', uiHidden);
+        });
+
+        // Load saved Hide UI state
+        const savedHideUI = localStorage.getItem('gn_hideUI') === 'true';
+        if (savedHideUI) {
+            uiHidden = true;
+            hideUIToggle.classList.add('active');
+            document.body.classList.add('hide-ui');
+        }
 
         // Background Options in Settings
         const settingsBgOpts = document.querySelectorAll('#settingsBgOptions .bg-opt');
