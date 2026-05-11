@@ -82,6 +82,38 @@
             background: transparent;
         }
 
+        /* Modern Digital Clock */
+        #digitalClock {
+            position: fixed;
+            top: 15px;
+            left: 20px;
+            z-index: 1000;
+            font-family: 'Digital', 'Courier New', Courier, monospace;
+            font-size: 28px;
+            color: var(--accent-color);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 8px 15px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px var(--shadow);
+            pointer-events: none;
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+        }
+
+        #clockTime {
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        #clockAmPm {
+            font-size: 0.5em;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
 
 
         /* Navigation Arrows */
@@ -705,6 +737,10 @@
     </style>
 </head>
 <body>
+    <div id="digitalClock">
+        <span id="clockTime">00:00</span>
+        <span id="clockAmPm">AM</span>
+    </div>
     <canvas id="particleCanvas"></canvas>
 
 
@@ -980,6 +1016,23 @@
     <audio id="bgMusic"></audio>
 
     <script>
+        // Digital Clock Functionality
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            const hoursStr = String(hours).padStart(2, '0');
+            
+            document.getElementById('clockTime').textContent = `${hoursStr}:${minutes}`;
+            document.getElementById('clockAmPm').textContent = ampm;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
         const pages = document.querySelectorAll('.page');
         let currentPage = 0;
 
