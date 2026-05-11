@@ -319,6 +319,37 @@
 
 
 
+        /* Mini Player Overlay */
+        #miniPlayer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 220px;
+            background: var(--container-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 15px;
+            z-index: 3000;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 8px 32px var(--shadow);
+            cursor: grab;
+            user-select: none;
+            transition: transform 0.2s, opacity 0.3s;
+        }
+        #miniPlayer:active { cursor: grabbing; }
+        #miniPlayer.active { display: flex; }
+        body.hide-ui #miniPlayer.active { display: flex !important; }
+        .mini-info { text-align: center; }
+        .mini-title { font-size: 0.85em; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--accent-color); margin-bottom: 5px; }
+        .mini-controls { display: flex; justify-content: center; gap: 15px; align-items: center; }
+        .mini-btn { background: none; border: none; color: var(--text-color); cursor: pointer; font-size: 18px; padding: 5px; transition: transform 0.2s; display: flex; align-items: center; justify-content: center; }
+        .mini-btn:hover { transform: scale(1.2); color: var(--accent-color); }
+        .mini-progress { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; cursor: pointer; position: relative; }
+        .mini-progress-fill { height: 100%; background: var(--accent-color); width: 0%; border-radius: 2px; transition: width 0.1s linear; }
+
         /* Navigation Arrows */
         .nav-arrow {
             position: fixed;
@@ -959,6 +990,10 @@
                 <label for="hideUIToggle">Hide UI</label>
                 <div class="toggle-switch" id="hideUIToggle"></div>
             </div>
+            <div class="settings-option">
+                <label for="miniPlayerToggle">Mini Music Player</label>
+                <div class="toggle-switch" id="miniPlayerToggle"></div>
+            </div>
             <div class="bg-row">
                 <label class="bg-label">Background</label>
                 <div class="bg-options" id="settingsBgOptions">
@@ -1234,6 +1269,19 @@
     </div>
 
     
+    <div id="miniPlayer">
+        <div class="mini-info">
+            <div class="mini-title" id="miniTitle">No Track</div>
+        </div>
+        <div class="mini-progress" id="miniProgressBar">
+            <div class="mini-progress-fill" id="miniProgressFill"></div>
+        </div>
+        <div class="mini-controls">
+            <button class="mini-btn" id="miniPrevBtn" title="Previous">⏮️</button>
+            <button class="mini-btn" id="miniPlayPauseBtn" title="Play/Pause">▶️</button>
+            <button class="mini-btn" id="miniNextBtn" title="Next">⏭️</button>
+        </div>
+    </div>
     <audio id="bgMusic"></audio>
 
     <script>
@@ -1652,6 +1700,78 @@
         volumeSlider.addEventListener('input', (e) => { bgMusic.volume = e.target.value; playerMuteBtn.textContent = bgMusic.volume === 0 ? '🔇' : '🔊'; });
         playerMuteBtn.addEventListener('click', () => { if (bgMusic.volume > 0) { bgMusic.dataset.lastVolume = bgMusic.volume; bgMusic.volume = 0; volumeSlider.value = 0; playerMuteBtn.textContent = '🔇'; } else { bgMusic.volume = bgMusic.dataset.lastVolume || 0.5; volumeSlider.value = bgMusic.volume; playerMuteBtn.textContent = '🔊'; } });
         progressBar.addEventListener('click', (e) => { if (playlist.length === 0) return; const rect = progressBar.getBoundingClientRect(); const pos = (e.clientX - rect.left) / rect.width; bgMusic.currentTime = pos * bgMusic.duration; });
+
+        // Mini Player Functionality
+        const miniPlayer = document.getElementById('miniPlayer');
+        const miniPlayerToggle = document.getElementById('miniPlayerToggle');
+        const miniTitle = document.getElementById('miniTitle');
+        const miniPlayPauseBtn = document.getElementById('miniPlayPauseBtn');
+        const miniPrevBtn = document.getElementById('miniPrevBtn');
+        const miniNextBtn = document.getElementById('miniNextBtn');
+        const miniProgressBar = document.getElementById('miniProgressBar');
+        const miniProgressFill = document.getElementById('miniProgressFill');
+
+        miniPlayerToggle.addEventListener('click', () => {
+            miniPlayerToggle.classList.toggle('active');
+            miniPlayer.classList.toggle('active');
+            if (miniPlayer.classList.contains('active')) {
+                miniTitle.textContent = playerTitle.textContent;
+                updateMiniPlayPauseIcon();
+            }
+        });
+
+        function updateMiniPlayPauseIcon() {
+            miniPlayPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️';
+        }
+
+        miniPlayPauseBtn.addEventListener('click', () => playPauseBtn.click());
+        miniPrevBtn.addEventListener('click', () => prevBtn.click());
+        miniNextBtn.addEventListener('click', () => nextBtn.click());
+        
+        miniProgressBar.addEventListener('click', (e) => {
+            if (playlist.length === 0) return;
+            const rect = miniProgressBar.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            bgMusic.currentTime = pos * bgMusic.duration;
+        });
+
+        bgMusic.addEventListener('play', updateMiniPlayPauseIcon);
+        bgMusic.addEventListener('pause', updateMiniPlayPauseIcon);
+        bgMusic.addEventListener('timeupdate', () => {
+            if (miniPlayer.classList.contains('active')) {
+                const progress = (bgMusic.currentTime / bgMusic.duration) * 100;
+                miniProgressFill.style.width = `${progress}%`;
+            }
+        });
+        
+        const miniObserver = new MutationObserver(() => {
+            miniTitle.textContent = playerTitle.textContent;
+        });
+        miniObserver.observe(playerTitle, { childList: true, characterData: true, subtree: true });
+
+        let isMiniDragging = false;
+        let miniOffsetX = 0;
+        let miniOffsetY = 0;
+
+        miniPlayer.addEventListener('mousedown', (e) => {
+            if (e.target.closest('.mini-btn') || e.target.closest('.mini-progress')) return;
+            isMiniDragging = true;
+            miniOffsetX = e.clientX - miniPlayer.getBoundingClientRect().left;
+            miniOffsetY = e.clientY - miniPlayer.getBoundingClientRect().top;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isMiniDragging) {
+                miniPlayer.style.left = (e.clientX - miniOffsetX) + 'px';
+                miniPlayer.style.top = (e.clientY - miniOffsetY) + 'px';
+                miniPlayer.style.bottom = 'auto';
+                miniPlayer.style.right = 'auto';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isMiniDragging = false;
+        });
         loadTrack(0); window.addEventListener('click', startMusic, { once: true });
 
         const counterDisplay = document.getElementById('counter');
