@@ -344,8 +344,11 @@
         body.hide-ui #miniPlayer.active { display: flex !important; }
         .mini-info { text-align: center; }
         .mini-title { font-size: 0.85em; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--accent-color); margin-bottom: 5px; }
-        .mini-controls { display: flex; justify-content: center; gap: 15px; align-items: center; }
-        .mini-btn { background: none; border: none; color: var(--text-color); cursor: pointer; font-size: 18px; padding: 5px; transition: transform 0.2s; display: flex; align-items: center; justify-content: center; }
+        .mini-controls { display: flex; justify-content: center; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .mini-btn { background: none; border: none; color: var(--text-color); cursor: pointer; font-size: 16px; padding: 5px; transition: transform 0.2s; display: flex; align-items: center; justify-content: center; }
+        .mini-btn.active { color: var(--accent-color); text-shadow: 0 0 5px var(--accent-color); }
+        .mini-volume-container { display: flex; align-items: center; gap: 5px; width: 100%; justify-content: center; margin-top: 5px; }
+        .mini-volume-slider { width: 80px; height: 4px; cursor: pointer; accent-color: var(--accent-color); }
         .mini-btn:hover { transform: scale(1.2); color: var(--accent-color); }
         .mini-progress { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; cursor: pointer; position: relative; }
         .mini-progress-fill { height: 100%; background: var(--accent-color); width: 0%; border-radius: 2px; transition: width 0.1s linear; }
@@ -1277,9 +1280,16 @@
             <div class="mini-progress-fill" id="miniProgressFill"></div>
         </div>
         <div class="mini-controls">
+            <button class="mini-btn" id="miniLoopBtn" title="Toggle Loop">🔁</button>
             <button class="mini-btn" id="miniPrevBtn" title="Previous">⏮️</button>
             <button class="mini-btn" id="miniPlayPauseBtn" title="Play/Pause">▶️</button>
             <button class="mini-btn" id="miniNextBtn" title="Next">⏭️</button>
+            <button class="mini-btn" id="miniMuteBtn" title="Mute/Unmute">🔊</button>
+        </div>
+        <div class="mini-volume-container">
+            <span style="font-size: 12px;">🔈</span>
+            <input type="range" class="mini-volume-slider" id="miniVolumeSlider" min="0" max="1" step="0.01" value="0.5">
+            <span style="font-size: 12px;">🔊</span>
         </div>
     </div>
     <audio id="bgMusic"></audio>
@@ -1708,6 +1718,9 @@
         const miniPlayPauseBtn = document.getElementById('miniPlayPauseBtn');
         const miniPrevBtn = document.getElementById('miniPrevBtn');
         const miniNextBtn = document.getElementById('miniNextBtn');
+        const miniLoopBtn = document.getElementById('miniLoopBtn');
+        const miniMuteBtn = document.getElementById('miniMuteBtn');
+        const miniVolumeSlider = document.getElementById('miniVolumeSlider');
         const miniProgressBar = document.getElementById('miniProgressBar');
         const miniProgressFill = document.getElementById('miniProgressFill');
 
@@ -1717,6 +1730,8 @@
             if (miniPlayer.classList.contains('active')) {
                 miniTitle.textContent = playerTitle.textContent;
                 updateMiniPlayPauseIcon();
+                updateMiniLoopUI();
+                updateMiniVolumeUI();
             }
         });
 
@@ -1724,10 +1739,28 @@
             miniPlayPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️';
         }
 
+        function updateMiniLoopUI() {
+            miniLoopBtn.classList.toggle('active', isLooping);
+        }
+
+        function updateMiniVolumeUI() {
+            miniVolumeSlider.value = bgMusic.volume;
+            miniMuteBtn.textContent = bgMusic.volume === 0 ? '🔇' : '🔊';
+        }
+
         miniPlayPauseBtn.addEventListener('click', () => playPauseBtn.click());
         miniPrevBtn.addEventListener('click', () => prevBtn.click());
         miniNextBtn.addEventListener('click', () => nextBtn.click());
+        miniLoopBtn.addEventListener('click', () => { loopBtn.click(); updateMiniLoopUI(); });
+        miniMuteBtn.addEventListener('click', () => { playerMuteBtn.click(); updateMiniVolumeUI(); });
         
+        miniVolumeSlider.addEventListener('input', (e) => {
+            bgMusic.volume = e.target.value;
+            volumeSlider.value = e.target.value;
+            playerMuteBtn.textContent = bgMusic.volume === 0 ? '🔇' : '🔊';
+            updateMiniVolumeUI();
+        });
+
         miniProgressBar.addEventListener('click', (e) => {
             if (playlist.length === 0) return;
             const rect = miniProgressBar.getBoundingClientRect();
@@ -1737,6 +1770,7 @@
 
         bgMusic.addEventListener('play', updateMiniPlayPauseIcon);
         bgMusic.addEventListener('pause', updateMiniPlayPauseIcon);
+        bgMusic.addEventListener('volumechange', updateMiniVolumeUI);
         bgMusic.addEventListener('timeupdate', () => {
             if (miniPlayer.classList.contains('active')) {
                 const progress = (bgMusic.currentTime / bgMusic.duration) * 100;
