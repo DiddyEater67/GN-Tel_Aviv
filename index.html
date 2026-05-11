@@ -97,10 +97,18 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 4px 15px var(--shadow);
-            pointer-events: none;
+            pointer-events: auto;
             display: flex;
             align-items: baseline;
             gap: 5px;
+            cursor: grab;
+            user-select: none;
+            transition: box-shadow 0.2s;
+        }
+
+        #digitalClock:active {
+            cursor: grabbing;
+            box-shadow: 0 8px 25px var(--shadow);
         }
 
         #clockTime {
@@ -1032,6 +1040,29 @@
         }
         setInterval(updateClock, 1000);
         updateClock();
+
+        // Draggable Clock Functionality
+        const clock = document.getElementById('digitalClock');
+        let isDragging = false;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        clock.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            offsetX = e.clientX - clock.getBoundingClientRect().left;
+            offsetY = e.clientY - clock.getBoundingClientRect().top;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                clock.style.left = (e.clientX - offsetX) + 'px';
+                clock.style.top = (e.clientY - offsetY) + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
 
         const pages = document.querySelectorAll('.page');
         let currentPage = 0;
