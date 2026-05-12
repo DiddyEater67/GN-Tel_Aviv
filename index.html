@@ -1408,7 +1408,6 @@
                     <button class="video-control-btn" id="videoLoopBtn" title="Toggle Loop" style="font-size:18px;">🔁</button>
                     <button class="video-control-btn" id="videoMuteBtn" title="Mute/Unmute" style="font-size:18px;">🔊</button>
                     <input type="range" id="videoVolumeSlider" min="0" max="1" step="0.01" value="1" style="width:80px; cursor:pointer;">
-                    <button class="video-control-btn" id="videoFullscreenBtn" title="Fullscreen" style="font-size:18px;">⛶</button>
                 </div>
             </div>
             <p id="videoStatus" style="color:var(--hint-color); font-size:0.9em; text-align:center;">Upload a video to get started</p>
@@ -2154,7 +2153,7 @@
         const videoLoopBtn = document.getElementById('videoLoopBtn');
         const videoMuteBtn = document.getElementById('videoMuteBtn');
         const videoVolumeSlider = document.getElementById('videoVolumeSlider');
-        const videoFullscreenBtn = document.getElementById('videoFullscreenBtn');
+
         const videoStatus = document.getElementById('videoStatus');
         let videoLooping = false;
         let lastVideoVolume = 1;
@@ -2162,6 +2161,8 @@
         let isForceBuffering = false;
         let commitmentTimer = null;
         let commitmentTimeRemaining = 0;
+        let hideUITimer = null;
+        const videoControls = document.querySelector('.video-controls');
 
         function formatTime(seconds) {
             if (isNaN(seconds)) return '0:00';
@@ -2408,22 +2409,27 @@
             videoMuteBtn.textContent = e.target.value == 0 ? '🔇' : '🔊';
         });
 
-        videoFullscreenBtn.addEventListener('click', () => {
-            const container = document.getElementById('videoContainer');
-            if (!document.fullscreenElement) {
-                if (container.requestFullscreen) {
-                    container.requestFullscreen().catch(err => console.error('Fullscreen error:', err));
-                } else if (container.webkitRequestFullscreen) {
-                    container.webkitRequestFullscreen();
-                }
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                }
-            }
+        function showVideoControls() {
+            videoControls.style.opacity = '1';
+            videoControls.style.pointerEvents = 'auto';
+            if (hideUITimer) clearTimeout(hideUITimer);
+            hideUITimer = setTimeout(hideVideoControls, 3000);
+        }
+
+        function hideVideoControls() {
+            videoControls.style.opacity = '0';
+            videoControls.style.pointerEvents = 'none';
+        }
+
+        const videoContainer = document.getElementById('videoContainer');
+        videoContainer.addEventListener('mousemove', showVideoControls);
+        videoContainer.addEventListener('mouseleave', () => {
+            if (hideUITimer) clearTimeout(hideUITimer);
+            hideVideoControls();
         });
+
+        videoControls.style.transition = 'opacity 0.3s ease';
+        showVideoControls();
         // --- End Video Player ---
 
         function handleClick() { if (!gameActive && timeLeft > 0 && timerId === null) startGame(); if (gameActive) { count++; counterDisplay.textContent = count; playClickSound(); } }
