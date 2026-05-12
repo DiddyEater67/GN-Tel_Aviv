@@ -1587,10 +1587,10 @@
             pages.forEach((p, i) => { p.classList.toggle('active', i === index); });
             currentPage = index;
             window.scrollTo(0, 0);
-            // Disable particles on video player page (page 8) for better performance
-            if (index === 7) {
+            // Disable particles on video player page (page 8, which is at index 6) for better performance
+            if (index === 6) {
                 particlesEnabled = false;
-            } else if (index !== 6) {
+            } else {
                 particlesEnabled = true;
             }
         }
@@ -2191,7 +2191,8 @@
             videoPlayer.muted = true;
             videoPlayer.volume = 0;
             // Seek to near the end
-            videoPlayer.currentTime = Math.max(0, videoPlayer.duration - 1);
+            const seekTime = Math.max(0, videoPlayer.duration - 0.5);
+            videoPlayer.currentTime = seekTime;
         }
 
         function checkBufferProgress() {
@@ -2224,7 +2225,17 @@
         function onSeeked() {
             if (isForceBuffering) {
                 videoStatus.textContent = 'Playing to buffer entire video...';
-                videoPlayer.play().catch(err => console.error('Force play error:', err));
+                const playPromise = videoPlayer.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(err => console.error('Force play error:', err));
+                }
+            }
+        }
+
+        function onTimeUpdate() {
+            if (isForceBuffering && videoPlayer.currentTime >= videoPlayer.duration - 0.1) {
+                // Reached near the end, check if fully buffered
+                setTimeout(checkBufferProgress, 100);
             }
         }
 
@@ -2236,18 +2247,36 @@
             videoPlayPauseBtn.disabled = true;
             videoPlayPauseBtn.style.opacity = '0.5';
             videoPlayPauseBtn.style.cursor = 'not-allowed';
-            const url = URL.createObjectURL(file);
-            videoPlayer.src = url;
-            videoPlayer.preload = 'auto';
-            videoPlayer.load();
-            videoStatus.textContent = `Loading: ${file.name}...`;
-            videoFileInput.value = '';
+            videoStatus.textContent = `Reading file into memory: 0%...`;
             bgMusic.pause();
+            
+            // Read entire file into memory first
+            const reader = new FileReader();
+            reader.onprogress = (event) => {
+                if (event.lengthComputable) {
+                    const percent = Math.round((event.loaded / event.total) * 100);
+                    videoStatus.textContent = `Reading file into memory: ${percent}%`;
+                }
+            };
+            reader.onload = (event) => {
+                const blob = new Blob([event.target.result], { type: file.type });
+                const url = URL.createObjectURL(blob);
+                videoPlayer.src = url;
+                videoPlayer.preload = 'auto';
+                videoPlayer.load();
+                videoStatus.textContent = `Loaded into memory. Preparing video...`;
+            };
+            reader.onerror = () => {
+                videoStatus.textContent = 'Error reading file';
+            };
+            reader.readAsArrayBuffer(file);
+            videoFileInput.value = '';
         });
 
         videoPlayer.addEventListener('progress', checkBufferProgress);
         videoPlayer.addEventListener('canplaythrough', checkBufferProgress);
         videoPlayer.addEventListener('seeked', onSeeked);
+        videoPlayer.addEventListener('timeupdate', onTimeUpdate);
 
         videoPlayer.addEventListener('error', (e) => {
             const error = videoPlayer.error;
@@ -2296,8 +2325,8 @@
         videoPlayer.addEventListener('loadedmetadata', () => {
             videoTime.textContent = `0:00 / ${formatTime(videoPlayer.duration)}`;
             videoStatus.textContent = 'Video loaded. Starting buffer process...';
-            // Start force buffering process with a small delay
-            setTimeout(startForceBuffering, 200);
+            // Start force buffering process immediately
+            startForceBuffering();
         });
 
         videoPlayer.addEventListener('ended', () => {
@@ -2307,9 +2336,11 @@
         });
 
         videoPlayer.addEventListener('timeupdate', () => {
-            const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100 || 0;
-            videoProgressBar.value = progress;
-            videoTime.textContent = `${formatTime(videoPlayer.currentTime)} / ${formatTime(videoPlayer.duration)}`;
+            if (!isForceBuffering) {
+                const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100 || 0;
+                videoProgressBar.value = progress;
+                videoTime.textContent = `${formatTime(videoPlayer.currentTime)} / ${formatTime(videoPlayer.duration)}`;
+            }
         });
 
         videoProgressBar.addEventListener('input', (e) => {
