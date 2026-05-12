@@ -1541,10 +1541,18 @@
         // Keyboard navigation
         window.addEventListener('keydown', (e) => {
             if (e.code === 'Space' && currentPage === 0) {
-                e.preventDefault();
-                handleClick();
-                clickBtn.style.transform = 'translateY(2px)';
-                setTimeout(() => clickBtn.style.transform = 'translateY(0)', 100);
+                if (!spacebarPressed) {
+                    e.preventDefault();
+                    spacebarPressed = true;
+                    handleClick();
+                    clickBtn.style.transform = 'translateY(2px)';
+                    setTimeout(() => clickBtn.style.transform = 'translateY(0)', 100);
+                }
+            }
+        });
+        window.addEventListener('keyup', (e) => {
+            if (e.code === 'Space') {
+                spacebarPressed = false;
             }
         });
 
@@ -1935,7 +1943,7 @@
         const secInput = document.getElementById('secInput');
         const statusMsg = document.getElementById('statusMsg');
 
-        let count = 0; let highScore = localStorage.getItem('gn_highScore') || 0; let timeLeft = 10; let timerId = null; let gameActive = false;
+        let count = 0; let highScore = localStorage.getItem('gn_highScore') || 0; let timeLeft = 10; let timerId = null; let gameActive = false; let spacebarPressed = false; let lastSoundTime = 0;
         highScoreDisplay.textContent = highScore;
 
         function updateTimerDisplay() { const m = Math.floor(timeLeft / 60); const s = timeLeft % 60; timerDisplay.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`; }
@@ -1951,6 +1959,9 @@
         // Generate click sounds via AudioContext
         function playClickSound() {
             if (currentClickSound === 'none') return;
+            const now = Date.now();
+            if (now - lastSoundTime < 50) return; // Prevent overlapping sounds
+            lastSoundTime = now;
             if (currentClickSound === 'uploaded' && uploadedClickAudio) {
                 const clone = uploadedClickAudio.cloneNode();
                 clone.volume = 0.5;
