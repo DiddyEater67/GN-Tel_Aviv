@@ -2159,6 +2159,7 @@
         let videoLooping = false;
         let lastVideoVolume = 1;
         let isFullyBuffered = false;
+        let isForceBuffering = false;
 
         function formatTime(seconds) {
             if (isNaN(seconds)) return '0:00';
@@ -2179,21 +2180,37 @@
             return false;
         }
 
+        function startForceBuffering() {
+            if (isForceBuffering || !videoPlayer.duration) return;
+            isForceBuffering = true;
+            videoStatus.textContent = 'Force buffering to end...';
+            const originalVolume = videoPlayer.volume;
+            videoPlayer.volume = 0;
+            videoPlayer.currentTime = Math.max(0, videoPlayer.duration - 0.5);
+            videoPlayer.play().catch(err => console.error('Force play error:', err));
+        }
+
         function checkBufferProgress() {
-            if (isVideoFullyBuffered()) {
-                isFullyBuffered = true;
-                videoStatus.textContent = `Ready to Play: ${videoFileInput.files[0]?.name || 'Video'}`;
-                videoPlayPauseBtn.disabled = false;
-                videoPlayPauseBtn.style.opacity = '1';
-                videoPlayPauseBtn.style.cursor = 'pointer';
-            } else {
-                const buffered = videoPlayer.buffered;
-                if (buffered.length > 0) {
-                    const bufferedEnd = buffered.end(buffered.length - 1);
-                    const duration = videoPlayer.duration;
-                    if (duration > 0) {
-                        const percent = Math.round((bufferedEnd / duration) * 100);
-                        videoStatus.textContent = `Buffering: ${percent}%`;
+            if (isForceBuffering) {
+                if (isVideoFullyBuffered()) {
+                    videoPlayer.pause();
+                    videoPlayer.currentTime = 0;
+                    videoPlayer.volume = lastVideoVolume;
+                    isFullyBuffered = true;
+                    isForceBuffering = false;
+                    videoStatus.textContent = `Ready to Play: ${videoFileInput.files[0]?.name || 'Video'}`;
+                    videoPlayPauseBtn.disabled = false;
+                    videoPlayPauseBtn.style.opacity = '1';
+                    videoPlayPauseBtn.style.cursor = 'pointer';
+                } else {
+                    const buffered = videoPlayer.buffered;
+                    if (buffered.length > 0) {
+                        const bufferedEnd = buffered.end(buffered.length - 1);
+                        const duration = videoPlayer.duration;
+                        if (duration > 0) {
+                            const percent = Math.round((bufferedEnd / duration) * 100);
+                            videoStatus.textContent = `Force Buffering: ${percent}%`;
+                        }
                     }
                 }
             }
@@ -2203,6 +2220,7 @@
             const file = e.target.files[0];
             if (!file) return;
             isFullyBuffered = false;
+            isForceBuffering = false;
             videoPlayPauseBtn.disabled = true;
             videoPlayPauseBtn.style.opacity = '0.5';
             videoPlayPauseBtn.style.cursor = 'not-allowed';
@@ -2262,10 +2280,8 @@
 
         videoPlayer.addEventListener('loadedmetadata', () => {
             videoTime.textContent = `0:00 / ${formatTime(videoPlayer.duration)}`;
-            // Seek to end to force full buffering
-            if (videoPlayer.duration > 0) {
-                videoPlayer.currentTime = videoPlayer.duration - 0.1;
-            }
+            // Start force buffering process
+            setTimeout(startForceBuffering, 100);
         });
 
         videoPlayer.addEventListener('timeupdate', () => {
