@@ -2181,13 +2181,17 @@
         }
 
         function startForceBuffering() {
-            if (isForceBuffering || !videoPlayer.duration) return;
+            if (isForceBuffering) return;
+            if (!videoPlayer.duration || videoPlayer.duration === Infinity) {
+                videoStatus.textContent = 'Waiting for video metadata...';
+                return;
+            }
             isForceBuffering = true;
-            videoStatus.textContent = 'Force buffering to end...';
-            const originalVolume = videoPlayer.volume;
+            videoStatus.textContent = 'Seeking to end to force buffer...';
+            videoPlayer.muted = true;
             videoPlayer.volume = 0;
-            videoPlayer.currentTime = Math.max(0, videoPlayer.duration - 0.5);
-            videoPlayer.play().catch(err => console.error('Force play error:', err));
+            // Seek to near the end
+            videoPlayer.currentTime = Math.max(0, videoPlayer.duration - 1);
         }
 
         function checkBufferProgress() {
@@ -2195,6 +2199,7 @@
                 if (isVideoFullyBuffered()) {
                     videoPlayer.pause();
                     videoPlayer.currentTime = 0;
+                    videoPlayer.muted = false;
                     videoPlayer.volume = lastVideoVolume;
                     isFullyBuffered = true;
                     isForceBuffering = false;
@@ -2213,6 +2218,13 @@
                         }
                     }
                 }
+            }
+        }
+
+        function onSeeked() {
+            if (isForceBuffering) {
+                videoStatus.textContent = 'Playing to buffer entire video...';
+                videoPlayer.play().catch(err => console.error('Force play error:', err));
             }
         }
 
@@ -2235,6 +2247,7 @@
 
         videoPlayer.addEventListener('progress', checkBufferProgress);
         videoPlayer.addEventListener('canplaythrough', checkBufferProgress);
+        videoPlayer.addEventListener('seeked', onSeeked);
 
         videoPlayer.addEventListener('error', (e) => {
             const error = videoPlayer.error;
@@ -2269,9 +2282,11 @@
         });
 
         videoPlayer.addEventListener('play', () => {
-            videoPlayPauseBtn.textContent = '⏸️';
-            bgMusic.pause();
-            videoStatus.textContent = 'Playing';
+            if (!isForceBuffering) {
+                videoPlayPauseBtn.textContent = '⏸️';
+                bgMusic.pause();
+                videoStatus.textContent = 'Playing';
+            }
         });
 
         videoPlayer.addEventListener('pause', () => {
@@ -2280,8 +2295,15 @@
 
         videoPlayer.addEventListener('loadedmetadata', () => {
             videoTime.textContent = `0:00 / ${formatTime(videoPlayer.duration)}`;
-            // Start force buffering process
-            setTimeout(startForceBuffering, 100);
+            videoStatus.textContent = 'Video loaded. Starting buffer process...';
+            // Start force buffering process with a small delay
+            setTimeout(startForceBuffering, 200);
+        });
+
+        videoPlayer.addEventListener('ended', () => {
+            if (isForceBuffering) {
+                checkBufferProgress();
+            }
         });
 
         videoPlayer.addEventListener('timeupdate', () => {
