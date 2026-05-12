@@ -2335,6 +2335,20 @@
             }
         });
 
+        document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement) {
+                // Just entered fullscreen
+                videoStatus.textContent = 'Fullscreen mode active';
+            }
+        });
+
+        document.addEventListener('webkitfullscreenchange', () => {
+            if (document.webkitFullscreenElement) {
+                // Just entered fullscreen (webkit)
+                videoStatus.textContent = 'Fullscreen mode active';
+            }
+        });
+
         videoPlayer.addEventListener('timeupdate', () => {
             if (!isForceBuffering) {
                 const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100 || 0;
@@ -2380,12 +2394,22 @@
         videoFullscreenBtn.addEventListener('click', () => {
             const container = document.getElementById('videoContainer');
             if (!document.fullscreenElement) {
+                // Entering fullscreen - re-buffer for fullscreen rendering
+                if (isFullyBuffered) {
+                    videoStatus.textContent = 'Re-buffering for fullscreen...';
+                    videoPlayer.pause();
+                    isFullyBuffered = false;
+                    isForceBuffering = false;
+                    // Re-run the buffering sequence
+                    startForceBuffering();
+                }
                 if (container.requestFullscreen) {
                     container.requestFullscreen().catch(err => console.error('Fullscreen error:', err));
                 } else if (container.webkitRequestFullscreen) {
                     container.webkitRequestFullscreen();
                 }
             } else {
+                // Exiting fullscreen
                 if (document.exitFullscreen) {
                     document.exitFullscreen();
                 } else if (document.webkitExitFullscreen) {
