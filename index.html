@@ -2167,13 +2167,16 @@
             if (!file) return;
             const url = URL.createObjectURL(file);
             videoPlayer.src = url;
+            videoPlayer.load();
             videoStatus.textContent = `Loaded: ${file.name}`;
             videoFileInput.value = '';
+            bgMusic.pause();
         });
 
         videoPlayPauseBtn.addEventListener('click', () => {
             if (videoPlayer.paused) {
-                videoPlayer.play();
+                bgMusic.pause();
+                videoPlayer.play().catch(err => console.error('Play error:', err));
                 videoPlayPauseBtn.textContent = '⏸️';
             } else {
                 videoPlayer.pause();
@@ -2183,10 +2186,15 @@
 
         videoPlayer.addEventListener('play', () => {
             videoPlayPauseBtn.textContent = '⏸️';
+            bgMusic.pause();
         });
 
         videoPlayer.addEventListener('pause', () => {
             videoPlayPauseBtn.textContent = '▶️';
+        });
+
+        videoPlayer.addEventListener('loadedmetadata', () => {
+            videoTime.textContent = `0:00 / ${formatTime(videoPlayer.duration)}`;
         });
 
         videoPlayer.addEventListener('timeupdate', () => {
@@ -2196,7 +2204,9 @@
         });
 
         videoProgressBar.addEventListener('input', (e) => {
-            videoPlayer.currentTime = (e.target.value / 100) * videoPlayer.duration;
+            if (videoPlayer.duration) {
+                videoPlayer.currentTime = (e.target.value / 100) * videoPlayer.duration;
+            }
         });
 
         videoLoopBtn.addEventListener('click', () => {
@@ -2226,9 +2236,17 @@
         videoFullscreenBtn.addEventListener('click', () => {
             const container = document.getElementById('videoContainer');
             if (!document.fullscreenElement) {
-                container.requestFullscreen().catch(err => console.error(err));
+                if (container.requestFullscreen) {
+                    container.requestFullscreen().catch(err => console.error('Fullscreen error:', err));
+                } else if (container.webkitRequestFullscreen) {
+                    container.webkitRequestFullscreen();
+                }
             } else {
-                document.exitFullscreen();
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
             }
         });
         // --- End Video Player ---
