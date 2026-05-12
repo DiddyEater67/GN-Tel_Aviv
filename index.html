@@ -2160,6 +2160,8 @@
         let lastVideoVolume = 1;
         let isFullyBuffered = false;
         let isForceBuffering = false;
+        let commitmentTimer = null;
+        let commitmentTimeRemaining = 0;
 
         function formatTime(seconds) {
             if (isNaN(seconds)) return '0:00';
@@ -2180,6 +2182,38 @@
             return false;
         }
 
+        function startCommitmentPhase() {
+            if (commitmentTimer) clearInterval(commitmentTimer);
+            commitmentTimeRemaining = 20;
+            videoStatus.textContent = `Committing video to memory: 20s remaining...`;
+            videoPlayer.muted = true;
+            videoPlayer.volume = 0;
+            videoPlayer.currentTime = Math.max(0, videoPlayer.duration - 0.5);
+            videoPlayer.play().catch(err => console.error('Force play error:', err));
+            
+            commitmentTimer = setInterval(() => {
+                commitmentTimeRemaining--;
+                videoStatus.textContent = `Committing video to memory: ${commitmentTimeRemaining}s remaining...`;
+                if (commitmentTimeRemaining <= 0) {
+                    clearInterval(commitmentTimer);
+                    commitmentTimer = null;
+                    completeCommitmentPhase();
+                }
+            }, 1000);
+        }
+
+        function completeCommitmentPhase() {
+            videoPlayer.pause();
+            videoPlayer.currentTime = 0;
+            videoPlayer.muted = false;
+            videoPlayer.volume = lastVideoVolume;
+            isFullyBuffered = true;
+            videoStatus.textContent = `Ready to Play: ${videoFileInput.files[0]?.name || 'Video'}`;
+            videoPlayPauseBtn.disabled = false;
+            videoPlayPauseBtn.style.opacity = '1';
+            videoPlayPauseBtn.style.cursor = 'pointer';
+        }
+
         function startForceBuffering() {
             if (isForceBuffering) return;
             if (!videoPlayer.duration || videoPlayer.duration === Infinity) {
@@ -2187,12 +2221,7 @@
                 return;
             }
             isForceBuffering = true;
-            videoStatus.textContent = 'Seeking to end to force buffer...';
-            videoPlayer.muted = true;
-            videoPlayer.volume = 0;
-            // Seek to near the end
-            const seekTime = Math.max(0, videoPlayer.duration - 0.5);
-            videoPlayer.currentTime = seekTime;
+            startCommitmentPhase();
         }
 
         function checkBufferProgress() {
@@ -2335,19 +2364,7 @@
             }
         });
 
-        document.addEventListener('fullscreenchange', () => {
-            if (document.fullscreenElement) {
-                // Just entered fullscreen
-                videoStatus.textContent = 'Fullscreen mode active';
-            }
-        });
 
-        document.addEventListener('webkitfullscreenchange', () => {
-            if (document.webkitFullscreenElement) {
-                // Just entered fullscreen (webkit)
-                videoStatus.textContent = 'Fullscreen mode active';
-            }
-        });
 
         videoPlayer.addEventListener('timeupdate', () => {
             if (!isForceBuffering) {
@@ -2394,22 +2411,12 @@
         videoFullscreenBtn.addEventListener('click', () => {
             const container = document.getElementById('videoContainer');
             if (!document.fullscreenElement) {
-                // Entering fullscreen - re-buffer for fullscreen rendering
-                if (isFullyBuffered) {
-                    videoStatus.textContent = 'Re-buffering for fullscreen...';
-                    videoPlayer.pause();
-                    isFullyBuffered = false;
-                    isForceBuffering = false;
-                    // Re-run the buffering sequence
-                    startForceBuffering();
-                }
                 if (container.requestFullscreen) {
                     container.requestFullscreen().catch(err => console.error('Fullscreen error:', err));
                 } else if (container.webkitRequestFullscreen) {
                     container.webkitRequestFullscreen();
                 }
             } else {
-                // Exiting fullscreen
                 if (document.exitFullscreen) {
                     document.exitFullscreen();
                 } else if (document.webkitExitFullscreen) {
