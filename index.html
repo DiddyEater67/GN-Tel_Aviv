@@ -1954,50 +1954,70 @@
         const soundDropdown = document.getElementById('soundDropdown');
         const soundUploadInput = document.getElementById('soundUploadInput');
         let currentClickSound = 'none';
-        let uploadedClickAudio = null;
+        let uploadedClickBuffer = null;
 
-        // Generate click sounds via AudioContext
+        // Persistent audio context for low-latency playback
+        let audioCtx = null;
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        // Generate click sounds via persistent AudioContext
         function playClickSound() {
             if (currentClickSound === 'none') return;
             const now = Date.now();
-            if (now - lastSoundTime < 50) return; // Prevent overlapping sounds
+            if (now - lastSoundTime < 30) return; // Minimal debounce
             lastSoundTime = now;
-            if (currentClickSound === 'uploaded' && uploadedClickAudio) {
-                const clone = uploadedClickAudio.cloneNode();
-                clone.volume = 0.5;
-                clone.play().catch(() => {});
+            
+            if (currentClickSound === 'uploaded' && uploadedClickBuffer) {
+                const ctx = getAudioContext();
+                const source = ctx.createBufferSource();
+                source.buffer = uploadedClickBuffer;
+                const gain = ctx.createGain();
+                gain.gain.value = 0.5;
+                source.connect(gain);
+                gain.connect(ctx.destination);
+                source.start(0);
                 return;
             }
-            const actx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = actx.createOscillator();
-            const gain = actx.createGain();
+            
+            const ctx = getAudioContext();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
             osc.connect(gain);
-            gain.connect(actx.destination);
+            gain.connect(ctx.destination);
+            
             if (currentClickSound === 'click1') {
                 // Tick
                 osc.type = 'square';
-                osc.frequency.setValueAtTime(1200, actx.currentTime);
-                gain.gain.setValueAtTime(0.3, actx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.05);
-                osc.start(actx.currentTime);
-                osc.stop(actx.currentTime + 0.05);
+                osc.frequency.setValueAtTime(1200, ctx.currentTime);
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+                osc.start(ctx.currentTime);
+                osc.stop(ctx.currentTime + 0.05);
             } else if (currentClickSound === 'click2') {
                 // Pop
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(600, actx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(200, actx.currentTime + 0.08);
-                gain.gain.setValueAtTime(0.4, actx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.08);
-                osc.start(actx.currentTime);
-                osc.stop(actx.currentTime + 0.08);
+                osc.frequency.setValueAtTime(600, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.4, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+                osc.start(ctx.currentTime);
+                osc.stop(ctx.currentTime + 0.08);
             } else if (currentClickSound === 'click3') {
                 // Beep
                 osc.type = 'triangle';
-                osc.frequency.setValueAtTime(880, actx.currentTime);
-                gain.gain.setValueAtTime(0.25, actx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.1);
-                osc.start(actx.currentTime);
-                osc.stop(actx.currentTime + 0.1);
+                osc.frequency.setValueAtTime(880, ctx.currentTime);
+                gain.gain.setValueAtTime(0.25, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+                osc.start(ctx.currentTime);
+                osc.stop(ctx.currentTime + 0.1);
             }
         }
 
@@ -2019,16 +2039,24 @@
         soundUploadInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            const url = URL.createObjectURL(file);
-            uploadedClickAudio = new Audio(url);
-            currentClickSound = 'uploaded';
-            soundDropdown.querySelectorAll('.sound-option').forEach(o => o.classList.remove('selected'));
-            // Mark upload label as selected visually
-            const uploadLabel = soundDropdown.querySelector('.sound-upload-label');
-            uploadLabel.style.fontWeight = 'bold';
-            uploadLabel.style.color = 'var(--accent-color)';
-            soundDropdown.classList.remove('active');
-            soundUploadInput.value = '';
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const ctx = getAudioContext();
+                ctx.decodeAudioData(event.target.result, (buffer) => {
+                    uploadedClickBuffer = buffer;
+                    currentClickSound = 'uploaded';
+                    soundDropdown.querySelectorAll('.sound-option').forEach(o => o.classList.remove('selected'));
+                    const uploadLabel = soundDropdown.querySelector('.sound-upload-label');
+                    uploadLabel.style.fontWeight = 'bold';
+                    uploadLabel.style.color = 'var(--accent-color)';
+                    soundDropdown.classList.remove('active');
+                    soundUploadInput.value = '';
+                }, () => {
+                    console.error('Failed to decode audio');
+                    soundUploadInput.value = '';
+                });
+            };
+            reader.readAsArrayBuffer(file);
         });
 
         // Reset upload label style when a sound option is chosen
