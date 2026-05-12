@@ -571,6 +571,69 @@
             box-shadow: 0 0 15px var(--reset-color);
         }
 
+        /* Sound Selector */
+        .sound-selector-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 8px;
+            line-height: 1;
+            margin: 0;
+            transition: transform 0.2s;
+            z-index: 10;
+        }
+        .sound-selector-btn:hover { transform: scale(1.2); }
+
+        .sound-dropdown {
+            display: none;
+            position: absolute;
+            top: 42px;
+            right: 10px;
+            background: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 8px;
+            z-index: 20;
+            min-width: 190px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px var(--shadow);
+            flex-direction: column;
+            gap: 5px;
+        }
+        .sound-dropdown.active { display: flex; }
+        .sound-option {
+            padding: 7px 10px;
+            cursor: pointer;
+            border-radius: 6px;
+            color: var(--text-color);
+            font-size: 0.9em;
+            transition: 0.2s;
+            text-align: left;
+            background: none;
+            border: none;
+            width: 100%;
+            margin: 0;
+        }
+        .sound-option:hover { background: var(--accent-color); color: white; }
+        .sound-option.selected { font-weight: bold; color: var(--accent-color); }
+        .sound-option.selected:hover { color: white; }
+        .sound-upload-label {
+            padding: 7px 10px;
+            cursor: pointer;
+            border-radius: 6px;
+            color: var(--text-color);
+            font-size: 0.9em;
+            transition: 0.2s;
+            display: block;
+            text-align: left;
+        }
+        .sound-upload-label:hover { background: var(--accent-color); color: white; }
+
         .top-controls {
             position: absolute;
             top: 10px;
@@ -1081,7 +1144,16 @@
         <div class="container">
             <h1><strong>Spacebar Clicker</strong></h1>
             <p>How many times can you click in the given time?</p>
-            <div class="clicker-box">
+            <div class="clicker-box" style="position:relative;">
+                <button class="sound-selector-btn" id="soundSelectorBtn" title="Click Sound">📄</button>
+                <div class="sound-dropdown" id="soundDropdown">
+                    <button class="sound-option selected" data-sound="none">🔇 No Sound</button>
+                    <button class="sound-option" data-sound="click1">🔊 Click 1 (Tick)</button>
+                    <button class="sound-option" data-sound="click2">🔊 Click 2 (Pop)</button>
+                    <button class="sound-option" data-sound="click3">🔊 Click 3 (Beep)</button>
+                    <label class="sound-upload-label" for="soundUploadInput">📁 Upload MP3</label>
+                    <input type="file" id="soundUploadInput" accept="audio/mpeg,.mp3" style="display:none;">
+                </div>
                 <div class="scores">
                     <div>
                         <span class="score-label">CURRENT SCORE</span>
@@ -1869,7 +1941,102 @@
         function updateTimerDisplay() { const m = Math.floor(timeLeft / 60); const s = timeLeft % 60; timerDisplay.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`; }
         function startGame() { if (gameActive) return; count = 0; counterDisplay.textContent = count; timeLeft = parseInt(minInput.value) * 60 + parseInt(secInput.value); if (timeLeft <= 0) return; gameActive = true; statusMsg.textContent = "GAME IN PROGRESS..."; minInput.disabled = true; secInput.disabled = true; updateTimerDisplay(); timerId = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) endGame(); }, 1000); }
         function endGame() { clearInterval(timerId); gameActive = false; statusMsg.textContent = "TIME'S UP!"; minInput.disabled = false; secInput.disabled = false; if (count > highScore) { highScore = count; localStorage.setItem('gn_highScore', highScore); highScoreDisplay.textContent = highScore; statusMsg.textContent = "NEW HIGH SCORE!"; } }
-        function handleClick() { if (!gameActive && timeLeft > 0 && timerId === null) startGame(); if (gameActive) { count++; counterDisplay.textContent = count; } }
+        // --- Sound Selector ---
+        const soundSelectorBtn = document.getElementById('soundSelectorBtn');
+        const soundDropdown = document.getElementById('soundDropdown');
+        const soundUploadInput = document.getElementById('soundUploadInput');
+        let currentClickSound = 'none';
+        let uploadedClickAudio = null;
+
+        // Generate click sounds via AudioContext
+        function playClickSound() {
+            if (currentClickSound === 'none') return;
+            if (currentClickSound === 'uploaded' && uploadedClickAudio) {
+                const clone = uploadedClickAudio.cloneNode();
+                clone.volume = 0.5;
+                clone.play().catch(() => {});
+                return;
+            }
+            const actx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = actx.createOscillator();
+            const gain = actx.createGain();
+            osc.connect(gain);
+            gain.connect(actx.destination);
+            if (currentClickSound === 'click1') {
+                // Tick
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(1200, actx.currentTime);
+                gain.gain.setValueAtTime(0.3, actx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.05);
+                osc.start(actx.currentTime);
+                osc.stop(actx.currentTime + 0.05);
+            } else if (currentClickSound === 'click2') {
+                // Pop
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, actx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(200, actx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.4, actx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.08);
+                osc.start(actx.currentTime);
+                osc.stop(actx.currentTime + 0.08);
+            } else if (currentClickSound === 'click3') {
+                // Beep
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(880, actx.currentTime);
+                gain.gain.setValueAtTime(0.25, actx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.1);
+                osc.start(actx.currentTime);
+                osc.stop(actx.currentTime + 0.1);
+            }
+        }
+
+        soundSelectorBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            soundDropdown.classList.toggle('active');
+        });
+
+        soundDropdown.querySelectorAll('.sound-option').forEach(opt => {
+            opt.addEventListener('click', (e) => {
+                e.stopPropagation();
+                currentClickSound = opt.dataset.sound;
+                soundDropdown.querySelectorAll('.sound-option').forEach(o => o.classList.remove('selected'));
+                opt.classList.add('selected');
+                soundDropdown.classList.remove('active');
+            });
+        });
+
+        soundUploadInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const url = URL.createObjectURL(file);
+            uploadedClickAudio = new Audio(url);
+            currentClickSound = 'uploaded';
+            soundDropdown.querySelectorAll('.sound-option').forEach(o => o.classList.remove('selected'));
+            // Mark upload label as selected visually
+            const uploadLabel = soundDropdown.querySelector('.sound-upload-label');
+            uploadLabel.style.fontWeight = 'bold';
+            uploadLabel.style.color = 'var(--accent-color)';
+            soundDropdown.classList.remove('active');
+            soundUploadInput.value = '';
+        });
+
+        // Reset upload label style when a sound option is chosen
+        soundDropdown.querySelectorAll('.sound-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                const uploadLabel = soundDropdown.querySelector('.sound-upload-label');
+                uploadLabel.style.fontWeight = '';
+                uploadLabel.style.color = '';
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!soundDropdown.contains(e.target) && e.target !== soundSelectorBtn) {
+                soundDropdown.classList.remove('active');
+            }
+        });
+        // --- End Sound Selector ---
+
+        function handleClick() { if (!gameActive && timeLeft > 0 && timerId === null) startGame(); if (gameActive) { count++; counterDisplay.textContent = count; playClickSound(); } }
         clickBtn.addEventListener('click', handleClick);
         resetBtn.addEventListener('click', () => { clearInterval(timerId); timerId = null; gameActive = false; count = 0; counterDisplay.textContent = count; timeLeft = parseInt(minInput.value) * 60 + parseInt(secInput.value); updateTimerDisplay(); statusMsg.textContent = ""; minInput.disabled = false; secInput.disabled = false; });
 
