@@ -2158,6 +2158,7 @@
         const videoStatus = document.getElementById('videoStatus');
         let videoLooping = false;
         let lastVideoVolume = 1;
+        let isFullyBuffered = false;
 
         function formatTime(seconds) {
             if (isNaN(seconds)) return '0:00';
@@ -2168,40 +2169,54 @@
 
         videoUploadBtn.addEventListener('click', () => videoFileInput.click());
 
-        videoFileInput.addEventListener('change', async (e) => {
+        function isVideoFullyBuffered() {
+            if (!videoPlayer.buffered || videoPlayer.duration <= 0) return false;
+            for (let i = 0; i < videoPlayer.buffered.length; i++) {
+                if (videoPlayer.buffered.start(i) <= 0 && videoPlayer.buffered.end(i) >= videoPlayer.duration) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function checkBufferProgress() {
+            if (isVideoFullyBuffered()) {
+                isFullyBuffered = true;
+                videoStatus.textContent = `Ready to Play: ${videoFileInput.files[0]?.name || 'Video'}`;
+                videoPlayPauseBtn.disabled = false;
+                videoPlayPauseBtn.style.opacity = '1';
+                videoPlayPauseBtn.style.cursor = 'pointer';
+            } else {
+                const buffered = videoPlayer.buffered;
+                if (buffered.length > 0) {
+                    const bufferedEnd = buffered.end(buffered.length - 1);
+                    const duration = videoPlayer.duration;
+                    if (duration > 0) {
+                        const percent = Math.round((bufferedEnd / duration) * 100);
+                        videoStatus.textContent = `Buffering: ${percent}%`;
+                    }
+                }
+            }
+        }
+
+        videoFileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            videoStatus.textContent = `Uploading: ${file.name}...`;
+            isFullyBuffered = false;
             videoPlayPauseBtn.disabled = true;
-            try {
-                const formData = new FormData();
-                formData.append('file', file);
-                const response = await fetch('https://tmpfiles.org/api/v1/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await response.json();
-                if (data.status === 'success') {
-                    const videoUrl = data.data.url.replace('tmpfiles.org', 'dl.tmpfiles.org');
-                    videoPlayer.src = videoUrl;
-                    videoPlayer.preload = 'auto';
-                    videoPlayer.load();
-                    videoStatus.textContent = `Loaded: ${file.name}`;
-                    bgMusic.pause();
-                } else {
-                    videoStatus.textContent = 'Upload failed';
-                }
-            } catch (err) {
-                console.error('Upload error:', err);
-                videoStatus.textContent = 'Upload error: ' + err.message;
-            }
-            videoPlayPauseBtn.disabled = false;
+            videoPlayPauseBtn.style.opacity = '0.5';
+            videoPlayPauseBtn.style.cursor = 'not-allowed';
+            const url = URL.createObjectURL(file);
+            videoPlayer.src = url;
+            videoPlayer.preload = 'auto';
+            videoPlayer.load();
+            videoStatus.textContent = `Loading: ${file.name}...`;
             videoFileInput.value = '';
+            bgMusic.pause();
         });
 
-        videoPlayer.addEventListener('canplay', () => {
-            videoStatus.textContent = `Ready: ${videoFileInput.files[0]?.name || 'Video'}`;
-        });
+        videoPlayer.addEventListener('progress', checkBufferProgress);
+        videoPlayer.addEventListener('canplaythrough', checkBufferProgress);
 
         videoPlayer.addEventListener('error', (e) => {
             const error = videoPlayer.error;
@@ -2221,8 +2236,8 @@
         });
 
         videoPlayPauseBtn.addEventListener('click', () => {
-            if (!videoPlayer.src) {
-                videoStatus.textContent = 'Please upload a video first';
+            if (!isFullyBuffered) {
+                videoStatus.textContent = 'Video is still buffering. Please wait...';
                 return;
             }
             if (videoPlayer.paused) {
@@ -2247,6 +2262,10 @@
 
         videoPlayer.addEventListener('loadedmetadata', () => {
             videoTime.textContent = `0:00 / ${formatTime(videoPlayer.duration)}`;
+            // Seek to end to force full buffering
+            if (videoPlayer.duration > 0) {
+                videoPlayer.currentTime = videoPlayer.duration - 0.1;
+            }
         });
 
         videoPlayer.addEventListener('timeupdate', () => {
@@ -2256,6 +2275,10 @@
         });
 
         videoProgressBar.addEventListener('input', (e) => {
+            if (!isFullyBuffered) {
+                videoStatus.textContent = 'Video is still buffering. Please wait...';
+                return;
+            }
             if (videoPlayer.duration) {
                 videoPlayer.currentTime = (e.target.value / 100) * videoPlayer.duration;
             }
