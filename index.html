@@ -1400,7 +1400,7 @@
             <button class="video-upload-btn" id="videoUploadBtn" title="Upload Video">📂</button>
             <input type="file" id="videoFileInput" accept="video/*" style="display:none;">
             <div class="video-container" id="videoContainer" style="position:relative; width:90%; max-width:900px; background:#000; border-radius:12px; overflow:hidden; box-shadow:0 0 20px var(--shadow);">
-                <video id="videoPlayer" style="width:100%; height:auto; display:block;" controlsList="nodownload"></video>
+                <video id="videoPlayer" style="width:100%; height:auto; display:block;" controlsList="nodownload" preload="metadata"></video>
                 <div class="video-controls" style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.7); padding:12px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                     <button class="video-control-btn" id="videoPlayPauseBtn" title="Play/Pause" style="font-size:18px;">▶️</button>
                     <input type="range" id="videoProgressBar" min="0" max="100" value="0" style="flex:1; min-width:100px; cursor:pointer;">
@@ -1587,6 +1587,12 @@
             pages.forEach((p, i) => { p.classList.toggle('active', i === index); });
             currentPage = index;
             window.scrollTo(0, 0);
+            // Disable particles on video player page (page 8) for better performance
+            if (index === 7) {
+                particlesEnabled = false;
+            } else if (index !== 6) {
+                particlesEnabled = true;
+            }
         }
 
         document.getElementById('prevPageBtn').addEventListener('click', () => {
@@ -2167,10 +2173,32 @@
             if (!file) return;
             const url = URL.createObjectURL(file);
             videoPlayer.src = url;
+            videoPlayer.preload = 'auto';
             videoPlayer.load();
-            videoStatus.textContent = `Loaded: ${file.name}`;
+            videoStatus.textContent = `Loading: ${file.name}...`;
             videoFileInput.value = '';
             bgMusic.pause();
+        });
+
+        videoPlayer.addEventListener('canplay', () => {
+            videoStatus.textContent = `Ready: ${videoFileInput.files[0]?.name || 'Video'}`;
+        });
+
+        videoPlayer.addEventListener('error', (e) => {
+            const error = videoPlayer.error;
+            if (error) {
+                const errorMsg = error.code === 4 ? 'Video format not supported' : 'Error loading video';
+                videoStatus.textContent = errorMsg;
+                console.error('Video error:', error);
+            }
+        });
+
+        videoPlayer.addEventListener('stalled', () => {
+            videoStatus.textContent = 'Buffering...';
+        });
+
+        videoPlayer.addEventListener('playing', () => {
+            videoStatus.textContent = 'Playing';
         });
 
         videoPlayPauseBtn.addEventListener('click', () => {
@@ -2187,6 +2215,7 @@
         videoPlayer.addEventListener('play', () => {
             videoPlayPauseBtn.textContent = '⏸️';
             bgMusic.pause();
+            videoStatus.textContent = 'Playing';
         });
 
         videoPlayer.addEventListener('pause', () => {
