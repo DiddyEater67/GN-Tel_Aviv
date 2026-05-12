@@ -634,6 +634,48 @@
         }
         .sound-upload-label:hover { background: var(--accent-color); color: white; }
 
+        /* Video Player */
+        .video-upload-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+            color: var(--accent-color);
+            font-size: 24px;
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+        .video-upload-btn:hover {
+            background: rgba(0, 0, 0, 0.7);
+            box-shadow: 0 4px 15px var(--shadow);
+            transform: scale(1.1);
+        }
+        .video-control-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: 0.2s;
+            font-size: 16px;
+        }
+        .video-control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .video-control-btn.active {
+            background: var(--accent-color);
+            color: white;
+        }
+
         .top-controls {
             position: absolute;
             top: 10px;
@@ -1353,8 +1395,23 @@
     </div>
 
     <div id="page8" class="page">
-        <div class="container blank-container">
-            <p>blank page - eighth page</p>
+        <div class="container" style="position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; height:90vh; gap:20px;">
+            <h1><strong>Video Player</strong></h1>
+            <button class="video-upload-btn" id="videoUploadBtn" title="Upload Video">📂</button>
+            <input type="file" id="videoFileInput" accept="video/*" style="display:none;">
+            <div class="video-container" id="videoContainer" style="position:relative; width:90%; max-width:900px; background:#000; border-radius:12px; overflow:hidden; box-shadow:0 0 20px var(--shadow);">
+                <video id="videoPlayer" style="width:100%; height:auto; display:block;" controlsList="nodownload"></video>
+                <div class="video-controls" style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.7); padding:12px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <button class="video-control-btn" id="videoPlayPauseBtn" title="Play/Pause" style="font-size:18px;">▶️</button>
+                    <input type="range" id="videoProgressBar" min="0" max="100" value="0" style="flex:1; min-width:100px; cursor:pointer;">
+                    <span id="videoTime" style="color:white; font-size:0.9em; min-width:60px; text-align:center;">0:00 / 0:00</span>
+                    <button class="video-control-btn" id="videoLoopBtn" title="Toggle Loop" style="font-size:18px;">🔁</button>
+                    <button class="video-control-btn" id="videoMuteBtn" title="Mute/Unmute" style="font-size:18px;">🔊</button>
+                    <input type="range" id="videoVolumeSlider" min="0" max="1" step="0.01" value="1" style="width:80px; cursor:pointer;">
+                    <button class="video-control-btn" id="videoFullscreenBtn" title="Fullscreen" style="font-size:18px;">⛶</button>
+                </div>
+            </div>
+            <p id="videoStatus" style="color:var(--hint-color); font-size:0.9em; text-align:center;">Upload a video to get started</p>
         </div>
     </div>
 
@@ -2080,6 +2137,101 @@
             }
         });
         // --- End Sound Selector ---
+
+        // --- Video Player ---
+        const videoUploadBtn = document.getElementById('videoUploadBtn');
+        const videoFileInput = document.getElementById('videoFileInput');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const videoPlayPauseBtn = document.getElementById('videoPlayPauseBtn');
+        const videoProgressBar = document.getElementById('videoProgressBar');
+        const videoTime = document.getElementById('videoTime');
+        const videoLoopBtn = document.getElementById('videoLoopBtn');
+        const videoMuteBtn = document.getElementById('videoMuteBtn');
+        const videoVolumeSlider = document.getElementById('videoVolumeSlider');
+        const videoFullscreenBtn = document.getElementById('videoFullscreenBtn');
+        const videoStatus = document.getElementById('videoStatus');
+        let videoLooping = false;
+        let lastVideoVolume = 1;
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '0:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        videoUploadBtn.addEventListener('click', () => videoFileInput.click());
+
+        videoFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const url = URL.createObjectURL(file);
+            videoPlayer.src = url;
+            videoStatus.textContent = `Loaded: ${file.name}`;
+            videoFileInput.value = '';
+        });
+
+        videoPlayPauseBtn.addEventListener('click', () => {
+            if (videoPlayer.paused) {
+                videoPlayer.play();
+                videoPlayPauseBtn.textContent = '⏸️';
+            } else {
+                videoPlayer.pause();
+                videoPlayPauseBtn.textContent = '▶️';
+            }
+        });
+
+        videoPlayer.addEventListener('play', () => {
+            videoPlayPauseBtn.textContent = '⏸️';
+        });
+
+        videoPlayer.addEventListener('pause', () => {
+            videoPlayPauseBtn.textContent = '▶️';
+        });
+
+        videoPlayer.addEventListener('timeupdate', () => {
+            const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100 || 0;
+            videoProgressBar.value = progress;
+            videoTime.textContent = `${formatTime(videoPlayer.currentTime)} / ${formatTime(videoPlayer.duration)}`;
+        });
+
+        videoProgressBar.addEventListener('input', (e) => {
+            videoPlayer.currentTime = (e.target.value / 100) * videoPlayer.duration;
+        });
+
+        videoLoopBtn.addEventListener('click', () => {
+            videoLooping = !videoLooping;
+            videoPlayer.loop = videoLooping;
+            videoLoopBtn.classList.toggle('active', videoLooping);
+        });
+
+        videoMuteBtn.addEventListener('click', () => {
+            if (videoPlayer.volume > 0) {
+                lastVideoVolume = videoPlayer.volume;
+                videoPlayer.volume = 0;
+                videoMuteBtn.textContent = '🔇';
+                videoVolumeSlider.value = 0;
+            } else {
+                videoPlayer.volume = lastVideoVolume;
+                videoMuteBtn.textContent = '🔊';
+                videoVolumeSlider.value = lastVideoVolume;
+            }
+        });
+
+        videoVolumeSlider.addEventListener('input', (e) => {
+            videoPlayer.volume = e.target.value;
+            videoMuteBtn.textContent = e.target.value == 0 ? '🔇' : '🔊';
+        });
+
+        videoFullscreenBtn.addEventListener('click', () => {
+            const container = document.getElementById('videoContainer');
+            if (!document.fullscreenElement) {
+                container.requestFullscreen().catch(err => console.error(err));
+            } else {
+                document.exitFullscreen();
+            }
+        });
+        // --- End Video Player ---
 
         function handleClick() { if (!gameActive && timeLeft > 0 && timerId === null) startGame(); if (gameActive) { count++; counterDisplay.textContent = count; playClickSound(); } }
         clickBtn.addEventListener('click', handleClick);
