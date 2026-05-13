@@ -1165,6 +1165,7 @@
             </div>
             <div class="settings-tabs">
                 <button class="settings-tab active" data-tab="main">Main</button>
+                <button class="settings-tab" data-tab="clock">Clock</button>
                 <button class="settings-tab" data-tab="visualizer">Visualizer</button>
             </div>
 
@@ -1182,16 +1183,70 @@
                     <input type="file" id="customBgInput" accept="image/*">
                 </div>
                 <div class="settings-option">
-                    <label for="clockToggle">Show Clock</label>
-                    <div class="toggle-switch active" id="clockToggle"></div>
-                </div>
-                <div class="settings-option">
                     <label for="hideUIToggle">Hide UI</label>
                     <div class="toggle-switch" id="hideUIToggle"></div>
                 </div>
                 <div class="settings-option">
                     <label for="miniPlayerToggle">Mini Music Player</label>
                     <div class="toggle-switch" id="miniPlayerToggle"></div>
+                </div>
+            </div>
+
+            <div id="clockTab" class="tab-content">
+                <div class="settings-option">
+                    <label for="clockToggle">Show Clock</label>
+                    <div class="toggle-switch active" id="clockToggle"></div>
+                </div>
+                <div class="settings-option">
+                    <label>Clock Color</label>
+                    <input type="color" id="clockColorPicker" value="#5dade2" style="width: 40px; height: 30px; padding: 0; border: none; background: none; cursor: pointer;">
+                </div>
+                <div class="settings-option">
+                    <label for="militaryTimeToggle">Military Time</label>
+                    <div class="toggle-switch" id="militaryTimeToggle"></div>
+                </div>
+                <div class="settings-option">
+                    <label for="showSecondsToggle">Show Seconds</label>
+                    <div class="toggle-switch" id="showSecondsToggle"></div>
+                </div>
+                <div class="settings-option">
+                    <label for="clockFontSelect">Clock Font</label>
+                    <select id="clockFontSelect" style="background: var(--input-bg); color: var(--input-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px; cursor: pointer;">
+                        <option value="'Digital', 'Courier New', Courier, monospace">Digital</option>
+                        <option value="'Courier New', Courier, monospace">Courier New</option>
+                        <option value="Arial, sans-serif">Arial</option>
+                        <option value="'Times New Roman', serif">Times New Roman</option>
+                        <option value="'Georgia', serif">Georgia</option>
+                    </select>
+                </div>
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="margin: 0 0 15px 0; font-size: 1.1em; color: var(--h1-color);">Alarm</h3>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px; align-items: center;">
+                        <input type="number" id="alarmHour" placeholder="HH" min="1" max="12" style="width: 50px; background: var(--input-bg); color: var(--input-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px;">
+                        <span>:</span>
+                        <input type="number" id="alarmMinute" placeholder="MM" min="0" max="59" style="width: 50px; background: var(--input-bg); color: var(--input-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px;">
+                        <span>:</span>
+                        <input type="number" id="alarmSecond" placeholder="SS" min="0" max="59" style="width: 50px; background: var(--input-bg); color: var(--input-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px;">
+                        <select id="alarmAmPm" style="background: var(--input-bg); color: var(--input-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px;">
+                            <option value="AM">AM</option>
+                            <option value="PM">PM</option>
+                        </select>
+                    </div>
+                    <div class="settings-option">
+                        <label for="alarmSoundSelect">Alarm Sound</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <select id="alarmSoundSelect" style="background: var(--input-bg); color: var(--input-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px; cursor: pointer;">
+                                <option value="default">Default Beep</option>
+                                <option value="bell">Bell</option>
+                                <option value="digital">Digital Alarm</option>
+                                <option value="uploaded">Uploaded Sound</option>
+                            </select>
+                            <label for="alarmUploadInput" style="cursor: pointer; font-size: 1.2em;" title="Upload Alarm Sound">📂</label>
+                            <input type="file" id="alarmUploadInput" accept="audio/*" style="display: none;">
+                        </div>
+                    </div>
+                    <button id="setAlarmBtn" style="width: 100%; background: var(--accent-color); color: white; border: none; border-radius: 8px; padding: 10px; cursor: pointer; margin-top: 10px; transition: background 0.3s;">Set Alarm</button>
+                    <div id="alarmStatus" style="margin-top: 10px; font-size: 0.9em; color: var(--accent-color); text-align: center;"></div>
                 </div>
             </div>
 
@@ -1539,21 +1594,188 @@
 
     <script>
         // Digital Clock Functionality
+        let militaryTime = false;
+        let showSeconds = false;
+        let clockColor = '#5dade2';
+        let clockFont = "'Digital', 'Courier New', Courier, monospace";
+
         function updateClock() {
             const now = new Date();
             let hours = now.getHours();
             const minutes = String(now.getMinutes()).padStart(2, '0');
-            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            let ampm = '';
+            let hoursStr = '';
+
+            if (militaryTime) {
+                hoursStr = String(hours).padStart(2, '0');
+                document.getElementById('clockAmPm').style.display = 'none';
+            } else {
+                ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12;
+                hours = hours ? hours : 12;
+                hoursStr = String(hours).padStart(2, '0');
+                document.getElementById('clockAmPm').style.display = 'inline';
+                document.getElementById('clockAmPm').textContent = ampm;
+            }
             
-            hours = hours % 12;
-            hours = hours ? hours : 12; // the hour '0' should be '12'
-            const hoursStr = String(hours).padStart(2, '0');
+            let timeStr = `${hoursStr}:${minutes}`;
+            if (showSeconds) {
+                timeStr += `:${seconds}`;
+            }
             
-            document.getElementById('clockTime').textContent = `${hoursStr}:${minutes}`;
-            document.getElementById('clockAmPm').textContent = ampm;
+            document.getElementById('clockTime').textContent = timeStr;
+            checkAlarm(now);
         }
         setInterval(updateClock, 1000);
-        updateClock();
+
+        // Clock Settings Logic
+        const clockColorPicker = document.getElementById('clockColorPicker');
+        const militaryTimeToggle = document.getElementById('militaryTimeToggle');
+        const showSecondsToggle = document.getElementById('showSecondsToggle');
+        const clockFontSelect = document.getElementById('clockFontSelect');
+        const clockElement = document.getElementById('digitalClock');
+
+        function applyClockSettings() {
+            clockElement.style.color = clockColor;
+            clockElement.style.fontFamily = clockFont;
+            militaryTimeToggle.classList.toggle('active', militaryTime);
+            showSecondsToggle.classList.toggle('active', showSeconds);
+            clockColorPicker.value = clockColor;
+            clockFontSelect.value = clockFont;
+            updateClock();
+        }
+
+        // Load Clock Settings
+        const savedMilitaryTime = localStorage.getItem('gn_militaryTime');
+        if (savedMilitaryTime !== null) militaryTime = savedMilitaryTime === 'true';
+        const savedShowSeconds = localStorage.getItem('gn_showSeconds');
+        if (savedShowSeconds !== null) showSeconds = savedShowSeconds === 'true';
+        const savedClockColor = localStorage.getItem('gn_clockColor');
+        if (savedClockColor !== null) clockColor = savedClockColor;
+        const savedClockFont = localStorage.getItem('gn_clockFont');
+        if (savedClockFont !== null) clockFont = savedClockFont;
+
+        clockColorPicker.addEventListener('input', (e) => {
+            clockColor = e.target.value;
+            clockElement.style.color = clockColor;
+            localStorage.setItem('gn_clockColor', clockColor);
+        });
+
+        militaryTimeToggle.addEventListener('click', () => {
+            militaryTime = !militaryTime;
+            militaryTimeToggle.classList.toggle('active', militaryTime);
+            localStorage.setItem('gn_militaryTime', militaryTime);
+            updateClock();
+        });
+
+        showSecondsToggle.addEventListener('click', () => {
+            showSeconds = !showSeconds;
+            showSecondsToggle.classList.toggle('active', showSeconds);
+            localStorage.setItem('gn_showSeconds', showSeconds);
+            updateClock();
+        });
+
+        clockFontSelect.addEventListener('change', (e) => {
+            clockFont = e.target.value;
+            clockElement.style.fontFamily = clockFont;
+            localStorage.setItem('gn_clockFont', clockFont);
+        });
+
+        applyClockSettings();
+
+        // Alarm System Logic
+        let alarmTime = null;
+        let alarmSound = 'default';
+        let uploadedAlarmBuffer = null;
+        let alarmTriggered = false;
+        const alarmAudio = new Audio();
+
+        const alarmHourInput = document.getElementById('alarmHour');
+        const alarmMinuteInput = document.getElementById('alarmMinute');
+        const alarmSecondInput = document.getElementById('alarmSecond');
+        const alarmAmPmSelect = document.getElementById('alarmAmPm');
+        const alarmSoundSelect = document.getElementById('alarmSoundSelect');
+        const alarmUploadInput = document.getElementById('alarmUploadInput');
+        const setAlarmBtn = document.getElementById('setAlarmBtn');
+        const alarmStatus = document.getElementById('alarmStatus');
+
+        const alarmSounds = {
+            default: 'https://actions.google.com/sounds/v1/alarms/beep_loop.ogg',
+            bell: 'https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg',
+            digital: 'https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg'
+        };
+
+        setAlarmBtn.addEventListener('click', () => {
+            if (alarmTime) {
+                // Cancel alarm
+                alarmTime = null;
+                alarmTriggered = false;
+                alarmAudio.pause();
+                setAlarmBtn.textContent = 'Set Alarm';
+                alarmStatus.textContent = '';
+                return;
+            }
+
+            const h = parseInt(alarmHourInput.value);
+            const m = parseInt(alarmMinuteInput.value) || 0;
+            const s = parseInt(alarmSecondInput.value) || 0;
+            const ampm = alarmAmPmSelect.value;
+
+            if (isNaN(h) || h < 1 || h > 12 || m < 0 || m > 59 || s < 0 || s > 59) {
+                alarmStatus.textContent = 'Invalid time!';
+                return;
+            }
+
+            alarmTime = { h, m, s, ampm };
+            alarmTriggered = false;
+            setAlarmBtn.textContent = 'Cancel Alarm';
+            alarmStatus.textContent = `Alarm set for ${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')} ${ampm}`;
+        });
+
+        alarmUploadInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                uploadedAlarmBuffer = url;
+                alarmSoundSelect.value = 'uploaded';
+            }
+        });
+
+        function checkAlarm(now) {
+            if (!alarmTime || alarmTriggered) return;
+
+            let currentH = now.getHours();
+            const currentM = now.getMinutes();
+            const currentS = now.getSeconds();
+            const currentAmPm = currentH >= 12 ? 'PM' : 'AM';
+
+            currentH = currentH % 12;
+            currentH = currentH ? currentH : 12;
+
+            if (currentH === alarmTime.h && currentM === alarmTime.m && currentS === alarmTime.s && currentAmPm === alarmTime.ampm) {
+                triggerAlarm();
+            }
+        }
+
+        function triggerAlarm() {
+            alarmTriggered = true;
+            const sound = alarmSoundSelect.value;
+            if (sound === 'uploaded' && uploadedAlarmBuffer) {
+                alarmAudio.src = uploadedAlarmBuffer;
+            } else {
+                alarmAudio.src = alarmSounds[sound] || alarmSounds.default;
+            }
+            alarmAudio.loop = true;
+            alarmAudio.play();
+            
+            if (confirm(`ALARM! The time is ${alarmTime.h}:${String(alarmTime.m).padStart(2, '0')} ${alarmTime.ampm}`)) {
+                alarmAudio.pause();
+                alarmTime = null;
+                setAlarmBtn.textContent = 'Set Alarm';
+                alarmStatus.textContent = '';
+            }
+        }
 
         // Draggable Clock Functionality
         const clock = document.getElementById('digitalClock');
