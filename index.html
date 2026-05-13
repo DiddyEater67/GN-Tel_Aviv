@@ -1141,15 +1141,19 @@
                 <label for="miniPlayerToggle">Mini Music Player</label>
                 <div class="toggle-switch" id="miniPlayerToggle"></div>
             </div>
-            <!--
-                VISUALIZER RAINBOW MODE
-                Zach / Manus:
-                Turning this ON makes the visualizer rainbow animated.
-                Turning this OFF keeps the visualizer the same accent color.
-            -->
             <div class="settings-option">
-                <label for="visualizerRainbowToggle">Rainbow Visualizer</label>
-                <div class="toggle-switch" id="visualizerRainbowToggle"></div>
+                <label for="visualizerToggle">Visualizer</label>
+                <div class="toggle-switch active" id="visualizerToggle"></div>
+            </div>
+            <div class="settings-option">
+                <label>Visualizer Color</label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="color" id="visualizerColorPicker" value="#5dade2" style="width: 40px; height: 30px; padding: 0; border: none; background: none; cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <input type="checkbox" id="visualizerRainbowCheckbox" style="width: 18px; height: 18px; cursor: pointer;">
+                        <label for="visualizerRainbowCheckbox" style="font-size: 0.9em; white-space: nowrap;">Rainbow</label>
+                    </div>
+                </div>
             </div>
 
             <div class="bg-row">
@@ -3098,33 +3102,55 @@
    The only color changing option is the settings toggle.
 ───────────────────────────────────────────────────────────────────── */
 
+let visualizerEnabled = true;
 let visualizerRainbowEnabled = false;
+let visualizerColor = '#5dade2';
 
-// Save visualizer setting
+// Load saved settings
+const savedVisualizerEnabled = localStorage.getItem('gn_power_visualizer_enabled');
+if (savedVisualizerEnabled !== null) {
+    visualizerEnabled = savedVisualizerEnabled === 'true';
+}
 const savedVisualizerRainbow = localStorage.getItem('gn_power_visualizer_rainbow');
-if (savedVisualizerRainbow === 'true') {
-    visualizerRainbowEnabled = true;
+if (savedVisualizerRainbow !== null) {
+    visualizerRainbowEnabled = savedVisualizerRainbow === 'true';
+}
+const savedVisualizerColor = localStorage.getItem('gn_power_visualizer_color');
+if (savedVisualizerColor !== null) {
+    visualizerColor = savedVisualizerColor;
 }
 
-// Update toggle UI if it exists
+// Update UI and add listeners
 setTimeout(() => {
-    const rainbowToggle = document.getElementById('visualizerRainbowToggle');
+    const vizToggle = document.getElementById('visualizerToggle');
+    const rainbowCheckbox = document.getElementById('visualizerRainbowCheckbox');
+    const colorPicker = document.getElementById('visualizerColorPicker');
+    const canvas = document.getElementById('visualizerCanvas');
 
-    if (rainbowToggle && visualizerRainbowEnabled) {
-        rainbowToggle.classList.add('active');
+    if (vizToggle) {
+        vizToggle.classList.toggle('active', visualizerEnabled);
+        if (canvas) canvas.style.display = visualizerEnabled ? 'block' : 'none';
+        vizToggle.addEventListener('click', () => {
+            visualizerEnabled = !visualizerEnabled;
+            vizToggle.classList.toggle('active', visualizerEnabled);
+            if (canvas) canvas.style.display = visualizerEnabled ? 'block' : 'none';
+            localStorage.setItem('gn_power_visualizer_enabled', visualizerEnabled);
+        });
     }
 
-    // Toggle button logic
-    if (rainbowToggle) {
-        rainbowToggle.addEventListener('click', () => {
-            visualizerRainbowEnabled = !visualizerRainbowEnabled;
+    if (rainbowCheckbox) {
+        rainbowCheckbox.checked = visualizerRainbowEnabled;
+        rainbowCheckbox.addEventListener('change', () => {
+            visualizerRainbowEnabled = rainbowCheckbox.checked;
+            localStorage.setItem('gn_power_visualizer_rainbow', visualizerRainbowEnabled);
+        });
+    }
 
-            rainbowToggle.classList.toggle('active', visualizerRainbowEnabled);
-
-            localStorage.setItem(
-                'gn_power_visualizer_rainbow',
-                visualizerRainbowEnabled
-            );
+    if (colorPicker) {
+        colorPicker.value = visualizerColor;
+        colorPicker.addEventListener('input', () => {
+            visualizerColor = colorPicker.value;
+            localStorage.setItem('gn_power_visualizer_color', visualizerColor);
         });
     }
 }, 100);
@@ -3194,89 +3220,51 @@ playPauseBtn.addEventListener('click', () => {
 
     window.addEventListener('resize', resizeVisualizer);
 
-    // Gets the site's accent color automatically
-    function getAccentColorRGB() {
-
-        const value = getComputedStyle(document.documentElement)
-            .getPropertyValue('--accent-color')
-            .trim();
-
-        if (value.startsWith('#')) {
-
-            const r = parseInt(value.slice(1, 3), 16);
-            const g = parseInt(value.slice(3, 5), 16);
-            const b = parseInt(value.slice(5, 7), 16);
-
-            return [r, g, b];
-        }
-
-        return [93, 173, 226];
+    function hexToRgb(hex) {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return [r, g, b];
     }
 
     function drawVisualizer() {
-
         requestAnimationFrame(drawVisualizer);
-
+        if (!visualizerEnabled) return;
         ctx.clearRect(0, 0, W, H);
 
-        // Draw idle bars if music is not ready
+        const [r, g, b] = hexToRgb(visualizerColor);
+
         if (!visualizerAnalyser) {
-
-            const [r, g, b] = getAccentColorRGB();
-
             for (let i = 0; i < 100; i++) {
-
                 ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.15)`;
-
                 ctx.fillRect(i * 20, H - 2, 14, 2);
             }
-
             return;
         }
 
         const data = new Uint8Array(visualizerAnalyser.frequencyBinCount);
-
         visualizerAnalyser.getByteFrequencyData(data);
-
-        // Number of bars on screen
         const barCount = 80;
-
         const gap = 4;
-
         const barWidth = (W - gap * (barCount - 1)) / barCount;
-
-        const [r, g, b] = getAccentColorRGB();
-
         const time = Date.now() / 1000;
 
         for (let i = 0; i < barCount; i++) {
-
             const value = data[i * 2] || 0;
-
             const barHeight = (value / 255) * (H * 0.4);
-
             const opacity = 0.3 + (value / 255) * 0.7;
-
             let color;
 
-            // Rainbow mode from settings menu
             if (visualizerRainbowEnabled) {
-
                 const hue = (time * 50 + (i * 5)) % 360;
-
                 color = `hsla(${hue}, 100%, 50%, ${opacity})`;
-
                 ctx.shadowColor = color;
-
             } else {
-
                 color = `rgba(${r}, ${g}, ${b}, ${opacity})`;
-
                 ctx.shadowColor = `rgba(${r}, ${g}, ${b}, 0.8)`;
             }
 
             ctx.fillStyle = color;
-
             ctx.shadowBlur = 15;
 
             ctx.fillRect(
