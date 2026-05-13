@@ -1148,13 +1148,8 @@
                 Turning this OFF keeps the visualizer the same accent color.
             -->
             <div class="settings-option">
-                <label for="visualizerToggle">Visualizer Enabled</label>
-                <div class="toggle-switch active" id="visualizerToggle"></div>
-            </div>
-
-            <div class="settings-option">
-                <label for="visualizerColorPicker">Visualizer Color</label>
-                <input type="color" id="visualizerColorPicker" value="#5dade2">
+                <label for="visualizerRainbowToggle">Rainbow Visualizer</label>
+                <div class="toggle-switch" id="visualizerRainbowToggle"></div>
             </div>
 
             <div class="bg-row">
@@ -1554,44 +1549,6 @@
             clock.style.display = clockVisible ? 'flex' : 'none';
         });
 
-
-        // Visualizer Settings
-        const visualizerToggle = document.getElementById('visualizerToggle');
-        const visualizerColorPicker = document.getElementById('visualizerColorPicker');
-
-        visualizerToggle.addEventListener('click', () => {
-            visualizerEnabled = !visualizerEnabled;
-            visualizerToggle.classList.toggle('active');
-
-            const visualizerCanvas = document.getElementById('visualizerCanvas');
-            visualizerCanvas.style.display = visualizerEnabled ? 'block' : 'none';
-
-            localStorage.setItem('gn_visualizerEnabled', visualizerEnabled);
-        });
-
-        visualizerColorPicker.addEventListener('input', (e) => {
-            visualizerColor = e.target.value;
-            localStorage.setItem('gn_visualizerColor', visualizerColor);
-        });
-
-        const savedVisualizerEnabled = localStorage.getItem('gn_visualizerEnabled');
-
-        if (savedVisualizerEnabled !== null) {
-            visualizerEnabled = savedVisualizerEnabled === 'true';
-
-            if (!visualizerEnabled) {
-                document.getElementById('visualizerCanvas').style.display = 'none';
-                visualizerToggle.classList.remove('active');
-            }
-        }
-
-        const savedVisualizerColor = localStorage.getItem('gn_visualizerColor');
-
-        if (savedVisualizerColor) {
-            visualizerColor = savedVisualizerColor;
-            visualizerColorPicker.value = savedVisualizerColor;
-        }
-
         // Hide UI Toggle
         const hideUIToggle = document.getElementById('hideUIToggle');
         let uiHidden = false;
@@ -1715,9 +1672,6 @@
         let particleShapeState = 0;
         let rainbowHue = 0;
         let selectedParticleColor = '#5dade2';
-
-        let visualizerEnabled = true;
-        let visualizerColor = '#5dade2';
         const maxParticles = 100;
 
         const modeIcons = ['🔵', '🔥', '❄️', '💨', '🌧️', '🫧', '🚫'];
@@ -1929,8 +1883,8 @@
         const musicStatus = document.getElementById('musicStatus');
 
         const playlist = [
-            { title: "Default Background Ambiance", url: "https://cdn.jsdelivr.net/gh/DiddyEater67/GN-Tel_Aviv@main/Music/Default%20Background%20Ambiance.mp3" },
-            { title: "Blue (lofi version)", url: "https://cdn.jsdelivr.net/gh/DiddyEater67/GN-Tel_Aviv@main/Music/Blue%20(lofi%20version).mp3" },
+            { title: "Default Background Ambiance", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/VjoxrzwMYdrlCMeB.mp3" },
+            { title: "Blue (lofi version)", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/maNfxacLZpKQOlYX.mp3" },
             { title: "Collision Chaos Bad Future", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/CVxWbjCGTKVxWtGV.mp3" },
             { title: "Collision Chaos", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/injKwGtYpugkafRu.mp3" },
             { title: "Do Sum", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/OXUofCnxMApIYLtF.mp3" },
