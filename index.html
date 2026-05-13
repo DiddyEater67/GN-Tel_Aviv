@@ -1607,16 +1607,21 @@
             let ampm = '';
             let hoursStr = '';
 
+            const clockAmPm = document.getElementById('clockAmPm');
+            const clockTime = document.getElementById('clockTime');
+
             if (militaryTime) {
                 hoursStr = String(hours).padStart(2, '0');
-                document.getElementById('clockAmPm').style.display = 'none';
+                if (clockAmPm) clockAmPm.style.display = 'none';
             } else {
                 ampm = hours >= 12 ? 'PM' : 'AM';
                 hours = hours % 12;
                 hours = hours ? hours : 12;
                 hoursStr = String(hours).padStart(2, '0');
-                document.getElementById('clockAmPm').style.display = 'inline';
-                document.getElementById('clockAmPm').textContent = ampm;
+                if (clockAmPm) {
+                    clockAmPm.style.display = 'inline';
+                    clockAmPm.textContent = ampm;
+                }
             }
             
             let timeStr = `${hoursStr}:${minutes}`;
@@ -1624,8 +1629,8 @@
                 timeStr += `:${seconds}`;
             }
             
-            document.getElementById('clockTime').textContent = timeStr;
-            checkAlarm(now);
+            if (clockTime) clockTime.textContent = timeStr;
+            if (typeof checkAlarm === 'function') checkAlarm(now);
         }
         setInterval(updateClock, 1000);
 
@@ -1637,12 +1642,14 @@
         const clockElement = document.getElementById('digitalClock');
 
         function applyClockSettings() {
-            clockElement.style.color = clockColor;
-            clockElement.style.fontFamily = clockFont;
-            militaryTimeToggle.classList.toggle('active', militaryTime);
-            showSecondsToggle.classList.toggle('active', showSeconds);
-            clockColorPicker.value = clockColor;
-            clockFontSelect.value = clockFont;
+            if (clockElement) {
+                clockElement.style.color = clockColor;
+                clockElement.style.fontFamily = clockFont;
+            }
+            if (militaryTimeToggle) militaryTimeToggle.classList.toggle('active', militaryTime);
+            if (showSecondsToggle) showSecondsToggle.classList.toggle('active', showSeconds);
+            if (clockColorPicker) clockColorPicker.value = clockColor;
+            if (clockFontSelect) clockFontSelect.value = clockFont;
             updateClock();
         }
 
@@ -1656,31 +1663,39 @@
         const savedClockFont = localStorage.getItem('gn_clockFont');
         if (savedClockFont !== null) clockFont = savedClockFont;
 
-        clockColorPicker.addEventListener('input', (e) => {
-            clockColor = e.target.value;
-            clockElement.style.color = clockColor;
-            localStorage.setItem('gn_clockColor', clockColor);
-        });
+        if (clockColorPicker) {
+            clockColorPicker.addEventListener('input', (e) => {
+                clockColor = e.target.value;
+                if (clockElement) clockElement.style.color = clockColor;
+                localStorage.setItem('gn_clockColor', clockColor);
+            });
+        }
 
-        militaryTimeToggle.addEventListener('click', () => {
-            militaryTime = !militaryTime;
-            militaryTimeToggle.classList.toggle('active', militaryTime);
-            localStorage.setItem('gn_militaryTime', militaryTime);
-            updateClock();
-        });
+        if (militaryTimeToggle) {
+            militaryTimeToggle.addEventListener('click', () => {
+                militaryTime = !militaryTime;
+                militaryTimeToggle.classList.toggle('active', militaryTime);
+                localStorage.setItem('gn_militaryTime', militaryTime);
+                updateClock();
+            });
+        }
 
-        showSecondsToggle.addEventListener('click', () => {
-            showSeconds = !showSeconds;
-            showSecondsToggle.classList.toggle('active', showSeconds);
-            localStorage.setItem('gn_showSeconds', showSeconds);
-            updateClock();
-        });
+        if (showSecondsToggle) {
+            showSecondsToggle.addEventListener('click', () => {
+                showSeconds = !showSeconds;
+                showSecondsToggle.classList.toggle('active', showSeconds);
+                localStorage.setItem('gn_showSeconds', showSeconds);
+                updateClock();
+            });
+        }
 
-        clockFontSelect.addEventListener('change', (e) => {
-            clockFont = e.target.value;
-            clockElement.style.fontFamily = clockFont;
-            localStorage.setItem('gn_clockFont', clockFont);
-        });
+        if (clockFontSelect) {
+            clockFontSelect.addEventListener('change', (e) => {
+                clockFont = e.target.value;
+                if (clockElement) clockElement.style.fontFamily = clockFont;
+                localStorage.setItem('gn_clockFont', clockFont);
+            });
+        }
 
         applyClockSettings();
 
@@ -1706,41 +1721,45 @@
             digital: 'https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg'
         };
 
-        setAlarmBtn.addEventListener('click', () => {
-            if (alarmTime) {
-                // Cancel alarm
-                alarmTime = null;
+        if (setAlarmBtn) {
+            setAlarmBtn.addEventListener('click', () => {
+                if (alarmTime) {
+                    // Cancel alarm
+                    alarmTime = null;
+                    alarmTriggered = false;
+                    alarmAudio.pause();
+                    setAlarmBtn.textContent = 'Set Alarm';
+                    if (alarmStatus) alarmStatus.textContent = '';
+                    return;
+                }
+
+                const h = parseInt(alarmHourInput.value);
+                const m = parseInt(alarmMinuteInput.value) || 0;
+                const s = parseInt(alarmSecondInput.value) || 0;
+                const ampm = alarmAmPmSelect.value;
+
+                if (isNaN(h) || h < 1 || h > 12 || m < 0 || m > 59 || s < 0 || s > 59) {
+                    if (alarmStatus) alarmStatus.textContent = 'Invalid time!';
+                    return;
+                }
+
+                alarmTime = { h, m, s, ampm };
                 alarmTriggered = false;
-                alarmAudio.pause();
-                setAlarmBtn.textContent = 'Set Alarm';
-                alarmStatus.textContent = '';
-                return;
-            }
+                setAlarmBtn.textContent = 'Cancel Alarm';
+                if (alarmStatus) alarmStatus.textContent = `Alarm set for ${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')} ${ampm}`;
+            });
+        }
 
-            const h = parseInt(alarmHourInput.value);
-            const m = parseInt(alarmMinuteInput.value) || 0;
-            const s = parseInt(alarmSecondInput.value) || 0;
-            const ampm = alarmAmPmSelect.value;
-
-            if (isNaN(h) || h < 1 || h > 12 || m < 0 || m > 59 || s < 0 || s > 59) {
-                alarmStatus.textContent = 'Invalid time!';
-                return;
-            }
-
-            alarmTime = { h, m, s, ampm };
-            alarmTriggered = false;
-            setAlarmBtn.textContent = 'Cancel Alarm';
-            alarmStatus.textContent = `Alarm set for ${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')} ${ampm}`;
-        });
-
-        alarmUploadInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const url = URL.createObjectURL(file);
-                uploadedAlarmBuffer = url;
-                alarmSoundSelect.value = 'uploaded';
-            }
-        });
+        if (alarmUploadInput) {
+            alarmUploadInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const url = URL.createObjectURL(file);
+                    uploadedAlarmBuffer = url;
+                    if (alarmSoundSelect) alarmSoundSelect.value = 'uploaded';
+                }
+            });
+        }
 
         function checkAlarm(now) {
             if (!alarmTime || alarmTriggered) return;
@@ -1783,11 +1802,13 @@
         let offsetX = 0;
         let offsetY = 0;
 
-        clock.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            offsetX = e.clientX - clock.getBoundingClientRect().left;
-            offsetY = e.clientY - clock.getBoundingClientRect().top;
-        });
+        if (clock) {
+            clock.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                offsetX = e.clientX - clock.getBoundingClientRect().left;
+                offsetY = e.clientY - clock.getBoundingClientRect().top;
+            });
+        }
 
         document.addEventListener('mousemove', (e) => {
             if (isDragging) {
@@ -1807,19 +1828,25 @@
         const clockToggle = document.getElementById('clockToggle');
         let clockVisible = true;
 
-        settingsBtn.addEventListener('click', () => {
-            settingsOverlay.classList.add('active');
-        });
+        if (settingsBtn) {
+            settingsBtn.addEventListener('click', () => {
+                if (settingsOverlay) settingsOverlay.classList.add('active');
+            });
+        }
 
-        closeSettingsBtn.addEventListener('click', () => {
-            settingsOverlay.classList.remove('active');
-        });
+        if (closeSettingsBtn) {
+            closeSettingsBtn.addEventListener('click', () => {
+                if (settingsOverlay) settingsOverlay.classList.remove('active');
+            });
+        }
 
-        settingsOverlay.addEventListener('click', (e) => {
-            if (e.target === settingsOverlay) {
-                settingsOverlay.classList.remove('active');
-            }
-        });
+        if (settingsOverlay) {
+            settingsOverlay.addEventListener('click', (e) => {
+                if (e.target === settingsOverlay) {
+                    settingsOverlay.classList.remove('active');
+                }
+            });
+        }
 
         // Settings Tab Switching Logic
         const settingsTabs = document.querySelectorAll('.settings-tab');
@@ -1842,22 +1869,38 @@
             });
         });
 
-        clockToggle.addEventListener('click', () => {
-            clockVisible = !clockVisible;
-            clockToggle.classList.toggle('active');
-            clock.style.display = clockVisible ? 'flex' : 'none';
-        });
+        if (clockToggle) {
+            clockToggle.addEventListener('click', () => {
+                clockVisible = !clockVisible;
+                clockToggle.classList.toggle('active', clockVisible);
+                if (clock) clock.style.display = clockVisible ? 'flex' : 'none';
+            });
+        }
 
         // Hide UI Toggle
         const hideUIToggle = document.getElementById('hideUIToggle');
         let uiHidden = false;
+        if (hideUIToggle) {
+            hideUIToggle.addEventListener('click', () => {
+                uiHidden = !uiHidden;
+                hideUIToggle.classList.toggle('active', uiHidden);
+                document.body.classList.toggle('ui-hidden', uiHidden);
+                localStorage.setItem('gn_hideUI', uiHidden);
+            });
+        }
 
-        hideUIToggle.addEventListener('click', () => {
-            uiHidden = !uiHidden;
-            hideUIToggle.classList.toggle('active');
-            document.body.classList.toggle('hide-ui');
-            localStorage.setItem('gn_hideUI', uiHidden);
-        });
+        // Mini Player Toggle
+        const miniPlayerToggle = document.getElementById('miniPlayerToggle');
+        const miniPlayer = document.getElementById('miniPlayer');
+        let miniPlayerEnabled = false;
+        if (miniPlayerToggle) {
+            miniPlayerToggle.addEventListener('click', () => {
+                miniPlayerEnabled = !miniPlayerEnabled;
+                miniPlayerToggle.classList.toggle('active', miniPlayerEnabled);
+                if (miniPlayer) miniPlayer.style.display = miniPlayerEnabled ? 'flex' : 'none';
+                localStorage.setItem('gn_miniPlayer', miniPlayerEnabled);
+            });
+        }
 
         // Load saved Hide UI state
         const savedHideUI = localStorage.getItem('gn_hideUI') === 'true';
