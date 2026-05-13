@@ -1915,16 +1915,6 @@
 
         const bgMusic = document.getElementById('bgMusic');
 
-        // Ensure all music sources can feed the visualizer correctly
-        bgMusic.crossOrigin = 'anonymous';
-        setupVisualizerAudio(bgMusic);
-
-        ['play', 'canplay', 'loadeddata', 'emptied'].forEach(eventName => {
-            bgMusic.addEventListener(eventName, () => {
-                setupVisualizerAudio(bgMusic);
-            });
-        });
-
         const playPauseBtn = document.getElementById('playPauseBtn');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
@@ -3156,12 +3146,9 @@
 
 let visualizerRainbowEnabled = false;
 
-// Force accent-color visualizer by default.
-// Rainbow mode only activates if the user explicitly enables it.
+// Save visualizer setting
 const savedVisualizerRainbow = localStorage.getItem('gn_power_visualizer_rainbow');
 if (savedVisualizerRainbow === 'true') {
-    visualizerRainbowEnabled = true;
-} else {
     visualizerRainbowEnabled = false;
 }
 
@@ -3196,6 +3183,7 @@ setTimeout(() => {
 let visualizerAudioContext = null;
 let visualizerAnalyser = null;
 let visualizerSource = null;
+let currentVisualizerAudio = null;
 
 function setupVisualizerAudio(audioElement) {
 
@@ -3203,43 +3191,37 @@ function setupVisualizerAudio(audioElement) {
 
     try {
 
-        // Required for CDN / external audio visualization
-        audioElement.crossOrigin = 'anonymous';
-
         if (!visualizerAudioContext) {
             visualizerAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+            visualizerAnalyser = visualizerAudioContext.createAnalyser();
+
+            visualizerAnalyser.fftSize = 512;
+            visualizerAnalyser.smoothingTimeConstant = 0.8;
+
+            visualizerAnalyser.connect(visualizerAudioContext.destination);
         }
+
+        if (currentVisualizerAudio === audioElement) return;
+
+        currentVisualizerAudio = audioElement;
+
+        // REQUIRED for CDN / external audio visualizers
+        audioElement.crossOrigin = 'anonymous';
+
+        if (visualizerSource) {
+            try {
+                visualizerSource.disconnect();
+            } catch (e) {}
+        }
+
+        visualizerSource = visualizerAudioContext.createMediaElementSource(audioElement);
+
+        visualizerSource.connect(visualizerAnalyser);
 
         if (visualizerAudioContext.state === 'suspended') {
             visualizerAudioContext.resume();
         }
-
-        if (!visualizerAnalyser) {
-            visualizerAnalyser = visualizerAudioContext.createAnalyser();
-
-            // Higher detail and smoother response
-            visualizerAnalyser.fftSize = 1024;
-            visualizerAnalyser.smoothingTimeConstant = 0.82;
-        }
-
-        // Prevent duplicate MediaElementSource creation
-        if (!audioElement._visualizerSource) {
-            audioElement._visualizerSource =
-                visualizerAudioContext.createMediaElementSource(audioElement);
-        }
-
-        visualizerSource = audioElement._visualizerSource;
-
-        try {
-            visualizerSource.disconnect();
-        } catch (e) {}
-
-        try {
-            visualizerAnalyser.disconnect();
-        } catch (e) {}
-
-        visualizerSource.connect(visualizerAnalyser);
-        visualizerAnalyser.connect(visualizerAudioContext.destination);
 
     } catch (err) {
         console.warn("Visualizer audio setup failed:", err);
@@ -3375,25 +3357,51 @@ function setupVisualizerAudio(audioElement) {
 
 window.addEventListener('load', () => {
 
-    // Try to find audio elements on the page
-    const audioElements = document.querySelectorAll('audio');
+    const connectAllAudio = () => {
 
-    if (audioElements.length > 0) {
+        const audioElements = document.querySelectorAll('audio');
 
-        setupVisualizerAudio(audioElements[0]);
+        audioElements.forEach(audio => {
 
-        // Resume audio context on interaction
-        document.addEventListener('click', () => {
+            audio.crossOrigin = 'anonymous';
 
-            if (
-                visualizerAudioContext &&
-                visualizerAudioContext.state === 'suspended'
-            ) {
-                visualizerAudioContext.resume();
-            }
+            setupVisualizerAudio(audio);
 
-        }, { once: false });
-    }
+            audio.addEventListener('play', () => {
+                setupVisualizerAudio(audio);
+
+                if (
+                    visualizerAudioContext &&
+                    visualizerAudioContext.state === 'suspended'
+                ) {
+                    visualizerAudioContext.resume();
+                }
+            });
+        });
+    };
+
+    connectAllAudio();
+
+    // Watch for dynamically created audio players
+    const observer = new MutationObserver(() => {
+        connectAllAudio();
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+
+    document.addEventListener('click', () => {
+
+        if (
+            visualizerAudioContext &&
+            visualizerAudioContext.state === 'suspended'
+        ) {
+            visualizerAudioContext.resume();
+        }
+
+    }, { once: false });
 });
 
 </script>
