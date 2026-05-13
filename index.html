@@ -1165,6 +1165,7 @@
             </div>
             <div class="settings-tabs">
                 <button class="settings-tab active" data-tab="main">Main</button>
+                <button class="settings-tab" data-tab="clock">Clock</button>
                 <button class="settings-tab" data-tab="visualizer">Visualizer</button>
             </div>
 
@@ -1182,16 +1183,67 @@
                     <input type="file" id="customBgInput" accept="image/*">
                 </div>
                 <div class="settings-option">
-                    <label for="clockToggle">Show Clock</label>
-                    <div class="toggle-switch active" id="clockToggle"></div>
-                </div>
-                <div class="settings-option">
                     <label for="hideUIToggle">Hide UI</label>
                     <div class="toggle-switch" id="hideUIToggle"></div>
                 </div>
                 <div class="settings-option">
                     <label for="miniPlayerToggle">Mini Music Player</label>
                     <div class="toggle-switch" id="miniPlayerToggle"></div>
+                </div>
+            </div>
+
+            <div id="clockTab" class="tab-content">
+                <div class="settings-option">
+                    <label for="clockToggle">Show Clock</label>
+                    <div class="toggle-switch active" id="clockToggle"></div>
+                </div>
+                <div class="settings-option">
+                    <label for="clockColorPicker">Clock Color</label>
+                    <input type="color" id="clockColorPicker" value="#5dade2" style="width: 40px; height: 30px; padding: 0; border: none; background: none; cursor: pointer;">
+                </div>
+                <div class="settings-option">
+                    <label for="militaryTimeToggle">Military Time</label>
+                    <div class="toggle-switch" id="militaryTimeToggle"></div>
+                </div>
+                <div class="settings-option">
+                    <label for="showSecondsToggle">Show Seconds</label>
+                    <div class="toggle-switch" id="showSecondsToggle"></div>
+                </div>
+                <div class="settings-option">
+                    <label for="clockFontSelect">Clock Font</label>
+                    <select id="clockFontSelect" style="background: var(--input-bg); color: var(--input-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px; cursor: pointer;">
+                        <option value="Digital">Digital</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Monospace">Monospace</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Georgia">Georgia</option>
+                    </select>
+                </div>
+                <div style="padding: 15px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                    <label style="color: var(--text-color); font-size: 1.1em; display: block; margin-bottom: 10px;">Set Alarm</label>
+                    <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+                        <input type="number" id="alarmHour" min="0" max="23" placeholder="Hour" style="width: 60px;">
+                        <input type="number" id="alarmMinute" min="0" max="59" placeholder="Min" style="width: 60px;">
+                        <input type="number" id="alarmSecond" min="0" max="59" placeholder="Sec" style="width: 60px;">
+                        <select id="alarmAmPm" style="background: var(--input-bg); color: var(--input-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px; cursor: pointer; width: 70px;">
+                            <option value="AM">AM</option>
+                            <option value="PM">PM</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+                        <select id="alarmSoundSelect" style="background: var(--input-bg); color: var(--input-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px; cursor: pointer; flex: 1; min-width: 120px;">
+                            <option value="bell">Bell</option>
+                            <option value="chime">Chime</option>
+                            <option value="beep">Beep</option>
+                            <option value="custom">Custom Upload</option>
+                        </select>
+                        <input type="file" id="alarmCustomSound" accept="audio/*" style="display: none;">
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button id="setAlarmBtn" style="background-color: var(--accent-color); color: white; padding: 8px 15px; border-radius: 8px; border: none; cursor: pointer; flex: 1;">Set Alarm</button>
+                        <button id="cancelAlarmBtn" style="background-color: var(--reset-color); color: white; padding: 8px 15px; border-radius: 8px; border: none; cursor: pointer; flex: 1;">Cancel Alarm</button>
+                    </div>
+                    <div id="alarmStatus" style="color: var(--hint-color); font-size: 0.9em; margin-top: 8px; text-align: center;">No alarm set</div>
                 </div>
             </div>
 
@@ -1539,19 +1591,75 @@
 
     <script>
         // Digital Clock Functionality
+        let militaryTime = false;
+        let showSeconds = false;
+        let alarmTime = null;
+        let alarmSound = 'bell';
+        let customAlarmAudio = null;
+        let alarmActive = false;
+
+        const alarmSounds = {
+            bell: 'data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQIAAAAAAA==',
+            chime: 'data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQIAAAAAAA==',
+            beep: 'data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQIAAAAAAA=='
+        };
+
         function updateClock() {
             const now = new Date();
             let hours = now.getHours();
             const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
             const ampm = hours >= 12 ? 'PM' : 'AM';
             
-            hours = hours % 12;
-            hours = hours ? hours : 12; // the hour '0' should be '12'
-            const hoursStr = String(hours).padStart(2, '0');
+            let hoursStr;
+            if (militaryTime) {
+                hoursStr = String(hours).padStart(2, '0');
+            } else {
+                hours = hours % 12;
+                hours = hours ? hours : 12;
+                hoursStr = String(hours).padStart(2, '0');
+            }
             
-            document.getElementById('clockTime').textContent = `${hoursStr}:${minutes}`;
-            document.getElementById('clockAmPm').textContent = ampm;
+            let timeStr = hoursStr + ':' + minutes;
+            if (showSeconds) {
+                timeStr += ':' + seconds;
+            }
+            
+            document.getElementById('clockTime').textContent = timeStr;
+            if (!militaryTime) {
+                document.getElementById('clockAmPm').textContent = ampm;
+            } else {
+                document.getElementById('clockAmPm').textContent = '';
+            }
+
+            if (alarmActive && alarmTime) {
+                const alarmHours = parseInt(alarmTime.hours);
+                const alarmMinutes = parseInt(alarmTime.minutes);
+                const alarmSeconds = parseInt(alarmTime.seconds);
+                
+                if (hours === alarmHours && minutes === alarmMinutes && seconds === alarmSeconds) {
+                    triggerAlarm();
+                }
+            }
         }
+        
+        function triggerAlarm() {
+            alarmActive = false;
+            const audio = new Audio(customAlarmAudio || alarmSounds[alarmSound]);
+            audio.play().catch(e => console.log('Alarm sound play error:', e));
+            alert('Alarm!');
+            updateAlarmStatus();
+        }
+
+        function updateAlarmStatus() {
+            const statusEl = document.getElementById('alarmStatus');
+            if (alarmActive && alarmTime) {
+                statusEl.textContent = 'Alarm set for ' + alarmTime.hours + ':' + String(alarmTime.minutes).padStart(2, '0');
+            } else {
+                statusEl.textContent = 'No alarm set';
+            }
+        }
+
         setInterval(updateClock, 1000);
         updateClock();
 
@@ -1624,6 +1732,122 @@
             clockVisible = !clockVisible;
             clockToggle.classList.toggle('active');
             clock.style.display = clockVisible ? 'flex' : 'none';
+        });
+
+        // Clock Color Picker
+        const clockColorPicker = document.getElementById('clockColorPicker');
+        clockColorPicker.addEventListener('change', (e) => {
+            clock.style.color = e.target.value;
+            localStorage.setItem('gn_clockColor', e.target.value);
+        });
+        const savedClockColor = localStorage.getItem('gn_clockColor');
+        if (savedClockColor) {
+            clock.style.color = savedClockColor;
+            clockColorPicker.value = savedClockColor;
+        }
+
+        // Military Time Toggle
+        const militaryTimeToggle = document.getElementById('militaryTimeToggle');
+        militaryTimeToggle.addEventListener('click', () => {
+            militaryTime = !militaryTime;
+            militaryTimeToggle.classList.toggle('active');
+            localStorage.setItem('gn_militaryTime', militaryTime);
+            updateClock();
+        });
+        const savedMilitaryTime = localStorage.getItem('gn_militaryTime') === 'true';
+        if (savedMilitaryTime) {
+            militaryTime = true;
+            militaryTimeToggle.classList.add('active');
+        }
+
+        // Show Seconds Toggle
+        const showSecondsToggle = document.getElementById('showSecondsToggle');
+        showSecondsToggle.addEventListener('click', () => {
+            showSeconds = !showSeconds;
+            showSecondsToggle.classList.toggle('active');
+            localStorage.setItem('gn_showSeconds', showSeconds);
+            updateClock();
+        });
+        const savedShowSeconds = localStorage.getItem('gn_showSeconds') === 'true';
+        if (savedShowSeconds) {
+            showSeconds = true;
+            showSecondsToggle.classList.add('active');
+        }
+
+        // Clock Font Selection
+        const clockFontSelect = document.getElementById('clockFontSelect');
+        clockFontSelect.addEventListener('change', (e) => {
+            clock.style.fontFamily = e.target.value + ', Courier New, monospace';
+            localStorage.setItem('gn_clockFont', e.target.value);
+        });
+        const savedClockFont = localStorage.getItem('gn_clockFont');
+        if (savedClockFont) {
+            clock.style.fontFamily = savedClockFont + ', Courier New, monospace';
+            clockFontSelect.value = savedClockFont;
+        }
+
+        // Alarm Sound Selection
+        const alarmSoundSelect = document.getElementById('alarmSoundSelect');
+        const alarmCustomSound = document.getElementById('alarmCustomSound');
+        alarmSoundSelect.addEventListener('change', (e) => {
+            if (e.target.value === 'custom') {
+                alarmCustomSound.click();
+            } else {
+                alarmSound = e.target.value;
+                localStorage.setItem('gn_alarmSound', alarmSound);
+            }
+        });
+        alarmCustomSound.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    customAlarmAudio = event.target.result;
+                    alarmSound = 'custom';
+                    localStorage.setItem('gn_alarmSound', 'custom');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        const savedAlarmSound = localStorage.getItem('gn_alarmSound');
+        if (savedAlarmSound) {
+            alarmSound = savedAlarmSound;
+            alarmSoundSelect.value = savedAlarmSound;
+        }
+
+        // Set Alarm Button
+        const setAlarmBtn = document.getElementById('setAlarmBtn');
+        const cancelAlarmBtn = document.getElementById('cancelAlarmBtn');
+        const alarmHourInput = document.getElementById('alarmHour');
+        const alarmMinuteInput = document.getElementById('alarmMinute');
+        const alarmSecondInput = document.getElementById('alarmSecond');
+        const alarmAmPmSelect = document.getElementById('alarmAmPm');
+
+        setAlarmBtn.addEventListener('click', () => {
+            let hour = parseInt(alarmHourInput.value) || 0;
+            const minute = parseInt(alarmMinuteInput.value) || 0;
+            const second = parseInt(alarmSecondInput.value) || 0;
+            const ampm = alarmAmPmSelect.value;
+
+            if (!militaryTime && ampm === 'PM' && hour !== 12) {
+                hour += 12;
+            } else if (!militaryTime && ampm === 'AM' && hour === 12) {
+                hour = 0;
+            }
+
+            alarmTime = {
+                hours: hour,
+                minutes: minute,
+                seconds: second
+            };
+            alarmActive = true;
+            updateAlarmStatus();
+        });
+
+        cancelAlarmBtn.addEventListener('click', () => {
+            alarmActive = false;
+            alarmTime = null;
+            updateAlarmStatus();
         });
 
         // Hide UI Toggle
