@@ -1901,7 +1901,24 @@
         ];
 
         let currentTrackIndex = 0; let isLooping = false; let musicStarted = false;
-        function loadTrack(index) { if (playlist.length === 0) return; currentTrackIndex = index; const track = playlist[index]; bgMusic.src = track.url; playerTitle.textContent = track.title; bgMusic.load(); if (musicStarted) bgMusic.play().catch(() => {}); updatePlayPauseIcon(); }
+        function loadTrack(index) { 
+            if (playlist.length === 0) return; 
+            currentTrackIndex = index; 
+            const track = playlist[index]; 
+            
+            // Dynamically set crossorigin based on URL type
+            if (track.url.startsWith('blob:')) {
+                bgMusic.removeAttribute('crossorigin');
+            } else {
+                bgMusic.setAttribute('crossorigin', 'anonymous');
+            }
+            
+            bgMusic.src = track.url; 
+            playerTitle.textContent = track.title; 
+            bgMusic.load(); 
+            if (musicStarted) bgMusic.play().catch(() => {}); 
+            updatePlayPauseIcon(); 
+        }
         function updatePlayPauseIcon() { playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️'; }
         function startMusic() { if (musicStarted || playlist.length === 0) return; musicStarted = true; bgMusic.play().catch(() => {}); musicStatus.textContent = "🎵 Music Playing"; updatePlayPauseIcon(); }
         bgMusic.addEventListener('timeupdate', () => { if (playlist.length === 0) return; const progress = (bgMusic.currentTime / bgMusic.duration) * 100; progressFill.style.width = `${progress}%`; const curM = Math.floor(bgMusic.currentTime / 60); const curS = Math.floor(bgMusic.currentTime % 60); const durM = Math.floor(bgMusic.duration / 60) || 0; const durS = Math.floor(bgMusic.duration % 60) || 0; currentTimeDisplay.textContent = `${curM}:${curS.toString().padStart(2, '0')}`; durationDisplay.textContent = `${durM}:${durS.toString().padStart(2, '0')}`; });
@@ -3139,29 +3156,34 @@ let visualizerAnalyser = null;
 let visualizerSource = null;
 
 function setupVisualizerAudio(audioElement) {
-
-    // Prevent double setup
     if (visualizerAudioContext) return;
 
-    try {
-        visualizerAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const startContext = () => {
+        if (visualizerAudioContext) return;
+        
+        try {
+            visualizerAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+            visualizerAnalyser = visualizerAudioContext.createAnalyser();
+            visualizerAnalyser.fftSize = 512;
+            visualizerAnalyser.smoothingTimeConstant = 0.8;
 
-        visualizerAnalyser = visualizerAudioContext.createAnalyser();
+            visualizerSource = visualizerAudioContext.createMediaElementSource(audioElement);
+            visualizerSource.connect(visualizerAnalyser);
+            visualizerAnalyser.connect(visualizerAudioContext.destination);
+            
+            console.log("Visualizer Audio Context started successfully");
+        } catch (err) {
+            console.warn("Visualizer audio setup failed:", err);
+        }
+    };
 
-        // 512 gives a good balance between performance and detail
-        visualizerAnalyser.fftSize = 512;
-
-        // Makes bar movement smoother
-        visualizerAnalyser.smoothingTimeConstant = 0.8;
-
-        visualizerSource = visualizerAudioContext.createMediaElementSource(audioElement);
-
-        visualizerSource.connect(visualizerAnalyser);
-        visualizerAnalyser.connect(visualizerAudioContext.destination);
-
-    } catch (err) {
-        console.warn("Visualizer audio setup failed:", err);
-    }
+    // Try to start on various user interactions
+    ['click', 'touchstart', 'keydown'].forEach(evt => {
+        document.addEventListener(evt, startContext, { once: true });
+    });
+    
+    // Also try when music starts playing
+    audioElement.addEventListener('play', startContext, { once: true });
 }
 
 /* -----------------------------------------------------------------
@@ -3292,23 +3314,19 @@ function setupVisualizerAudio(audioElement) {
 ----------------------------------------------------------------- */
 
 window.addEventListener('load', () => {
-
-    // Try to find audio elements on the page
-    const audioElements = document.querySelectorAll('audio');
-
-    if (audioElements.length > 0) {
-
-        setupVisualizerAudio(audioElements[0]);
-
-        // Resume audio context on interaction
+    const bgMusic = document.getElementById('bgMusic');
+    if (bgMusic) {
+        setupVisualizerAudio(bgMusic);
+        
         const resumeAudio = () => {
             if (visualizerAudioContext && visualizerAudioContext.state === 'suspended') {
                 visualizerAudioContext.resume();
             }
         };
-        document.addEventListener('click', resumeAudio, { once: false });
-        document.addEventListener('keydown', resumeAudio, { once: false });
-        audioElements[0].addEventListener('play', resumeAudio);
+        ['click', 'touchstart', 'keydown'].forEach(evt => {
+            document.addEventListener(evt, resumeAudio, { once: false });
+        });
+        bgMusic.addEventListener('play', resumeAudio);
     }
 });
 
