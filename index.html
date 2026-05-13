@@ -1479,7 +1479,7 @@
             <span style="font-size: 12px;">🔊</span>
         </div>
     </div>
-    <audio id="bgMusic"></audio>
+    <audio id="bgMusic" crossorigin="anonymous"></audio>
 
     <script>
         // Digital Clock Functionality
@@ -1883,21 +1883,21 @@
         const musicStatus = document.getElementById('musicStatus');
 
         const playlist = [
-            { title: "Default Background Ambiance", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/VjoxrzwMYdrlCMeB.mp3" },
-            { title: "Blue (lofi version)", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/maNfxacLZpKQOlYX.mp3" },
-            { title: "Collision Chaos Bad Future", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/CVxWbjCGTKVxWtGV.mp3" },
-            { title: "Collision Chaos", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/injKwGtYpugkafRu.mp3" },
-            { title: "Do Sum", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/OXUofCnxMApIYLtF.mp3" },
-            { title: "Fireflies (lofi version)", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/yezfcvKvYcYXscbR.mp3" },
-            { title: "Five Nights at Freddys 1 Song", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/FbPCSDHqIeUMpJgw.mp3" },
-            { title: "Heat Waves (lofi version)", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/HHybEYVftkaNIPEt.mp3" },
-            { title: "It Was A Good Day", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/SfFnFGkzGENGZNxB.mp3" },
-            { title: "Jealous", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/YdSLSXZpmkULWqHr.mp3" },
-            { title: "Ol Red", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/MaIWGIfAnukgKzNp.mp3" },
-            { title: "PEPPER", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/UgcjUlnBzwFbFaFU.mp3" },
-            { title: "Star Light Zone", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/ITSDWqLcVEPawZTh.mp3" },
-            { title: "Studiopolis Zone Act 1", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/PThmhCcrMFZiLFOH.mp3" },
-            { title: "Sugar Were Goin Down", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663553075770/tfmqGurmZQhkpTRw.mp3" }
+            { title: "Default Background Ambiance", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Default%20Background%20Ambiance.mp3" },
+            { title: "Blue (lofi version)", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Blue%20(lofi%20version).mp3" },
+            { title: "Collision Chaos Bad Future", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Collision%20Chaos%20Bad%20Future.mp3" },
+            { title: "Collision Chaos", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Collision%20Chaos.mp3" },
+            { title: "Do Sum", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Do%20Sum.mp3" },
+            { title: "Fireflies (lofi version)", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Fireflies%20(lofi%20version).mp3" },
+            { title: "Five Nights at Freddys 1 Song", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Five%20Nights%20at%20Freddys%201%20Song.mp3" },
+            { title: "Heat Waves (lofi version)", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Heat%20Waves%20(lofi%20version).mp3" },
+            { title: "It Was A Good Day", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/It%20Was%20A%20Good%20Day.mp3" },
+            { title: "Jealous", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Jealous.mp3" },
+            { title: "Ol Red", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Ol%20Red.mp3" },
+            { title: "PEPPER", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/PEPPER.mp3" },
+            { title: "Star Light Zone", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Star%20Light%20Zone.mp3" },
+            { title: "Studiopolis Zone Act 1", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Studiopolis%20Zone%20Act%201.mp3" },
+            { title: "Sugar Were Goin Down", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Sugar%20Were%20Goin%20Down.mp3" }
         ];
 
         let currentTrackIndex = 0; let isLooping = false; let musicStarted = false;
@@ -3139,30 +3139,37 @@ let visualizerAnalyser = null;
 let visualizerSource = null;
 
 function setupVisualizerAudio(audioElement) {
-
-    // Prevent double setup
     if (visualizerAudioContext) return;
-
     try {
         visualizerAudioContext = new (window.AudioContext || window.webkitAudioContext)();
-
         visualizerAnalyser = visualizerAudioContext.createAnalyser();
-
-        // 512 gives a good balance between performance and detail
         visualizerAnalyser.fftSize = 512;
-
-        // Makes bar movement smoother
         visualizerAnalyser.smoothingTimeConstant = 0.8;
-
         visualizerSource = visualizerAudioContext.createMediaElementSource(audioElement);
-
         visualizerSource.connect(visualizerAnalyser);
         visualizerAnalyser.connect(visualizerAudioContext.destination);
-
     } catch (err) {
         console.warn("Visualizer audio setup failed:", err);
     }
 }
+
+// Ensure visualizer is set up when music starts
+const originalStartMusic = startMusic;
+startMusic = function() {
+    setupVisualizerAudio(bgMusic);
+    if (visualizerAudioContext && visualizerAudioContext.state === 'suspended') {
+        visualizerAudioContext.resume();
+    }
+    originalStartMusic();
+};
+
+// Also hook into playPauseBtn for safety
+playPauseBtn.addEventListener('click', () => {
+    setupVisualizerAudio(bgMusic);
+    if (visualizerAudioContext && visualizerAudioContext.state === 'suspended') {
+        visualizerAudioContext.resume();
+    }
+});
 
 /* -----------------------------------------------------------------
    VISUALIZER DRAWING SYSTEM
