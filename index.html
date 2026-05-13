@@ -193,6 +193,40 @@
             font-size: 1.8em;
         }
 
+        .settings-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+
+        .settings-tab {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.1em;
+            cursor: pointer;
+            padding: 5px 15px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            opacity: 0.6;
+        }
+
+        .settings-tab.active {
+            background: var(--accent-color);
+            color: white;
+            opacity: 1;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
         #closeSettingsBtn {
             background: none;
             border: none;
@@ -1129,44 +1163,53 @@
                 <h2>Settings</h2>
                 <button id="closeSettingsBtn">✕</button>
             </div>
-            <div class="settings-option">
-                <label for="clockToggle">Show Clock</label>
-                <div class="toggle-switch active" id="clockToggle"></div>
+            <div class="settings-tabs">
+                <button class="settings-tab active" data-tab="main">Main</button>
+                <button class="settings-tab" data-tab="visualizer">Visualizer</button>
             </div>
-            <div class="settings-option">
-                <label for="hideUIToggle">Hide UI</label>
-                <div class="toggle-switch" id="hideUIToggle"></div>
-            </div>
-            <div class="settings-option">
-                <label for="miniPlayerToggle">Mini Music Player</label>
-                <div class="toggle-switch" id="miniPlayerToggle"></div>
-            </div>
-            <div class="settings-option">
-                <label for="visualizerToggle">Visualizer</label>
-                <div class="toggle-switch active" id="visualizerToggle"></div>
-            </div>
-            <div class="settings-option">
-                <label>Visualizer Color</label>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <input type="color" id="visualizerColorPicker" value="#5dade2" style="width: 40px; height: 30px; padding: 0; border: none; background: none; cursor: pointer;">
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                        <input type="checkbox" id="visualizerRainbowCheckbox" style="width: 18px; height: 18px; cursor: pointer;">
-                        <label for="visualizerRainbowCheckbox" style="font-size: 0.9em; white-space: nowrap;">Rainbow</label>
+
+            <div id="mainTab" class="tab-content active">
+                <div class="bg-row">
+                    <label class="bg-label">Background</label>
+                    <div class="bg-options" id="settingsBgOptions">
+                        <div class="bg-opt active" data-bg="default" style="background: #0a0a0a;" title="Default"></div>
+                        <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?auto=format&fit=crop&w=100&q=80')" title="Starry Night"></div>
+                        <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=100&q=80')" title="Deep Space"></div>
+                        <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=100&q=80')" title="Mountains"></div>
+                        <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=100&q=80')" title="Beach"></div>
                     </div>
+                    <label for="customBgInput" class="upload-arrow-btn" title="Upload Custom Background"><img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663553048518/SsCiwhvmKYmvFvYD.png" alt="Upload"></label>
+                    <input type="file" id="customBgInput" accept="image/*">
+                </div>
+                <div class="settings-option">
+                    <label for="clockToggle">Show Clock</label>
+                    <div class="toggle-switch active" id="clockToggle"></div>
+                </div>
+                <div class="settings-option">
+                    <label for="hideUIToggle">Hide UI</label>
+                    <div class="toggle-switch" id="hideUIToggle"></div>
+                </div>
+                <div class="settings-option">
+                    <label for="miniPlayerToggle">Mini Music Player</label>
+                    <div class="toggle-switch" id="miniPlayerToggle"></div>
                 </div>
             </div>
 
-            <div class="bg-row">
-                <label class="bg-label">Background</label>
-                <div class="bg-options" id="settingsBgOptions">
-                    <div class="bg-opt active" data-bg="default" style="background: #0a0a0a;" title="Default"></div>
-                    <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?auto=format&fit=crop&w=100&q=80')" title="Starry Night"></div>
-                    <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=100&q=80')" title="Deep Space"></div>
-                    <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=100&q=80')" title="Mountains"></div>
-                    <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=100&q=80')" title="Beach"></div>
+            <div id="visualizerTab" class="tab-content">
+                <div class="settings-option">
+                    <label for="visualizerToggle">Visualizer</label>
+                    <div class="toggle-switch active" id="visualizerToggle"></div>
                 </div>
-                <label for="customBgInput" class="upload-arrow-btn" title="Upload Custom Background"><img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663553048518/SsCiwhvmKYmvFvYD.png" alt="Upload"></label>
-                <input type="file" id="customBgInput" accept="image/*">
+                <div class="settings-option">
+                    <label>Visualizer Color</label>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="color" id="visualizerColorPicker" value="#5dade2" style="width: 40px; height: 30px; padding: 0; border: none; background: none; cursor: pointer;">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <input type="checkbox" id="visualizerRainbowCheckbox" style="width: 18px; height: 18px; cursor: pointer;">
+                            <label for="visualizerRainbowCheckbox" style="font-size: 0.9em; white-space: nowrap;">Rainbow</label>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1545,6 +1588,27 @@
             if (e.target === settingsOverlay) {
                 settingsOverlay.classList.remove('active');
             }
+        });
+
+        // Settings Tab Switching Logic
+        const settingsTabs = document.querySelectorAll('.settings-tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        settingsTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetTab = tab.dataset.tab;
+                
+                settingsTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                tabContents.forEach(content => {
+                    if (content.id === `${targetTab}Tab`) {
+                        content.classList.add('active');
+                    } else {
+                        content.classList.remove('active');
+                    }
+                });
+            });
         });
 
         clockToggle.addEventListener('click', () => {
