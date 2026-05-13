@@ -1201,6 +1201,15 @@
                     <div class="toggle-switch active" id="visualizerToggle"></div>
                 </div>
                 <div class="settings-option">
+                    <label for="visualizerPosition">Position</label>
+                    <select id="visualizerPosition" style="background: var(--input-bg); color: var(--input-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px; cursor: pointer;">
+                        <option value="bottom">Down</option>
+                        <option value="top">Up</option>
+                        <option value="left">Left</option>
+                        <option value="right">Right</option>
+                    </select>
+                </div>
+                <div class="settings-option">
                     <label>Visualizer Color</label>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <input type="color" id="visualizerColorPicker" value="#5dade2" style="width: 40px; height: 30px; padding: 0; border: none; background: none; cursor: pointer;">
@@ -3169,6 +3178,7 @@
 let visualizerEnabled = true;
 let visualizerRainbowEnabled = false;
 let visualizerColor = '#5dade2';
+let visualizerPosition = 'bottom';
 
 // Load saved settings
 const savedVisualizerEnabled = localStorage.getItem('gn_power_visualizer_enabled');
@@ -3183,12 +3193,17 @@ const savedVisualizerColor = localStorage.getItem('gn_power_visualizer_color');
 if (savedVisualizerColor !== null) {
     visualizerColor = savedVisualizerColor;
 }
+const savedVisualizerPosition = localStorage.getItem('gn_power_visualizer_position');
+if (savedVisualizerPosition !== null) {
+    visualizerPosition = savedVisualizerPosition;
+}
 
 // Update UI and add listeners
 setTimeout(() => {
     const vizToggle = document.getElementById('visualizerToggle');
     const rainbowCheckbox = document.getElementById('visualizerRainbowCheckbox');
     const colorPicker = document.getElementById('visualizerColorPicker');
+    const positionSelect = document.getElementById('visualizerPosition');
     const canvas = document.getElementById('visualizerCanvas');
 
     if (vizToggle) {
@@ -3215,6 +3230,14 @@ setTimeout(() => {
         colorPicker.addEventListener('input', () => {
             visualizerColor = colorPicker.value;
             localStorage.setItem('gn_power_visualizer_color', visualizerColor);
+        });
+    }
+
+    if (positionSelect) {
+        positionSelect.value = visualizerPosition;
+        positionSelect.addEventListener('change', () => {
+            visualizerPosition = positionSelect.value;
+            localStorage.setItem('gn_power_visualizer_position', visualizerPosition);
         });
     }
 }, 100);
@@ -3297,25 +3320,36 @@ playPauseBtn.addEventListener('click', () => {
         ctx.clearRect(0, 0, W, H);
 
         const [r, g, b] = hexToRgb(visualizerColor);
+        const barCount = 80;
+        const gap = 4;
+        const time = Date.now() / 1000;
 
         if (!visualizerAnalyser) {
             for (let i = 0; i < 100; i++) {
                 ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.15)`;
-                ctx.fillRect(i * 20, H - 2, 14, 2);
+                if (visualizerPosition === 'bottom') ctx.fillRect(i * 20, H - 2, 14, 2);
+                else if (visualizerPosition === 'top') ctx.fillRect(i * 20, 0, 14, 2);
+                else if (visualizerPosition === 'left') ctx.fillRect(0, i * 20, 2, 14);
+                else if (visualizerPosition === 'right') ctx.fillRect(W - 2, i * 20, 2, 14);
             }
             return;
         }
 
         const data = new Uint8Array(visualizerAnalyser.frequencyBinCount);
         visualizerAnalyser.getByteFrequencyData(data);
-        const barCount = 80;
-        const gap = 4;
-        const barWidth = (W - gap * (barCount - 1)) / barCount;
-        const time = Date.now() / 1000;
+
+        let barWidth, maxBarHeight;
+        if (visualizerPosition === 'top' || visualizerPosition === 'bottom') {
+            barWidth = (W - gap * (barCount - 1)) / barCount;
+            maxBarHeight = H * 0.4;
+        } else {
+            barWidth = (H - gap * (barCount - 1)) / barCount;
+            maxBarHeight = W * 0.2; // Shrunk for left/right
+        }
 
         for (let i = 0; i < barCount; i++) {
             const value = data[i * 2] || 0;
-            const barHeight = (value / 255) * (H * 0.4);
+            const barHeight = (value / 255) * maxBarHeight;
             const opacity = 0.3 + (value / 255) * 0.7;
             let color;
 
@@ -3331,14 +3365,16 @@ playPauseBtn.addEventListener('click', () => {
             ctx.fillStyle = color;
             ctx.shadowBlur = 15;
 
-            ctx.fillRect(
-                i * (barWidth + gap),
-                H - barHeight,
-                barWidth,
-                barHeight
-            );
+            if (visualizerPosition === 'bottom') {
+                ctx.fillRect(i * (barWidth + gap), H - barHeight, barWidth, barHeight);
+            } else if (visualizerPosition === 'top') {
+                ctx.fillRect(i * (barWidth + gap), 0, barWidth, barHeight);
+            } else if (visualizerPosition === 'left') {
+                ctx.fillRect(0, i * (barWidth + gap), barHeight, barWidth);
+            } else if (visualizerPosition === 'right') {
+                ctx.fillRect(W - barHeight, i * (barWidth + gap), barHeight, barWidth);
+            }
         }
-
         ctx.shadowBlur = 0;
     }
 
