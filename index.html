@@ -3170,42 +3170,18 @@
                 url: "https://turbowarp.org/472077983/embed?addons=pause%2Cfullscreen&clones=Infinity",
                 credits: "<p>game by AnimationsScratch</p><p>ported by DiddyEater67</p>",
                 controls: `<p>Drag cannon to destroy the incoming numbers</p><p>Upgrade over time</p>`
-            },
-            {
-                title: "Basket Random",
-                type: "iframe",
-                url: "https://cdn.jsdelivr.net/gh/DiddyEater67/Basket-random@main/index.html",
-                credits: "<p>game by RHM Interactive</p><p>ported by DiddyEater67</p>",
-                controls: `<p>Up arrow to jump</p>`,
-                isJsDelivrHtml: true
             }
         ];
 
         let currentGameIndex = 0;
-
 
         function updateGame() {
             const game = gamesList[currentGameIndex];
             gameTitle.textContent = game.title;
             gameControlsContent.innerHTML = game.controls;
             gameCreditsContent.innerHTML = game.credits;
-            
-            if (game.isJsDelivrHtml) {
-                gameIframe.src = 'about:blank';
-                fetch(game.url)
-                    .then(response => response.text())
-                    .then(html => {
-                        const doc = gameIframe.contentWindow.document;
-                        doc.open();
-                        doc.write(html);
-                        doc.close();
-                    })
-                    .catch(err => console.error('Error loading game:', err));
-            } else {
-                gameIframe.src = game.url;
-            }
+            gameIframe.src = game.url;
         }
-
 
         prevGameBtn.addEventListener('click', () => { currentGameIndex = (currentGameIndex - 1 + gamesList.length) % gamesList.length; updateGame(); });
         nextGameBtn.addEventListener('click', () => { currentGameIndex = (currentGameIndex + 1) % gamesList.length; updateGame(); });
