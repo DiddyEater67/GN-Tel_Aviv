@@ -82,6 +82,31 @@
             background: transparent;
         }
 
+        .shuffle-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--accent-color);
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.2em;
+            z-index: 5000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--accent-color);
+            box-shadow: 0 0 20px var(--accent-color);
+        }
+
+        .shuffle-notification.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
         /* Modern Digital Clock */
         #digitalClock {
             position: fixed;
@@ -2395,6 +2420,21 @@
             loopBtn.classList.toggle('active', isLooping); 
         });
         const shuffleBtn = document.getElementById('shuffleBtn');
+        function showShuffleNotification() {
+            let notification = document.querySelector('.shuffle-notification');
+            if (!notification) {
+                notification = document.createElement('div');
+                notification.className = 'shuffle-notification';
+                notification.textContent = '🔀 Playlist Shuffled!';
+                document.body.appendChild(notification);
+            }
+            
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 1500);
+        }
+
         shuffleBtn.addEventListener('click', () => {
             const currentTrack = playlist[currentTrackIndex];
             
@@ -2408,6 +2448,7 @@
             currentTrackIndex = playlist.findIndex(t => t.url === currentTrack.url);
             
             // Visual feedback
+            showShuffleNotification();
             shuffleBtn.style.transform = 'scale(1.2)';
             setTimeout(() => { shuffleBtn.style.transform = 'scale(1)'; }, 200);
         });
