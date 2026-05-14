@@ -1262,10 +1262,11 @@
                     </select>
                 </div>
                 <div class="settings-option">
-                    <label>Visualizer Color</label>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <input type="color" id="visualizerColorPicker" value="#5dade2" style="width: 40px; height: 30px; padding: 0; border: none; background: none; cursor: pointer;">
-                        <div style="display: flex; align-items: center; gap: 5px;">
+                    <label>Visualizer Colors</label>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="color" id="visualizerColorPickerBottom" title="Bottom Color" value="#ffffff" style="width: 35px; height: 30px; padding: 0; border: none; background: none; cursor: pointer;">
+                        <input type="color" id="visualizerColorPickerTop" title="Top Color" value="#5dade2" style="width: 35px; height: 30px; padding: 0; border: none; background: none; cursor: pointer;">
+                        <div style="display: flex; align-items: center; gap: 5px; margin-left: 5px;">
                             <input type="checkbox" id="visualizerRainbowCheckbox" style="width: 18px; height: 18px; cursor: pointer;">
                             <label for="visualizerRainbowCheckbox" style="font-size: 0.9em; white-space: nowrap;">Rainbow</label>
                         </div>
@@ -3434,7 +3435,8 @@
 
 let visualizerEnabled = true;
 let visualizerRainbowEnabled = false;
-let visualizerColor = '#5dade2';
+let visualizerColorTop = '#5dade2';
+let visualizerColorBottom = '#ffffff';
 let visualizerPosition = 'bottom';
 
 // Load saved settings
@@ -3446,9 +3448,13 @@ const savedVisualizerRainbow = localStorage.getItem('gn_power_visualizer_rainbow
 if (savedVisualizerRainbow !== null) {
     visualizerRainbowEnabled = savedVisualizerRainbow === 'true';
 }
-const savedVisualizerColor = localStorage.getItem('gn_power_visualizer_color');
-if (savedVisualizerColor !== null) {
-    visualizerColor = savedVisualizerColor;
+const savedVisualizerColorTop = localStorage.getItem('gn_power_visualizer_color_top');
+if (savedVisualizerColorTop !== null) {
+    visualizerColorTop = savedVisualizerColorTop;
+}
+const savedVisualizerColorBottom = localStorage.getItem('gn_power_visualizer_color_bottom');
+if (savedVisualizerColorBottom !== null) {
+    visualizerColorBottom = savedVisualizerColorBottom;
 }
 const savedVisualizerPosition = localStorage.getItem('gn_power_visualizer_position');
 if (savedVisualizerPosition !== null) {
@@ -3459,7 +3465,8 @@ if (savedVisualizerPosition !== null) {
 setTimeout(() => {
     const vizToggle = document.getElementById('visualizerToggle');
     const rainbowCheckbox = document.getElementById('visualizerRainbowCheckbox');
-    const colorPicker = document.getElementById('visualizerColorPicker');
+    const colorPickerTop = document.getElementById('visualizerColorPickerTop');
+    const colorPickerBottom = document.getElementById('visualizerColorPickerBottom');
     const positionSelect = document.getElementById('visualizerPosition');
     const canvas = document.getElementById('visualizerCanvas');
 
@@ -3482,11 +3489,19 @@ setTimeout(() => {
         });
     }
 
-    if (colorPicker) {
-        colorPicker.value = visualizerColor;
-        colorPicker.addEventListener('input', () => {
-            visualizerColor = colorPicker.value;
-            localStorage.setItem('gn_power_visualizer_color', visualizerColor);
+    if (colorPickerTop) {
+        colorPickerTop.value = visualizerColorTop;
+        colorPickerTop.addEventListener('input', () => {
+            visualizerColorTop = colorPickerTop.value;
+            localStorage.setItem('gn_power_visualizer_color_top', visualizerColorTop);
+        });
+    }
+
+    if (colorPickerBottom) {
+        colorPickerBottom.value = visualizerColorBottom;
+        colorPickerBottom.addEventListener('input', () => {
+            visualizerColorBottom = colorPickerBottom.value;
+            localStorage.setItem('gn_power_visualizer_color_bottom', visualizerColorBottom);
         });
     }
 
@@ -3576,12 +3591,12 @@ playPauseBtn.addEventListener('click', () => {
         if (!visualizerEnabled) return;
         ctx.clearRect(0, 0, W, H);
 
-        const [r, g, b] = hexToRgb(visualizerColor);
         const barCount = 80;
         const gap = 4;
         const time = Date.now() / 1000;
 
         if (!visualizerAnalyser) {
+            const [r, g, b] = hexToRgb(visualizerColorBottom);
             for (let i = 0; i < 100; i++) {
                 ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.15)`;
                 if (visualizerPosition === 'bottom') ctx.fillRect(i * 20, H - 2, 14, 2);
@@ -3608,18 +3623,39 @@ playPauseBtn.addEventListener('click', () => {
             const value = data[i * 2] || 0;
             const barHeight = (value / 255) * maxBarHeight;
             const opacity = 0.3 + (value / 255) * 0.7;
-            let color;
+
+            let gradient;
+            const x = i * (barWidth + gap);
+            const yBottom = H;
+            const yTop = H - barHeight;
 
             if (visualizerRainbowEnabled) {
                 const hue = (time * 50 + (i * 5)) % 360;
-                color = `hsla(${hue}, 100%, 50%, ${opacity})`;
+                const color = `hsla(${hue}, 100%, 50%, ${opacity})`;
+                ctx.fillStyle = color;
                 ctx.shadowColor = color;
             } else {
-                color = `rgba(${r}, ${g}, ${b}, ${opacity})`;
-                ctx.shadowColor = `rgba(${r}, ${g}, ${b}, 0.8)`;
+                if (visualizerPosition === 'bottom') {
+                    gradient = ctx.createLinearGradient(0, H, 0, H - barHeight);
+                    gradient.addColorStop(0, visualizerColorBottom);
+                    gradient.addColorStop(1, visualizerColorTop);
+                } else if (visualizerPosition === 'top') {
+                    gradient = ctx.createLinearGradient(0, 0, 0, barHeight);
+                    gradient.addColorStop(0, visualizerColorBottom);
+                    gradient.addColorStop(1, visualizerColorTop);
+                } else if (visualizerPosition === 'left') {
+                    gradient = ctx.createLinearGradient(0, 0, barHeight, 0);
+                    gradient.addColorStop(0, visualizerColorBottom);
+                    gradient.addColorStop(1, visualizerColorTop);
+                } else if (visualizerPosition === 'right') {
+                    gradient = ctx.createLinearGradient(W, 0, W - barHeight, 0);
+                    gradient.addColorStop(0, visualizerColorBottom);
+                    gradient.addColorStop(1, visualizerColorTop);
+                }
+                ctx.fillStyle = gradient;
+                ctx.shadowColor = visualizerColorTop;
             }
 
-            ctx.fillStyle = color;
             ctx.shadowBlur = 15;
 
             if (visualizerPosition === 'bottom') {
