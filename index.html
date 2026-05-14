@@ -2327,7 +2327,7 @@
         const currentTimeDisplay = document.getElementById('currentTime');
         const durationDisplay = document.getElementById('duration');
         const playerTitle = document.getElementById('playerTitle');
-        const musicStatus = document.getElementById('musicStatus');
+        const playerStatus = document.getElementById('playerStatus');
 
         const playlist = [
             { title: "Default Background Ambiance", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Default%20Background%20Ambiance.mp3" },
@@ -2376,7 +2376,7 @@
         let originalPlaylist = [...playlist];
         function loadTrack(index) { if (playlist.length === 0) return; currentTrackIndex = index; const track = playlist[index]; bgMusic.src = track.url; playerTitle.textContent = track.title; bgMusic.load(); if (musicStarted) bgMusic.play().catch(() => {}); updatePlayPauseIcon(); }
         function updatePlayPauseIcon() { playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️'; }
-        function startMusic() { if (musicStarted || playlist.length === 0) return; musicStarted = true; bgMusic.play().catch(() => {}); musicStatus.textContent = "🎵 Music Playing"; updatePlayPauseIcon(); }
+        function startMusic() { if (musicStarted || playlist.length === 0) return; musicStarted = true; bgMusic.play().catch(() => {}); if (playerStatus) playerStatus.textContent = "🎵 Music Playing"; updatePlayPauseIcon(); }
         bgMusic.addEventListener('timeupdate', () => { if (playlist.length === 0) return; const progress = (bgMusic.currentTime / bgMusic.duration) * 100; progressFill.style.width = `${progress}%`; const curM = Math.floor(bgMusic.currentTime / 60); const curS = Math.floor(bgMusic.currentTime % 60); const durM = Math.floor(bgMusic.duration / 60) || 0; const durS = Math.floor(bgMusic.duration % 60) || 0; currentTimeDisplay.textContent = `${curM}:${curS.toString().padStart(2, '0')}`; durationDisplay.textContent = `${durM}:${durS.toString().padStart(2, '0')}`; });
         bgMusic.addEventListener('ended', () => { 
             if (playlist.length === 0) return; 
@@ -2445,14 +2445,18 @@
                 loadTrack(0);
             }
             
-            playerStatus.textContent = `${playlist.length} tracks in playlist`;
+            if (playerStatus) playerStatus.textContent = `${playlist.length} tracks in playlist`;
             musicFileInput.value = ''; // Reset for next upload
         });
+
+        // Initial load
+        loadTrack(0);
 
         // Mini Player Functionality
         const miniPlayer = document.getElementById('miniPlayer');
         const miniPlayerToggle = document.getElementById('miniPlayerToggle');
         const miniTitle = document.getElementById('miniTitle');
+        const miniLoopBtn = document.getElementById('miniLoopBtn');
         const miniShuffleBtn = document.getElementById('miniShuffleBtn');
         const miniPrevBtn = document.getElementById('miniPrevBtn');
         const miniPlayPauseBtn = document.getElementById('miniPlayPauseBtn');
@@ -2463,8 +2467,8 @@
         const miniProgress = document.getElementById('miniProgress');
         const miniProgressFill = document.getElementById('miniProgressFill');
 
-        miniLoopBtn.addEventListener('click', () => { loopBtn.click(); });
-        miniShuffleBtn.addEventListener('click', () => { shuffleBtn.click(); });
+        if (miniLoopBtn) miniLoopBtn.addEventListener('click', () => { loopBtn.click(); updateMiniLoopUI(); });
+        if (miniShuffleBtn) miniShuffleBtn.addEventListener('click', () => { shuffleBtn.click(); });
 
         miniPlayerToggle.addEventListener('click', () => {
             miniPlayer.classList.toggle('active');
@@ -2490,13 +2494,11 @@
             miniMuteBtn.textContent = bgMusic.volume === 0 ? '🔇' : '🔊';
         }
 
-        miniPlayPauseBtn.addEventListener('click', () => playPauseBtn.click());
-        miniPrevBtn.addEventListener('click', () => prevBtn.click());
-        miniNextBtn.addEventListener('click', () => nextBtn.click());
-        miniLoopBtn.addEventListener('click', () => { loopBtn.click(); updateMiniLoopUI(); });
-        miniLoopOnceBtn.addEventListener('click', () => { loopOnceBtn.click(); });
-        miniRestartBtn.addEventListener('click', () => { restartBtn.click(); });
-        miniMuteBtn.addEventListener('click', () => { playerMuteBtn.click(); updateMiniVolumeUI(); });
+        if (miniPlayPauseBtn) miniPlayPauseBtn.addEventListener('click', () => playPauseBtn.click());
+        if (miniPrevBtn) miniPrevBtn.addEventListener('click', () => prevBtn.click());
+        if (miniNextBtn) miniNextBtn.addEventListener('click', () => nextBtn.click());
+        if (miniRestartBtn) miniRestartBtn.addEventListener('click', () => { restartBtn.click(); });
+        if (miniMuteBtn) miniMuteBtn.addEventListener('click', () => { playerMuteBtn.click(); updateMiniVolumeUI(); });
         
         miniVolumeSlider.addEventListener('input', (e) => {
             bgMusic.volume = e.target.value;
@@ -2505,12 +2507,14 @@
             updateMiniVolumeUI();
         });
 
-        miniProgressBar.addEventListener('click', (e) => {
-            if (playlist.length === 0) return;
-            const rect = miniProgressBar.getBoundingClientRect();
-            const pos = (e.clientX - rect.left) / rect.width;
-            bgMusic.currentTime = pos * bgMusic.duration;
-        });
+        if (miniProgress) {
+            miniProgress.addEventListener('click', (e) => {
+                if (playlist.length === 0) return;
+                const rect = miniProgress.getBoundingClientRect();
+                const pos = (e.clientX - rect.left) / rect.width;
+                bgMusic.currentTime = pos * bgMusic.duration;
+            });
+        }
 
         bgMusic.addEventListener('play', updateMiniPlayPauseIcon);
         bgMusic.addEventListener('pause', updateMiniPlayPauseIcon);
