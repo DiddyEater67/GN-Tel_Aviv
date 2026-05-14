@@ -3910,8 +3910,9 @@ playPauseBtn.addEventListener('click', () => {
             
             // Even out the circle visualizer bars
             if (visualizerType === 'circle') {
-                // Apply a logarithmic-like scaling to boost lower frequencies and dampen peaks
-                value = Math.pow(value / 255, 0.8) * 255;
+                // Apply more aggressive scaling to boost lower frequencies and dampen peaks
+                // Using a lower exponent (0.6) for stronger compression of high values
+                value = Math.pow(value / 255, 0.6) * 255;
             }
 
             const barHeight = (value / 255) * maxBarHeight * visualizerIntensity;
