@@ -1231,6 +1231,13 @@
                         </div>
                     </div>
                 </div>
+                <div class="settings-option">
+                    <label for="particleSizeSlider">Particle Size</label>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="range" id="particleSizeSlider" min="0.5" max="2" step="0.1" value="1" style="flex: 1; cursor: pointer;">
+                        <button id="particleSizeDefaultBtn" style="background: var(--accent-color); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.9em; transition: all 0.3s;">Default</button>
+                    </div>
+                </div>
             </div>
 
             <div id="clockTab" class="tab-content">
@@ -2030,7 +2037,8 @@
         let particleModeState = 0;
         let particleColorState = 0; // 0: Hex Picker, 1: Rainbow
         let particleShapeState = 0;
-        let rainbowHue = 0;
+        let particleSizeMultiplier = 1;
+
         let selectedParticleColor = '#5dade2';
         const maxParticles = 100;
 
@@ -2067,7 +2075,7 @@
             init() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 4 + 1;
+                this.size = (Math.random() * 4 + 1) * particleSizeMultiplier;
                 this.baseSpeedX = (Math.random() - 0.5) * 0.4;
                 this.baseSpeedY = (Math.random() - 0.5) * 0.4;
                 this.popping = false;
@@ -2076,7 +2084,7 @@
                 else if (particleModeState === 2) { this.y = -Math.random() * 20; this.baseSpeedY = Math.random() * 1 + 0.5; this.baseSpeedX = (Math.random() - 0.5) * 0.5; }
                 else if (particleModeState === 3) { this.x = -Math.random() * 20; this.baseSpeedX = Math.random() * 2 + 1; this.baseSpeedY = (Math.random() - 0.5) * 0.2; }
                 else if (particleModeState === 4) { this.y = -Math.random() * 20; this.baseSpeedY = Math.random() * 5 + 5; this.baseSpeedX = 2; }
-                else if (particleModeState === 5) { this.y = canvas.height + Math.random() * 50; this.size = Math.random() * 10 + 2; this.baseSpeedY = -Math.random() * 1 - 0.5; this.baseSpeedX = (Math.random() - 0.5) * 0.5; this.popThreshold = Math.random() * (canvas.height * 0.8); }
+                else if (particleModeState === 5) { this.y = canvas.height + Math.random() * 50; this.size = (Math.random() * 10 + 2) * particleSizeMultiplier; this.baseSpeedY = -Math.random() * 1 - 0.5; this.baseSpeedX = (Math.random() - 0.5) * 0.5; this.popThreshold = Math.random() * (canvas.height * 0.8); }
                 this.speedX = this.baseSpeedX; this.speedY = this.baseSpeedY; this.alpha = Math.random() * 0.4 + 0.1;
             }
             update() {
@@ -2194,6 +2202,25 @@
             localStorage.setItem('gn_particleColorState', particleColorState);
         });
 
+        // Particle Size Logic
+        const particleSizeSlider = document.getElementById('particleSizeSlider');
+        const particleSizeDefaultBtn = document.getElementById('particleSizeDefaultBtn');
+        
+        particleSizeSlider.addEventListener('input', (e) => {
+            particleSizeMultiplier = parseFloat(e.target.value);
+            particles = [];
+            createParticles();
+            localStorage.setItem('gn_particleSize', particleSizeMultiplier);
+        });
+        
+        particleSizeDefaultBtn.addEventListener('click', () => {
+            particleSizeMultiplier = 1;
+            particleSizeSlider.value = 1;
+            particles = [];
+            createParticles();
+            localStorage.setItem('gn_particleSize', 1);
+        });
+
         // Load saved particle settings
         const savedShape = localStorage.getItem('gn_particleShape');
         if (savedShape !== null) {
@@ -2215,6 +2242,12 @@
         if (savedPColorState !== null) {
             particleColorState = parseInt(savedPColorState);
             rainbowModeCheckbox.checked = (particleColorState === 1);
+        }
+        
+        const savedParticleSize = localStorage.getItem('gn_particleSize');
+        if (savedParticleSize !== null) {
+            particleSizeMultiplier = parseFloat(savedParticleSize);
+            particleSizeSlider.value = savedParticleSize;
         }
 
         // Theme Logic
