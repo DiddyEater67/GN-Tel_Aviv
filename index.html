@@ -1257,6 +1257,7 @@
                     <select id="visualizerType" style="background: var(--input-bg); color: var(--input-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px; cursor: pointer;">
                         <option value="bars">Bars</option>
                         <option value="waveform">Waveform</option>
+                        <option value="circle">Circle Form</option>
                     </select>
                 </div>
                 <div class="settings-option" id="visualizerPositionOption">
@@ -3738,7 +3739,10 @@ playPauseBtn.addEventListener('click', () => {
         visualizerAnalyser.getByteFrequencyData(data);
 
         let barWidth, maxBarHeight;
-        if (visualizerType === 'waveform') {
+        if (visualizerType === 'circle') {
+            barWidth = 2;
+            maxBarHeight = Math.min(W, H) * 0.25;
+        } else if (visualizerType === 'waveform') {
             barWidth = (W - gap * (barCount - 1)) / barCount;
             maxBarHeight = H * 0.6;
         } else if (visualizerPosition === 'top' || visualizerPosition === 'bottom') {
@@ -3758,12 +3762,16 @@ playPauseBtn.addEventListener('click', () => {
             const x = i * (barWidth + gap);
 
             if (visualizerRainbowEnabled) {
-                const hue = (time * visualizerRainbowSpeed + (i * 5)) % 360;
+                const hue = (time * visualizerRainbowSpeed + (i * (360 / barCount))) % 360;
                 const color = `hsla(${hue}, 100%, 50%, ${opacity})`;
                 ctx.fillStyle = color;
                 ctx.shadowColor = color;
             } else {
-                if (visualizerType === 'waveform') {
+                if (visualizerType === 'circle') {
+                    gradient = ctx.createLinearGradient(0, 0, 0, barHeight);
+                    gradient.addColorStop(0, visualizerColorBottom);
+                    gradient.addColorStop(1, visualizerColorTop);
+                } else if (visualizerType === 'waveform') {
                     gradient = ctx.createLinearGradient(0, H/2 - barHeight/2, 0, H/2 + barHeight/2);
                     gradient.addColorStop(0, visualizerColorTop);
                     gradient.addColorStop(0.5, visualizerColorBottom);
@@ -3791,7 +3799,20 @@ playPauseBtn.addEventListener('click', () => {
 
             ctx.shadowBlur = 15;
 
-            if (visualizerType === 'waveform') {
+            if (visualizerType === 'circle') {
+                const radius = Math.min(W, H) * 0.2;
+                const angle = (i / barCount) * Math.PI * 2;
+                const xStart = W / 2 + Math.cos(angle) * radius;
+                const yStart = H / 2 + Math.sin(angle) * radius;
+                const xEnd = W / 2 + Math.cos(angle) * (radius + barHeight);
+                const yEnd = H / 2 + Math.sin(angle) * (radius + barHeight);
+
+                ctx.save();
+                ctx.translate(xStart, yStart);
+                ctx.rotate(angle);
+                ctx.fillRect(0, -barWidth / 2, barHeight, barWidth);
+                ctx.restore();
+            } else if (visualizerType === 'waveform') {
                 ctx.fillRect(x, H / 2 - barHeight / 2, barWidth, barHeight);
             } else if (visualizerPosition === 'bottom') {
                 ctx.fillRect(x, H - barHeight, barWidth, barHeight);
