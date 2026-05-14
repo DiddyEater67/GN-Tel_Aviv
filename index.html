@@ -1187,6 +1187,10 @@
                             <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=100&q=80')" title="Deep Space"></div>
                             <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=100&q=80')" title="Mountains"></div>
                             <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=100&q=80')" title="Beach"></div>
+                            <div class="bg-opt" data-bg="solid" id="solidColorBgOpt" style="background: linear-gradient(45deg, #ff0000, #00ff00, #0000ff);" title="Solid Color"></div>
+                        </div>
+                        <div id="solidColorPickerContainer" style="display: none; align-items: center; gap: 5px; margin-left: 5px;">
+                            <input type="color" id="bgColorPicker" value="#0a0a0a" style="width: 30px; height: 30px; padding: 0; border: none; background: none; cursor: pointer;">
                         </div>
                         <label for="customBgInput" class="upload-arrow-btn" title="Upload Custom Background"><img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663553048518/SsCiwhvmKYmvFvYD.png" alt="Upload"></label>
                         <input type="file" id="customBgInput" accept="image/*">
@@ -1947,19 +1951,39 @@
         // Background Options in Settings
         const settingsBgOpts = document.querySelectorAll('#settingsBgOptions .bg-opt');
         const customBgInput = document.getElementById('customBgInput');
+        const bgColorPicker = document.getElementById('bgColorPicker');
+        const solidColorPickerContainer = document.getElementById('solidColorPickerContainer');
 
         settingsBgOpts.forEach(opt => {
             opt.addEventListener('click', () => {
                 settingsBgOpts.forEach(o => o.classList.remove('active'));
                 opt.classList.add('active');
                 const bg = opt.dataset.bg;
-                if (bg === 'default') {
+                
+                if (bg === 'solid') {
+                    solidColorPickerContainer.style.display = 'flex';
+                    const color = bgColorPicker.value;
                     document.body.style.backgroundImage = 'none';
+                    document.body.style.backgroundColor = color;
+                    localStorage.setItem('gn_customBg', 'solid:' + color);
                 } else {
-                    document.body.style.backgroundImage = bg;
+                    solidColorPickerContainer.style.display = 'none';
+                    document.body.style.backgroundColor = '';
+                    if (bg === 'default') {
+                        document.body.style.backgroundImage = 'none';
+                    } else {
+                        document.body.style.backgroundImage = bg;
+                    }
+                    localStorage.setItem('gn_customBg', bg);
                 }
-                localStorage.setItem('gn_customBg', bg);
             });
+        });
+
+        bgColorPicker.addEventListener('input', (e) => {
+            const color = e.target.value;
+            document.body.style.backgroundImage = 'none';
+            document.body.style.backgroundColor = color;
+            localStorage.setItem('gn_customBg', 'solid:' + color);
         });
 
         customBgInput.addEventListener('change', (e) => {
@@ -1979,13 +2003,25 @@
         // Load saved background
         const savedBg = localStorage.getItem('gn_customBg');
         if (savedBg) {
-            if (savedBg !== 'default') {
-                document.body.style.backgroundImage = savedBg;
+            if (savedBg.startsWith('solid:')) {
+                const color = savedBg.split(':')[1];
+                document.body.style.backgroundImage = 'none';
+                document.body.style.backgroundColor = color;
+                bgColorPicker.value = color;
+                solidColorPickerContainer.style.display = 'flex';
+                document.getElementById('solidColorBgOpt').classList.add('active');
+                settingsBgOpts.forEach(o => {
+                    if (o.id !== 'solidColorBgOpt') o.classList.remove('active');
+                });
+            } else {
+                if (savedBg !== 'default') {
+                    document.body.style.backgroundImage = savedBg;
+                }
+                settingsBgOpts.forEach(o => {
+                    if (o.dataset.bg === savedBg) o.classList.add('active');
+                    else o.classList.remove('active');
+                });
             }
-            settingsBgOpts.forEach(o => {
-                if (o.dataset.bg === savedBg) o.classList.add('active');
-                else o.classList.remove('active');
-            });
         }
 
         const pages = document.querySelectorAll('.page');
