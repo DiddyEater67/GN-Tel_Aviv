@@ -1253,6 +1253,13 @@
                     <div class="toggle-switch active" id="visualizerToggle"></div>
                 </div>
                 <div class="settings-option">
+                    <label for="visualizerType">Visualizer Type</label>
+                    <select id="visualizerType" style="background: var(--input-bg); color: var(--input-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px; cursor: pointer;">
+                        <option value="bars">Bars</option>
+                        <option value="waveform">Waveform</option>
+                    </select>
+                </div>
+                <div class="settings-option" id="visualizerPositionOption">
                     <label for="visualizerPosition">Position</label>
                     <select id="visualizerPosition" style="background: var(--input-bg); color: var(--input-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px; cursor: pointer;">
                         <option value="bottom">Down</option>
@@ -3501,6 +3508,7 @@ let visualizerRainbowEnabled = false;
 let visualizerColorTop = '#5dade2';
 let visualizerColorBottom = '#ffffff';
 let visualizerPosition = 'bottom';
+let visualizerType = 'bars';
 let visualizerIntensity = 1.0;
 let visualizerRainbowSpeed = 50;
 
@@ -3525,6 +3533,10 @@ const savedVisualizerPosition = localStorage.getItem('gn_power_visualizer_positi
 if (savedVisualizerPosition !== null) {
     visualizerPosition = savedVisualizerPosition;
 }
+const savedVisualizerType = localStorage.getItem('gn_power_visualizer_type');
+if (savedVisualizerType !== null) {
+    visualizerType = savedVisualizerType;
+}
 const savedVisualizerIntensity = localStorage.getItem('gn_power_visualizer_intensity');
 if (savedVisualizerIntensity !== null) {
     visualizerIntensity = parseFloat(savedVisualizerIntensity);
@@ -3544,7 +3556,9 @@ setTimeout(() => {
     const resetIntensityBtn = document.getElementById('resetIntensityBtn');
     const colorPickerTop = document.getElementById('visualizerColorPickerTop');
     const colorPickerBottom = document.getElementById('visualizerColorPickerBottom');
+    const typeSelect = document.getElementById('visualizerType');
     const positionSelect = document.getElementById('visualizerPosition');
+    const positionOption = document.getElementById('visualizerPositionOption');
     const canvas = document.getElementById('visualizerCanvas');
 
     if (vizToggle) {
@@ -3605,6 +3619,16 @@ setTimeout(() => {
         colorPickerBottom.addEventListener('input', () => {
             visualizerColorBottom = colorPickerBottom.value;
             localStorage.setItem('gn_power_visualizer_color_bottom', visualizerColorBottom);
+        });
+    }
+
+    if (typeSelect) {
+        typeSelect.value = visualizerType;
+        if (positionOption) positionOption.style.display = visualizerType === 'bars' ? 'flex' : 'none';
+        typeSelect.addEventListener('change', () => {
+            visualizerType = typeSelect.value;
+            if (positionOption) positionOption.style.display = visualizerType === 'bars' ? 'flex' : 'none';
+            localStorage.setItem('gn_power_visualizer_type', visualizerType);
         });
     }
 
@@ -3714,12 +3738,15 @@ playPauseBtn.addEventListener('click', () => {
         visualizerAnalyser.getByteFrequencyData(data);
 
         let barWidth, maxBarHeight;
-        if (visualizerPosition === 'top' || visualizerPosition === 'bottom') {
+        if (visualizerType === 'waveform') {
+            barWidth = (W - gap * (barCount - 1)) / barCount;
+            maxBarHeight = H * 0.6;
+        } else if (visualizerPosition === 'top' || visualizerPosition === 'bottom') {
             barWidth = (W - gap * (barCount - 1)) / barCount;
             maxBarHeight = H * 0.8;
         } else {
             barWidth = (H - gap * (barCount - 1)) / barCount;
-            maxBarHeight = W * 0.5; // Shrunk for left/right
+            maxBarHeight = W * 0.5;
         }
 
         for (let i = 0; i < barCount; i++) {
@@ -3729,8 +3756,6 @@ playPauseBtn.addEventListener('click', () => {
 
             let gradient;
             const x = i * (barWidth + gap);
-            const yBottom = H;
-            const yTop = H - barHeight;
 
             if (visualizerRainbowEnabled) {
                 const hue = (time * visualizerRainbowSpeed + (i * 5)) % 360;
@@ -3738,7 +3763,12 @@ playPauseBtn.addEventListener('click', () => {
                 ctx.fillStyle = color;
                 ctx.shadowColor = color;
             } else {
-                if (visualizerPosition === 'bottom') {
+                if (visualizerType === 'waveform') {
+                    gradient = ctx.createLinearGradient(0, H/2 - barHeight/2, 0, H/2 + barHeight/2);
+                    gradient.addColorStop(0, visualizerColorTop);
+                    gradient.addColorStop(0.5, visualizerColorBottom);
+                    gradient.addColorStop(1, visualizerColorTop);
+                } else if (visualizerPosition === 'bottom') {
                     gradient = ctx.createLinearGradient(0, H, 0, H - barHeight);
                     gradient.addColorStop(0, visualizerColorBottom);
                     gradient.addColorStop(1, visualizerColorTop);
@@ -3761,10 +3791,12 @@ playPauseBtn.addEventListener('click', () => {
 
             ctx.shadowBlur = 15;
 
-            if (visualizerPosition === 'bottom') {
-                ctx.fillRect(i * (barWidth + gap), H - barHeight, barWidth, barHeight);
+            if (visualizerType === 'waveform') {
+                ctx.fillRect(x, H / 2 - barHeight / 2, barWidth, barHeight);
+            } else if (visualizerPosition === 'bottom') {
+                ctx.fillRect(x, H - barHeight, barWidth, barHeight);
             } else if (visualizerPosition === 'top') {
-                ctx.fillRect(i * (barWidth + gap), 0, barWidth, barHeight);
+                ctx.fillRect(x, 0, barWidth, barHeight);
             } else if (visualizerPosition === 'left') {
                 ctx.fillRect(0, i * (barWidth + gap), barHeight, barWidth);
             } else if (visualizerPosition === 'right') {
