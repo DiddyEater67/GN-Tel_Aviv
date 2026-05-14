@@ -3906,7 +3906,14 @@ playPauseBtn.addEventListener('click', () => {
         }
 
         for (let i = 0; i < barCount; i++) {
-            const value = data[i * 2] || 0;
+            let value = data[i * 2] || 0;
+            
+            // Even out the circle visualizer bars
+            if (visualizerType === 'circle') {
+                // Apply a logarithmic-like scaling to boost lower frequencies and dampen peaks
+                value = Math.pow(value / 255, 0.8) * 255;
+            }
+
             const barHeight = (value / 255) * maxBarHeight * visualizerIntensity;
             const opacity = 0.3 + (value / 255) * 0.7;
 
