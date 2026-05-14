@@ -1190,6 +1190,10 @@
                     <label for="miniPlayerToggle">Mini Music Player</label>
                     <div class="toggle-switch" id="miniPlayerToggle"></div>
                 </div>
+                <div class="settings-option">
+                    <label for="darkModeToggle">Dark Mode</label>
+                    <div class="toggle-switch active" id="darkModeToggle"></div>
+                </div>
             </div>
 
             <div id="clockTab" class="tab-content">
@@ -1329,13 +1333,7 @@
             </div>
             <input type="color" id="particleColorPicker" value="#5dade2" style="display: none;">
         </div>
-        <div class="control-btn-group">
-            <button id="themeToggle" class="control-btn" title="Theme Options">🌙</button>
-            <div class="dropdown-menu" id="themeDropdown">
-                <div class="dropdown-item" id="darkTheme">🌙 Dark Mode</div>
-                <div class="dropdown-item" id="lightTheme">☀️ Light Mode</div>
-            </div>
-        </div>
+
     </div>
 
 
@@ -2015,7 +2013,7 @@
             }
         });
 
-        const themeToggle = document.getElementById('themeToggle');
+        // const themeToggle = document.getElementById('themeToggle');
 
         const canvas = document.getElementById('particleCanvas');
         const ctx = canvas.getContext('2d');
@@ -2211,19 +2209,27 @@
         });
 
         // Theme Logic
-        const darkTheme = document.getElementById('darkTheme');
-        const lightTheme = document.getElementById('lightTheme');
-        updateDropdownSelection('themeDropdown', darkTheme);
-        darkTheme.addEventListener('click', () => {
-            document.body.classList.remove('light-mode');
-            themeToggle.textContent = '🌙';
-            updateDropdownSelection('themeDropdown', darkTheme);
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        
+        darkModeToggle.addEventListener('click', () => {
+            const isDark = darkModeToggle.classList.toggle('active');
+            if (isDark) {
+                document.body.classList.remove('light-mode');
+            } else {
+                document.body.classList.add('light-mode');
+            }
+            localStorage.setItem('gn_darkMode', isDark);
         });
-        lightTheme.addEventListener('click', () => {
+
+        // Load saved theme state
+        const savedDarkMode = localStorage.getItem('gn_darkMode');
+        if (savedDarkMode === 'false') {
+            darkModeToggle.classList.remove('active');
             document.body.classList.add('light-mode');
-            themeToggle.textContent = '☀️';
-            updateDropdownSelection('themeDropdown', lightTheme);
-        });
+        } else {
+            darkModeToggle.classList.add('active');
+            document.body.classList.remove('light-mode');
+        }
 
         const bgMusic = document.getElementById('bgMusic');
 
