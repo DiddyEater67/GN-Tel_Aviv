@@ -358,7 +358,7 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 260px;
+            width: 320px;
             background: var(--container-bg);
             backdrop-filter: blur(15px);
             border: 1px solid var(--border-color);
@@ -1521,9 +1521,11 @@
                 </div>
                 <div class="player-controls">
                     <button class="player-btn" id="loopBtn" title="Toggle Loop">🔁</button>
+                    <button class="player-btn" id="loopOnceBtn" title="Loop Once">🔂</button>
                     <button class="player-btn" id="prevBtn" title="Previous Track">⏮️</button>
                     <button class="player-btn play-pause" id="playPauseBtn" title="Play/Pause">▶️</button>
                     <button class="player-btn" id="nextBtn" title="Next Track">⏭️</button>
+                    <button class="player-btn" id="restartBtn" title="Restart Song">🔄️</button>
                     <button class="player-btn" id="playerMuteBtn" title="Mute/Unmute">🔊</button>
                 </div>
                 <div class="volume-container">
@@ -1577,9 +1579,11 @@
         </div>
         <div class="mini-controls">
             <button class="mini-btn" id="miniLoopBtn" title="Toggle Loop">🔁</button>
+            <button class="mini-btn" id="miniLoopOnceBtn" title="Loop Once">🔂</button>
             <button class="mini-btn" id="miniPrevBtn" title="Previous">⏮️</button>
             <button class="mini-btn" id="miniPlayPauseBtn" title="Play/Pause">▶️</button>
             <button class="mini-btn" id="miniNextBtn" title="Next">⏭️</button>
+            <button class="mini-btn" id="miniRestartBtn" title="Restart">🔄️</button>
             <button class="mini-btn" id="miniMuteBtn" title="Mute/Unmute">🔊</button>
         </div>
         <div class="mini-volume-container">
@@ -2235,16 +2239,59 @@
             { title: "Sugar Were Goin Down", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Sugar%20Were%20Goin%20Down.mp3" }
         ];
 
-        let currentTrackIndex = 0; let isLooping = false; let musicStarted = false;
+        let currentTrackIndex = 0; let isLooping = false; let isLoopingOnce = false; let musicStarted = false;
         function loadTrack(index) { if (playlist.length === 0) return; currentTrackIndex = index; const track = playlist[index]; bgMusic.src = track.url; playerTitle.textContent = track.title; bgMusic.load(); if (musicStarted) bgMusic.play().catch(() => {}); updatePlayPauseIcon(); }
         function updatePlayPauseIcon() { playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️'; }
         function startMusic() { if (musicStarted || playlist.length === 0) return; musicStarted = true; bgMusic.play().catch(() => {}); musicStatus.textContent = "🎵 Music Playing"; updatePlayPauseIcon(); }
         bgMusic.addEventListener('timeupdate', () => { if (playlist.length === 0) return; const progress = (bgMusic.currentTime / bgMusic.duration) * 100; progressFill.style.width = `${progress}%`; const curM = Math.floor(bgMusic.currentTime / 60); const curS = Math.floor(bgMusic.currentTime % 60); const durM = Math.floor(bgMusic.duration / 60) || 0; const durS = Math.floor(bgMusic.duration % 60) || 0; currentTimeDisplay.textContent = `${curM}:${curS.toString().padStart(2, '0')}`; durationDisplay.textContent = `${durM}:${durS.toString().padStart(2, '0')}`; });
-        bgMusic.addEventListener('ended', () => { if (playlist.length === 0) return; if (isLooping) { bgMusic.currentTime = 0; bgMusic.play(); } else { nextBtn.click(); } });
+        bgMusic.addEventListener('ended', () => { 
+            if (playlist.length === 0) return; 
+            if (isLoopingOnce) { 
+                isLoopingOnce = false; 
+                updateLoopOnceUI();
+                bgMusic.currentTime = 0; 
+                bgMusic.play(); 
+            } else if (isLooping) { 
+                bgMusic.currentTime = 0; 
+                bgMusic.play(); 
+            } else { 
+                nextBtn.click(); 
+            } 
+        });
         playPauseBtn.addEventListener('click', () => { if (playlist.length === 0) return; if (!musicStarted) startMusic(); else { if (bgMusic.paused) bgMusic.play(); else bgMusic.pause(); updatePlayPauseIcon(); } });
         prevBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex - 1 + playlist.length) % playlist.length; loadTrack(next); });
         nextBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex + 1) % playlist.length; loadTrack(next); });
-        loopBtn.addEventListener('click', () => { isLooping = !isLooping; loopBtn.classList.toggle('active', isLooping); });
+        loopBtn.addEventListener('click', () => { 
+            isLooping = !isLooping; 
+            if (isLooping) {
+                isLoopingOnce = false;
+                updateLoopOnceUI();
+            }
+            loopBtn.classList.toggle('active', isLooping); 
+        });
+        const loopOnceBtn = document.getElementById('loopOnceBtn');
+        loopOnceBtn.addEventListener('click', () => {
+            isLoopingOnce = !isLoopingOnce;
+            if (isLoopingOnce) {
+                isLooping = false;
+                loopBtn.classList.remove('active');
+            }
+            updateLoopOnceUI();
+        });
+        function updateLoopOnceUI() {
+            loopOnceBtn.classList.toggle('active', isLoopingOnce);
+            if (typeof miniLoopOnceBtn !== 'undefined') {
+                miniLoopOnceBtn.classList.toggle('active', isLoopingOnce);
+            }
+        }
+        const restartBtn = document.getElementById('restartBtn');
+        restartBtn.addEventListener('click', () => {
+            bgMusic.currentTime = 0;
+            if (bgMusic.paused) {
+                bgMusic.play().catch(() => {});
+                updatePlayPauseIcon();
+            }
+        });
         volumeSlider.addEventListener('input', (e) => { bgMusic.volume = e.target.value; playerMuteBtn.textContent = bgMusic.volume === 0 ? '🔇' : '🔊'; });
         playerMuteBtn.addEventListener('click', () => { if (bgMusic.volume > 0) { bgMusic.dataset.lastVolume = bgMusic.volume; bgMusic.volume = 0; volumeSlider.value = 0; playerMuteBtn.textContent = '🔇'; } else { bgMusic.volume = bgMusic.dataset.lastVolume || 0.5; volumeSlider.value = bgMusic.volume; playerMuteBtn.textContent = '🔊'; } });
         progressBar.addEventListener('click', (e) => { if (playlist.length === 0) return; const rect = progressBar.getBoundingClientRect(); const pos = (e.clientX - rect.left) / rect.width; bgMusic.currentTime = pos * bgMusic.duration; });
@@ -2281,6 +2328,8 @@
         const miniPrevBtn = document.getElementById('miniPrevBtn');
         const miniNextBtn = document.getElementById('miniNextBtn');
         const miniLoopBtn = document.getElementById('miniLoopBtn');
+        const miniLoopOnceBtn = document.getElementById('miniLoopOnceBtn');
+        const miniRestartBtn = document.getElementById('miniRestartBtn');
         const miniMuteBtn = document.getElementById('miniMuteBtn');
         const miniVolumeSlider = document.getElementById('miniVolumeSlider');
         const miniProgressBar = document.getElementById('miniProgressBar');
@@ -2293,6 +2342,7 @@
                 miniTitle.textContent = playerTitle.textContent;
                 updateMiniPlayPauseIcon();
                 updateMiniLoopUI();
+                updateLoopOnceUI();
                 updateMiniVolumeUI();
             }
         });
@@ -2314,6 +2364,8 @@
         miniPrevBtn.addEventListener('click', () => prevBtn.click());
         miniNextBtn.addEventListener('click', () => nextBtn.click());
         miniLoopBtn.addEventListener('click', () => { loopBtn.click(); updateMiniLoopUI(); });
+        miniLoopOnceBtn.addEventListener('click', () => { loopOnceBtn.click(); });
+        miniRestartBtn.addEventListener('click', () => { restartBtn.click(); });
         miniMuteBtn.addEventListener('click', () => { playerMuteBtn.click(); updateMiniVolumeUI(); });
         
         miniVolumeSlider.addEventListener('input', (e) => {
