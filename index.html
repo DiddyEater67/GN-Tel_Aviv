@@ -264,6 +264,13 @@
             font-size: 1.1em;
             cursor: pointer;
             flex: 1;
+            text-align: left;
+        }
+
+        .settings-option select,
+        .settings-option input[type="color"],
+        .settings-option .toggle-switch {
+            flex-shrink: 0;
         }
 
         .toggle-switch {
@@ -1171,17 +1178,19 @@
             </div>
 
             <div id="mainTab" class="tab-content active">
-                <div class="bg-row">
+                <div class="settings-option">
                     <label class="bg-label">Background</label>
-                    <div class="bg-options" id="settingsBgOptions">
-                        <div class="bg-opt active" data-bg="default" style="background: #0a0a0a;" title="Default"></div>
-                        <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?auto=format&fit=crop&w=100&q=80')" title="Starry Night"></div>
-                        <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=100&q=80')" title="Deep Space"></div>
-                        <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=100&q=80')" title="Mountains"></div>
-                        <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=100&q=80')" title="Beach"></div>
+                    <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
+                        <div class="bg-options" id="settingsBgOptions" style="display: flex; gap: 8px;">
+                            <div class="bg-opt active" data-bg="default" style="background: #0a0a0a;" title="Default"></div>
+                            <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?auto=format&fit=crop&w=100&q=80')" title="Starry Night"></div>
+                            <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=100&q=80')" title="Deep Space"></div>
+                            <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=100&q=80')" title="Mountains"></div>
+                            <div class="bg-opt" data-bg="url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80')" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=100&q=80')" title="Beach"></div>
+                        </div>
+                        <label for="customBgInput" class="upload-arrow-btn" title="Upload Custom Background"><img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663553048518/SsCiwhvmKYmvFvYD.png" alt="Upload"></label>
+                        <input type="file" id="customBgInput" accept="image/*">
                     </div>
-                    <label for="customBgInput" class="upload-arrow-btn" title="Upload Custom Background"><img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663553048518/SsCiwhvmKYmvFvYD.png" alt="Upload"></label>
-                    <input type="file" id="customBgInput" accept="image/*">
                 </div>
                 <div class="settings-option">
                     <label for="hideUIToggle">Hide UI</label>
@@ -1223,19 +1232,19 @@
                 </div>
                 <div class="settings-option">
                     <label for="particleColorPickerSettings">Particle Color</label>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <input type="color" id="particleColorPickerSettings" value="#5dade2" style="width: 40px; height: 30px; padding: 0; border: none; background: none; cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 15px; flex-shrink: 0;">
                         <div style="display: flex; align-items: center; gap: 5px;">
                             <input type="checkbox" id="rainbowModeCheckbox" style="width: 18px; height: 18px; cursor: pointer;">
-                            <label for="rainbowModeCheckbox" style="font-size: 0.9em; cursor: pointer;">Rainbow Mode</label>
+                            <label for="rainbowModeCheckbox" style="font-size: 0.9em; cursor: pointer; white-space: nowrap;">Rainbow</label>
                         </div>
+                        <input type="color" id="particleColorPickerSettings" value="#5dade2" style="width: 40px; height: 30px; padding: 0; border: none; background: none; cursor: pointer;">
                     </div>
                 </div>
                 <div class="settings-option">
                     <label for="particleSizeSlider">Particle Size</label>
-                    <div style="display: flex; align-items: center; gap: 10px; flex: 2;">
-                        <input type="range" id="particleSizeSlider" min="0.1" max="5" step="0.1" value="1" style="flex: 1; cursor: pointer;">
-                        <button id="resetParticleSize" style="background: var(--reset-color); color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-size: 0.8em;">Default</button>
+                    <div style="display: flex; align-items: center; gap: 10px; flex: 1.5; justify-content: flex-end;">
+                        <input type="range" id="particleSizeSlider" min="0.1" max="5" step="0.1" value="1" style="width: 100px; cursor: pointer;">
+                        <button id="resetParticleSize" style="background: var(--reset-color); color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-size: 0.8em; white-space: nowrap;">Default</button>
                     </div>
                 </div>
             </div>
