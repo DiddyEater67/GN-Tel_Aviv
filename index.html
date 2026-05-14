@@ -3665,10 +3665,10 @@ playPauseBtn.addEventListener('click', () => {
         let barWidth, maxBarHeight;
         if (visualizerPosition === 'top' || visualizerPosition === 'bottom') {
             barWidth = (W - gap * (barCount - 1)) / barCount;
-            maxBarHeight = H * 0.4;
+            maxBarHeight = H * 0.8;
         } else {
             barWidth = (H - gap * (barCount - 1)) / barCount;
-            maxBarHeight = W * 0.2; // Shrunk for left/right
+            maxBarHeight = W * 0.5; // Shrunk for left/right
         }
 
         for (let i = 0; i < barCount; i++) {
