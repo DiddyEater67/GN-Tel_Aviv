@@ -1620,7 +1620,7 @@
         </div>
         <div class="mini-controls">
             <button class="mini-btn" id="miniLoopBtn" title="Toggle Loop">🔁</button>
-            <button class="mini-btn" id="miniLoopOnceBtn" title="Loop Once">🔂</button>
+            <button class="mini-btn" id="miniShuffleBtn" title="Shuffle Tracks">🔀</button>
             <button class="mini-btn" id="miniPrevBtn" title="Previous">⏮️</button>
             <button class="mini-btn" id="miniPlayPauseBtn" title="Play/Pause">▶️</button>
             <button class="mini-btn" id="miniNextBtn" title="Next">⏭️</button>
@@ -2396,24 +2396,20 @@
         });
         const shuffleBtn = document.getElementById('shuffleBtn');
         shuffleBtn.addEventListener('click', () => {
-            isShuffling = !isShuffling;
-            shuffleBtn.classList.toggle('active', isShuffling);
-            
             const currentTrack = playlist[currentTrackIndex];
             
-            if (isShuffling) {
-                // Shuffle the playlist
-                for (let i = playlist.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [playlist[i], playlist[j]] = [playlist[j], playlist[i]];
-                }
-            } else {
-                // Restore original playlist
-                playlist = [...originalPlaylist];
+            // Shuffle the playlist (Fisher-Yates)
+            for (let i = playlist.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [playlist[i], playlist[j]] = [playlist[j], playlist[i]];
             }
             
             // Find the current track in the new playlist order to maintain playback
             currentTrackIndex = playlist.findIndex(t => t.url === currentTrack.url);
+            
+            // Visual feedback
+            shuffleBtn.style.transform = 'scale(1.2)';
+            setTimeout(() => { shuffleBtn.style.transform = 'scale(1)'; }, 200);
         });
         const restartBtn = document.getElementById('restartBtn');
         restartBtn.addEventListener('click', () => {
@@ -2457,25 +2453,26 @@
         const miniPlayer = document.getElementById('miniPlayer');
         const miniPlayerToggle = document.getElementById('miniPlayerToggle');
         const miniTitle = document.getElementById('miniTitle');
-        const miniPlayPauseBtn = document.getElementById('miniPlayPauseBtn');
+        const miniShuffleBtn = document.getElementById('miniShuffleBtn');
         const miniPrevBtn = document.getElementById('miniPrevBtn');
+        const miniPlayPauseBtn = document.getElementById('miniPlayPauseBtn');
         const miniNextBtn = document.getElementById('miniNextBtn');
-        const miniLoopBtn = document.getElementById('miniLoopBtn');
-        const miniLoopOnceBtn = document.getElementById('miniLoopOnceBtn');
         const miniRestartBtn = document.getElementById('miniRestartBtn');
         const miniMuteBtn = document.getElementById('miniMuteBtn');
         const miniVolumeSlider = document.getElementById('miniVolumeSlider');
-        const miniProgressBar = document.getElementById('miniProgressBar');
+        const miniProgress = document.getElementById('miniProgress');
         const miniProgressFill = document.getElementById('miniProgressFill');
 
+        miniLoopBtn.addEventListener('click', () => { loopBtn.click(); });
+        miniShuffleBtn.addEventListener('click', () => { shuffleBtn.click(); });
+
         miniPlayerToggle.addEventListener('click', () => {
-            miniPlayerToggle.classList.toggle('active');
             miniPlayer.classList.toggle('active');
+            miniPlayerToggle.classList.toggle('active');
             if (miniPlayer.classList.contains('active')) {
                 miniTitle.textContent = playerTitle.textContent;
                 updateMiniPlayPauseIcon();
                 updateMiniLoopUI();
-                updateLoopOnceUI();
                 updateMiniVolumeUI();
             }
         });
