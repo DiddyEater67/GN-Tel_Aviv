@@ -3740,7 +3740,7 @@ playPauseBtn.addEventListener('click', () => {
 
         let barWidth, maxBarHeight;
         if (visualizerType === 'circle') {
-            barWidth = 2;
+            barWidth = 4;
             maxBarHeight = Math.min(W, H) * 0.25;
         } else if (visualizerType === 'waveform') {
             barWidth = (W - gap * (barCount - 1)) / barCount;
@@ -3768,7 +3768,7 @@ playPauseBtn.addEventListener('click', () => {
                 ctx.shadowColor = color;
             } else {
                 if (visualizerType === 'circle') {
-                    gradient = ctx.createLinearGradient(0, 0, 0, barHeight);
+                    gradient = ctx.createLinearGradient(0, 0, barHeight, 0);
                     gradient.addColorStop(0, visualizerColorBottom);
                     gradient.addColorStop(1, visualizerColorTop);
                 } else if (visualizerType === 'waveform') {
