@@ -1562,7 +1562,7 @@
                 </div>
                 <div class="player-controls">
                     <button class="player-btn" id="loopBtn" title="Toggle Loop">🔁</button>
-                    <button class="player-btn" id="loopOnceBtn" title="Loop Once">🔂</button>
+                    <button class="player-btn" id="shuffleBtn" title="Shuffle Tracks">🔀</button>
                     <button class="player-btn" id="prevBtn" title="Previous Track">⏮️</button>
                     <button class="player-btn play-pause" id="playPauseBtn" title="Play/Pause">▶️</button>
                     <button class="player-btn" id="nextBtn" title="Next Track">⏭️</button>
@@ -2372,19 +2372,15 @@
             { title: "Wacky Workbench Present", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Wacky%20Workbench%20Present.mp3" }
         ];
 
-        let currentTrackIndex = 0; let isLooping = false; let isLoopingOnce = false; let musicStarted = false;
+        let currentTrackIndex = 0; let isLooping = false; let isShuffling = false; let musicStarted = false;
+        let originalPlaylist = [...playlist];
         function loadTrack(index) { if (playlist.length === 0) return; currentTrackIndex = index; const track = playlist[index]; bgMusic.src = track.url; playerTitle.textContent = track.title; bgMusic.load(); if (musicStarted) bgMusic.play().catch(() => {}); updatePlayPauseIcon(); }
         function updatePlayPauseIcon() { playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️'; }
         function startMusic() { if (musicStarted || playlist.length === 0) return; musicStarted = true; bgMusic.play().catch(() => {}); musicStatus.textContent = "🎵 Music Playing"; updatePlayPauseIcon(); }
         bgMusic.addEventListener('timeupdate', () => { if (playlist.length === 0) return; const progress = (bgMusic.currentTime / bgMusic.duration) * 100; progressFill.style.width = `${progress}%`; const curM = Math.floor(bgMusic.currentTime / 60); const curS = Math.floor(bgMusic.currentTime % 60); const durM = Math.floor(bgMusic.duration / 60) || 0; const durS = Math.floor(bgMusic.duration % 60) || 0; currentTimeDisplay.textContent = `${curM}:${curS.toString().padStart(2, '0')}`; durationDisplay.textContent = `${durM}:${durS.toString().padStart(2, '0')}`; });
         bgMusic.addEventListener('ended', () => { 
             if (playlist.length === 0) return; 
-            if (isLoopingOnce) { 
-                isLoopingOnce = false; 
-                updateLoopOnceUI();
-                bgMusic.currentTime = 0; 
-                bgMusic.play(); 
-            } else if (isLooping) { 
+            if (isLooping) { 
                 bgMusic.currentTime = 0; 
                 bgMusic.play(); 
             } else { 
@@ -2396,27 +2392,29 @@
         nextBtn.addEventListener('click', () => { if (playlist.length === 0) return; let next = (currentTrackIndex + 1) % playlist.length; loadTrack(next); });
         loopBtn.addEventListener('click', () => { 
             isLooping = !isLooping; 
-            if (isLooping) {
-                isLoopingOnce = false;
-                updateLoopOnceUI();
-            }
             loopBtn.classList.toggle('active', isLooping); 
         });
-        const loopOnceBtn = document.getElementById('loopOnceBtn');
-        loopOnceBtn.addEventListener('click', () => {
-            isLoopingOnce = !isLoopingOnce;
-            if (isLoopingOnce) {
-                isLooping = false;
-                loopBtn.classList.remove('active');
+        const shuffleBtn = document.getElementById('shuffleBtn');
+        shuffleBtn.addEventListener('click', () => {
+            isShuffling = !isShuffling;
+            shuffleBtn.classList.toggle('active', isShuffling);
+            
+            const currentTrack = playlist[currentTrackIndex];
+            
+            if (isShuffling) {
+                // Shuffle the playlist
+                for (let i = playlist.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [playlist[i], playlist[j]] = [playlist[j], playlist[i]];
+                }
+            } else {
+                // Restore original playlist
+                playlist = [...originalPlaylist];
             }
-            updateLoopOnceUI();
+            
+            // Find the current track in the new playlist order to maintain playback
+            currentTrackIndex = playlist.findIndex(t => t.url === currentTrack.url);
         });
-        function updateLoopOnceUI() {
-            loopOnceBtn.classList.toggle('active', isLoopingOnce);
-            if (typeof miniLoopOnceBtn !== 'undefined') {
-                miniLoopOnceBtn.classList.toggle('active', isLoopingOnce);
-            }
-        }
         const restartBtn = document.getElementById('restartBtn');
         restartBtn.addEventListener('click', () => {
             bgMusic.currentTime = 0;
@@ -2438,7 +2436,9 @@
                 if (file.type === 'audio/mpeg' || file.name.toLowerCase().endsWith('.mp3')) {
                     const url = URL.createObjectURL(file);
                     const title = file.name.replace(/\.[^/.]+$/, "");
-                    playlist.push({ title: title, url: url });
+                    const newTrack = { title: title, url: url };
+                    playlist.push(newTrack);
+                    originalPlaylist.push(newTrack);
                 }
             });
 
