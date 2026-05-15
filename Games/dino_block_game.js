@@ -11,7 +11,7 @@
   document.body.style.overflow = "hidden";
   document.body.appendChild(canvas);
 
-  const groundY = 240;
+  const groundY = 240; // player rendering fixed
 
   const player = {
     x: 80,
@@ -41,14 +41,10 @@
 
   let currentDifficulty = null;
 
-  const menuButtonWidth = 220;
-  const menuButtonHeight = 45;
-  const menuButtonX = (canvas.width - menuButtonWidth) / 2;
-
   const buttons = [
-    { text: "Easy", x: menuButtonX, y: 120, w: menuButtonWidth, h: menuButtonHeight },
-    { text: "Medium", x: menuButtonX, y: 180, w: menuButtonWidth, h: menuButtonHeight },
-    { text: "Hard", x: menuButtonX, y: 240, w: menuButtonWidth, h: menuButtonHeight }
+    { text: "Easy", x: 340, y: 120, w: 220, h: 45 },
+    { text: "Medium", x: 340, y: 180, w: 220, h: 45 },
+    { text: "Hard", x: 340, y: 240, w: 220, h: 45 }
   ];
 
   const obstacles = [];
@@ -197,16 +193,11 @@
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     ctx.fillStyle = "white";
-
     ctx.font = "52px Arial";
-    const titleText = "BLOCK RUNNER";
-    const titleWidth = ctx.measureText(titleText).width;
-    ctx.fillText(titleText, (canvas.width - titleWidth) / 2, 70);
+    ctx.fillText("BLOCK RUNNER", 255, 70);
 
     ctx.font = "22px Arial";
-    const difficultyText = "Choose Difficulty";
-    const difficultyWidth = ctx.measureText(difficultyText).width;
-    ctx.fillText(difficultyText, (canvas.width - difficultyWidth) / 2, 100);
+    ctx.fillText("Choose Difficulty", 355, 100);
 
     buttons.forEach((btn) => {
       ctx.fillStyle = "#222";
@@ -217,13 +208,7 @@
 
       ctx.fillStyle = "white";
       ctx.font = "24px Arial";
-
-      const buttonTextWidth = ctx.measureText(btn.text).width;
-      ctx.fillText(
-        btn.text,
-        btn.x + (btn.w - buttonTextWidth) / 2,
-        btn.y + 30
-      );
+      ctx.fillText(btn.text, btn.x + 75, btn.y + 30);
     });
   }
 
@@ -236,6 +221,10 @@
 
     ctx.fillStyle = "white";
     ctx.fillRect(player.x, player.y, player.width, player.height);
+
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(player.x, player.y, player.width, player.height);
 
     ctx.fillStyle = "red";
 
