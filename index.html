@@ -1239,7 +1239,7 @@
                 <div class="settings-option">
                     <label for="particleReactionSelect">Particle Reactions</label>
                     <select id="particleReactionSelect" style="background: var(--input-bg); color: var(--input-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px; cursor: pointer;">
-                        <option value="0" selected>Push</option>
+                        <option value="0" selected="selected">Push</option>
                         <option value="1">Pull</option>
                     </select>
                 </div>
@@ -2440,6 +2440,7 @@
             particleReactionState = parseInt(savedReaction);
         } else {
             particleReactionState = 0; // Default to Push
+            localStorage.setItem('gn_particleReaction', particleReactionState);
         }
         particleReactionSelect.value = particleReactionState.toString();
 
