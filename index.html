@@ -1291,21 +1291,6 @@
                         <button id="resetParticleCount" style="background: var(--reset-color); color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-size: 0.8em; white-space: nowrap;">Default</button>
                     </div>
                 </div>
-                <div class="settings-option">
-                    <label for="particleReactionSelect">Particle Reactions</label>
-                    <select id="particleReactionSelect" style="background: var(--input-bg); color: var(--input-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px; cursor: pointer;">
-                        <option value="push">👐 Push</option>
-                        <option value="pull">🧲 Pull</option>
-                        <option value="circle">🔄 Circle</option>
-                    </select>
-                </div>
-                <div class="settings-option">
-                    <label for="mouseMovementSelect">Mouse Movement</label>
-                    <select id="mouseMovementSelect" style="background: var(--input-bg); color: var(--input-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px; cursor: pointer;">
-                        <option value="normal">🖱️ Normal</option>
-                        <option value="clicked">🖱️ When Clicked</option>
-                    </select>
-                </div>
             </div>
 
             <div id="clockTab" class="tab-content">
@@ -2139,9 +2124,6 @@
         let particleShapeState = 0;
         let particleSizeMultiplier = 1;
         let particleSpeedMultiplier = 1;
-        let particleReaction = 'push';
-        let mouseMovementMode = 'normal';
-        let isMouseDown = false;
         let rainbowHue = 0;
         let selectedParticleColor = '#5dade2';
         let maxParticles = 100;
@@ -2173,8 +2155,6 @@
             }
             mouse.isOverContainer = false;
         });
-        window.addEventListener('mousedown', () => isMouseDown = true);
-        window.addEventListener('mouseup', () => isMouseDown = false);
 
         class Particle {
             constructor() { this.init(); }
@@ -2196,34 +2176,9 @@
             update() {
                 if (this.popping) { this.popProgress += 0.1; if (this.popProgress >= 1) this.init(); return; }
                 if (particleModeState === 0 && mouse.x != null && !mouse.isOverContainer) {
-                    let react = true;
-                    if (mouseMovementMode === 'clicked' && !isMouseDown) react = false;
-                    
-                    if (react) {
-                        let dx = this.x - mouse.x; let dy = this.y - mouse.y; let distance = Math.sqrt(dx * dx + dy * dy); let forceRadius = 150;
-                        if (distance < forceRadius) {
-                            let force = (forceRadius - distance) / forceRadius;
-                            let directionX = dx / distance; // Vector from mouse to particle
-                            let directionY = dy / distance;
-                            if (particleReaction === 'push') {
-                                this.speedX += directionX * force * 0.5;
-                                this.speedY += directionY * force * 0.5;
-                            } else if (particleReaction === 'pull') {
-                                this.speedX -= directionX * force * 0.5;
-                                this.speedY -= directionY * force * 0.5;
-                            } else if (particleReaction === 'circle') {
-                                // Orbital velocity (perpendicular to direction)
-                                this.speedX -= directionY * force * 0.7;
-                                this.speedY += directionX * force * 0.7;
-                                // Centripetal force (pull towards mouse)
-                                this.speedX -= directionX * force * 0.4;
-                                this.speedY -= directionY * force * 0.4;
-                                // Damping to prevent spiraling out
-                                this.speedX *= 0.96;
-                                this.speedY *= 0.96;
-                            }
-                        } else { this.speedX += (this.baseSpeedX - this.speedX) * 0.05; this.speedY += (this.baseSpeedY - this.speedY) * 0.05; }
-                    } else { this.speedX += (this.baseSpeedX - this.speedX) * 0.05; this.speedY += (this.baseSpeedY - this.speedY) * 0.05; }
+                    let dx = mouse.x - this.x; let dy = mouse.y - this.y; let distance = Math.sqrt(dx * dx + dy * dy); let forceRadius = 100;
+                    if (distance < forceRadius) { let force = (forceRadius - distance) / forceRadius; let directionX = dx / distance; let directionY = dy / distance; this.speedX -= directionX * force * 0.2; this.speedY -= directionY * force * 0.2; }
+                    else { this.speedX += (this.baseSpeedX - this.speedX) * 0.05; this.speedY += (this.baseSpeedY - this.speedY) * 0.05; }
                 } else { this.speedX += (this.baseSpeedX - this.speedX) * 0.05; this.speedY += (this.baseSpeedY - this.speedY) * 0.05; }
                 this.x += this.speedX; this.y += this.speedY;
                 if (particleModeState === 5 && this.y < this.popThreshold) this.popping = true;
@@ -2393,18 +2348,6 @@
             updateMaxParticles(100);
         });
 
-        const particleReactionSelect = document.getElementById('particleReactionSelect');
-        particleReactionSelect.addEventListener('change', (e) => {
-            particleReaction = e.target.value;
-            localStorage.setItem('gn_particleReaction', particleReaction);
-        });
-
-        const mouseMovementSelect = document.getElementById('mouseMovementSelect');
-        mouseMovementSelect.addEventListener('change', (e) => {
-            mouseMovementMode = e.target.value;
-            localStorage.setItem('gn_mouseMovementMode', mouseMovementMode);
-        });
-
         // Load saved particle settings
         const savedShape = localStorage.getItem('gn_particleShape');
         if (savedShape !== null) {
@@ -2441,16 +2384,6 @@
         if (savedMaxParticles !== null) {
             maxParticles = parseInt(savedMaxParticles);
             particleCountInput.value = maxParticles;
-        }
-        const savedReaction = localStorage.getItem('gn_particleReaction');
-        if (savedReaction) {
-            particleReaction = savedReaction;
-            particleReactionSelect.value = savedReaction;
-        }
-        const savedMouseMode = localStorage.getItem('gn_mouseMovementMode');
-        if (savedMouseMode) {
-            mouseMovementMode = savedMouseMode;
-            mouseMovementSelect.value = savedMouseMode;
         }
 
         // Theme Logic
