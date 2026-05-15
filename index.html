@@ -2200,27 +2200,27 @@
                     if (mouseMovementMode === 'clicked' && !isMouseDown) react = false;
                     
                     if (react) {
-                        let dx = mouse.x - this.x; let dy = mouse.y - this.y; let distance = Math.sqrt(dx * dx + dy * dy); let forceRadius = 100;
+                        let dx = this.x - mouse.x; let dy = this.y - mouse.y; let distance = Math.sqrt(dx * dx + dy * dy); let forceRadius = 150;
                         if (distance < forceRadius) {
                             let force = (forceRadius - distance) / forceRadius;
-                            let directionX = dx / distance;
+                            let directionX = dx / distance; // Vector from mouse to particle
                             let directionY = dy / distance;
                             if (particleReaction === 'push') {
-                                this.speedX -= directionX * force * 0.2;
-                                this.speedY -= directionY * force * 0.2;
+                                this.speedX += directionX * force * 0.5;
+                                this.speedY += directionY * force * 0.5;
                             } else if (particleReaction === 'pull') {
-                                this.speedX += directionX * force * 0.2;
-                                this.speedY += directionY * force * 0.2;
+                                this.speedX -= directionX * force * 0.5;
+                                this.speedY -= directionY * force * 0.5;
                             } else if (particleReaction === 'circle') {
                                 // Orbital velocity (perpendicular to direction)
-                                this.speedX += directionY * force * 0.5;
-                                this.speedY -= directionX * force * 0.5;
-                                // Stronger centripetal force (towards cursor) to counter outward momentum
-                                this.speedX -= directionX * force * 0.3;
-                                this.speedY -= directionY * force * 0.3;
-                                // More damping to stabilize the orbit
-                                this.speedX *= 0.95;
-                                this.speedY *= 0.95;
+                                this.speedX -= directionY * force * 0.7;
+                                this.speedY += directionX * force * 0.7;
+                                // Centripetal force (pull towards mouse)
+                                this.speedX -= directionX * force * 0.4;
+                                this.speedY -= directionY * force * 0.4;
+                                // Damping to prevent spiraling out
+                                this.speedX *= 0.96;
+                                this.speedY *= 0.96;
                             }
                         } else { this.speedX += (this.baseSpeedX - this.speedX) * 0.05; this.speedY += (this.baseSpeedY - this.speedY) * 0.05; }
                     } else { this.speedX += (this.baseSpeedX - this.speedX) * 0.05; this.speedY += (this.baseSpeedY - this.speedY) * 0.05; }
