@@ -1280,6 +1280,10 @@
                             <input type="checkbox" id="rainbowModeCheckbox" style="width: 18px; height: 18px; cursor: pointer;">
                             <label for="rainbowModeCheckbox" style="font-size: 0.9em; cursor: pointer; white-space: nowrap;">Rainbow</label>
                         </div>
+                        <div id="rainbowSpeedContainer" style="display: none; align-items: center; gap: 5px; margin-left: 5px;">
+                            <input type="range" id="rainbowSpeedSlider" min="0.1" max="5" step="0.1" value="0.5" style="width: 60px; cursor: pointer;" title="Rainbow Speed">
+                            <button id="resetRainbowSpeed" style="background: var(--reset-color); color: white; border: none; border-radius: 5px; padding: 2px 5px; cursor: pointer; font-size: 0.7em; white-space: nowrap;">Default</button>
+                        </div>
                         <input type="color" id="particleColorPickerSettings" value="#5dade2" style="width: 40px; height: 30px; padding: 0; border: none; background: none; cursor: pointer;">
                     </div>
                 </div>
@@ -2139,6 +2143,7 @@
         let particleSizeMultiplier = 1;
         let particleSpeedMultiplier = 1;
         let rainbowHue = 0;
+        let rainbowSpeed = 0.5;
         let selectedParticleColor = '#5dade2';
         let maxParticles = 100;
         let particleReactionState = 0; // 0: Push, 1: Pull, 2: Circle
@@ -2255,7 +2260,7 @@
 
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if (particlesEnabled) { rainbowHue = (rainbowHue + 0.5) % 360; particles.forEach(p => { p.update(); p.draw(); }); }
+            if (particlesEnabled) { rainbowHue = (rainbowHue + rainbowSpeed) % 360; particles.forEach(p => { p.update(); p.draw(); }); }
             requestAnimationFrame(animateParticles);
         }
 
@@ -2310,18 +2315,38 @@
         // Particle Color Logic
         const particleColorPickerSettings = document.getElementById('particleColorPickerSettings');
         const rainbowModeCheckbox = document.getElementById('rainbowModeCheckbox');
+        const rainbowSpeedContainer = document.getElementById('rainbowSpeedContainer');
+        const rainbowSpeedSlider = document.getElementById('rainbowSpeedSlider');
+        const resetRainbowSpeed = document.getElementById('resetRainbowSpeed');
+
+        function updateRainbowSpeedVisibility() {
+            rainbowSpeedContainer.style.display = rainbowModeCheckbox.checked ? 'flex' : 'none';
+        }
 
         particleColorPickerSettings.addEventListener('input', (e) => {
             selectedParticleColor = e.target.value;
             particleColorState = 0;
             rainbowModeCheckbox.checked = false;
+            updateRainbowSpeedVisibility();
             localStorage.setItem('gn_particleColor', selectedParticleColor);
             localStorage.setItem('gn_particleColorState', 0);
         });
 
         rainbowModeCheckbox.addEventListener('change', (e) => {
             particleColorState = e.target.checked ? 1 : 0;
+            updateRainbowSpeedVisibility();
             localStorage.setItem('gn_particleColorState', particleColorState);
+        });
+
+        rainbowSpeedSlider.addEventListener('input', (e) => {
+            rainbowSpeed = parseFloat(e.target.value);
+            localStorage.setItem('gn_rainbowSpeed', rainbowSpeed);
+        });
+
+        resetRainbowSpeed.addEventListener('click', () => {
+            rainbowSpeed = 0.5;
+            rainbowSpeedSlider.value = 0.5;
+            localStorage.setItem('gn_rainbowSpeed', 0.5);
         });
 
         const particleSizeSlider = document.getElementById('particleSizeSlider');
@@ -2405,6 +2430,13 @@
         if (savedPColorState !== null) {
             particleColorState = parseInt(savedPColorState);
             rainbowModeCheckbox.checked = (particleColorState === 1);
+            updateRainbowSpeedVisibility();
+        }
+
+        const savedRainbowSpeed = localStorage.getItem('gn_rainbowSpeed');
+        if (savedRainbowSpeed !== null) {
+            rainbowSpeed = parseFloat(savedRainbowSpeed);
+            rainbowSpeedSlider.value = rainbowSpeed;
         }
         const savedSizeMultiplier = localStorage.getItem('gn_particleSizeMultiplier');
         if (savedSizeMultiplier !== null) {
