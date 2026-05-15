@@ -2438,13 +2438,18 @@
         const savedReaction = localStorage.getItem('gn_particleReaction');
         if (savedReaction !== null) {
             particleReactionState = parseInt(savedReaction);
-            particleReactionSelect.value = savedReaction;
+        } else {
+            particleReactionState = 0; // Default to Push
         }
+        particleReactionSelect.value = particleReactionState;
+
         const savedMouseMov = localStorage.getItem('gn_mouseMovement');
         if (savedMouseMov !== null) {
             mouseMovementState = parseInt(savedMouseMov);
-            mouseMovementSelect.value = savedMouseMov;
+        } else {
+            mouseMovementState = 0; // Default to Normal
         }
+        mouseMovementSelect.value = mouseMovementState;
 
         // Theme Logic
         const darkModeToggle = document.getElementById('darkModeToggle');
