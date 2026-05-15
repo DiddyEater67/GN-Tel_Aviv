@@ -2212,8 +2212,15 @@
                                 this.speedX += directionX * force * 0.2;
                                 this.speedY += directionY * force * 0.2;
                             } else if (particleReaction === 'circle') {
+                                // Add orbital velocity
                                 this.speedX += directionY * force * 0.5;
                                 this.speedY -= directionX * force * 0.5;
+                                // Add centripetal force to keep them from spiraling away
+                                this.speedX -= directionX * force * 0.1;
+                                this.speedY -= directionY * force * 0.1;
+                                // Dampen speed to maintain stable orbit
+                                this.speedX *= 0.98;
+                                this.speedY *= 0.98;
                             }
                         } else { this.speedX += (this.baseSpeedX - this.speedX) * 0.05; this.speedY += (this.baseSpeedY - this.speedY) * 0.05; }
                     } else { this.speedX += (this.baseSpeedX - this.speedX) * 0.05; this.speedY += (this.baseSpeedY - this.speedY) * 0.05; }
