@@ -1286,7 +1286,8 @@
                 <div class="settings-option">
                     <label for="particleCountInput">Particle Amount</label>
                     <div style="display: flex; align-items: center; gap: 10px; flex: 1.5; justify-content: flex-end;">
-                        <input type="number" id="particleCountInput" min="1" max="400" value="100" style="width: 100px; background: var(--input-bg); color: var(--input-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px;">
+                        <input type="number" id="particleCountInput" min="1" max="400" value="100" style="width: 60px; background: var(--input-bg); color: var(--input-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px;">
+                        <button id="applyParticleCount" style="background: var(--accent-color); color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-size: 0.8em; white-space: nowrap;">Apply</button>
                         <button id="resetParticleCount" style="background: var(--reset-color); color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-size: 0.8em; white-space: nowrap;">Default</button>
                     </div>
                 </div>
@@ -2320,23 +2321,31 @@
         });
 
         const particleCountInput = document.getElementById('particleCountInput');
+        const applyParticleCount = document.getElementById('applyParticleCount');
         const resetParticleCount = document.getElementById('resetParticleCount');
 
-        particleCountInput.addEventListener('change', (e) => {
-            let val = parseInt(e.target.value);
+        function updateMaxParticles(val) {
             if (isNaN(val) || val < 1) val = 1;
             if (val > 400) val = 400;
-            e.target.value = val;
             maxParticles = val;
+            particleCountInput.value = val;
             localStorage.setItem('gn_maxParticles', maxParticles);
-            if (particlesEnabled) createParticles();
+            
+            if (particlesEnabled) {
+                if (particles.length > maxParticles) {
+                    particles = particles.slice(0, maxParticles);
+                } else if (particles.length < maxParticles) {
+                    createParticles();
+                }
+            }
+        }
+
+        applyParticleCount.addEventListener('click', () => {
+            updateMaxParticles(parseInt(particleCountInput.value));
         });
 
         resetParticleCount.addEventListener('click', () => {
-            maxParticles = 100;
-            particleCountInput.value = 100;
-            localStorage.setItem('gn_maxParticles', 100);
-            if (particlesEnabled) createParticles();
+            updateMaxParticles(100);
         });
 
         // Load saved particle settings
