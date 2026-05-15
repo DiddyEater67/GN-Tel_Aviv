@@ -24,10 +24,35 @@
     grounded: true
   };
 
+  const difficulties = {
+    Easy: {
+      speed: 4,
+      spawnRate: 125
+    },
+    Medium: {
+      speed: 5,
+      spawnRate: 100
+    },
+    Hard: {
+      speed: 6,
+      spawnRate: 85
+    }
+  };
+
+  let currentDifficulty = null;
+
+  const buttons = [
+    { text: "Easy", x: 340, y: 120, w: 220, h: 45 },
+    { text: "Medium", x: 340, y: 180, w: 220, h: 45 },
+    { text: "Hard", x: 340, y: 240, w: 220, h: 45 }
+  ];
+
   const obstacles = [];
   let obstacleTimer = 0;
 
+  let gameState = "menu";
   let gameOver = false;
+
   let startTime = Date.now();
   let survivedSeconds = 0;
 
@@ -53,6 +78,21 @@
     oscillator.stop(audioCtx.currentTime + 0.15);
   }
 
+  function startGame(mode) {
+    currentDifficulty = difficulties[mode];
+
+    obstacles.length = 0;
+    obstacleTimer = 0;
+
+    player.y = groundY - player.height;
+    player.velocityY = 0;
+    player.grounded = true;
+
+    startTime = Date.now();
+    gameOver = false;
+    gameState = "playing";
+  }
+
   function jump() {
     if (player.grounded && !gameOver) {
       player.velocityY = player.jumpPower;
@@ -65,12 +105,34 @@
     if (e.code === "ArrowUp") {
       e.preventDefault();
 
-      if (gameOver) {
-        restartGame();
-      } else {
-        jump();
+      if (gameState === "playing") {
+        if (gameOver) {
+          gameState = "menu";
+        } else {
+          jump();
+        }
       }
     }
+  });
+
+  canvas.addEventListener("click", (e) => {
+    if (gameState !== "menu") return;
+
+    const rect = canvas.getBoundingClientRect();
+
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    buttons.forEach((btn) => {
+      if (
+        mouseX >= btn.x &&
+        mouseX <= btn.x + btn.w &&
+        mouseY >= btn.y &&
+        mouseY <= btn.y + btn.h
+      ) {
+        startGame(btn.text);
+      }
+    });
   });
 
   function createObstacle() {
@@ -81,22 +143,12 @@
       y: groundY - height,
       width: 20,
       height: height,
-      speed: 6
+      speed: currentDifficulty.speed
     });
   }
 
-  function restartGame() {
-    obstacles.length = 0;
-    player.y = groundY - 40;
-    player.velocityY = 0;
-    player.grounded = true;
-
-    gameOver = false;
-    startTime = Date.now();
-  }
-
   function update() {
-    if (gameOver) return;
+    if (gameState !== "playing" || gameOver) return;
 
     survivedSeconds = ((Date.now() - startTime) / 1000).toFixed(1);
 
@@ -111,13 +163,14 @@
 
     obstacleTimer++;
 
-    if (obstacleTimer > 85) {
+    if (obstacleTimer > currentDifficulty.spawnRate) {
       createObstacle();
-      obstacleTimer = Math.floor(Math.random() * 35);
+      obstacleTimer = Math.floor(Math.random() * 30);
     }
 
     for (let i = obstacles.length - 1; i >= 0; i--) {
       const obs = obstacles[i];
+
       obs.x -= obs.speed;
 
       if (
@@ -135,7 +188,31 @@
     }
   }
 
-  function draw() {
+  function drawMenu() {
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "white";
+    ctx.font = "52px Arial";
+    ctx.fillText("BLOCK RUNNER", 255, 70);
+
+    ctx.font = "22px Arial";
+    ctx.fillText("Choose Difficulty", 355, 100);
+
+    buttons.forEach((btn) => {
+      ctx.fillStyle = "#222";
+      ctx.fillRect(btn.x, btn.y, btn.w, btn.h);
+
+      ctx.strokeStyle = "white";
+      ctx.strokeRect(btn.x, btn.y, btn.w, btn.h);
+
+      ctx.fillStyle = "white";
+      ctx.font = "24px Arial";
+      ctx.fillText(btn.text, btn.x + 75, btn.y + 30);
+    });
+  }
+
+  function drawGame() {
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -156,21 +233,23 @@
     ctx.fillText(`Time: ${survivedSeconds}s`, 15, 30);
 
     if (gameOver) {
-      ctx.font = "40px Arial";
-      ctx.fillText("GAME OVER", canvas.width / 2 - 140, 120);
+      ctx.font = "42px Arial";
+      ctx.fillText("GAME OVER", 300, 120);
 
       ctx.font = "22px Arial";
-      ctx.fillText(
-        "Press UP ARROW to restart",
-        canvas.width / 2 - 145,
-        165
-      );
+      ctx.fillText("Press UP ARROW to return to menu", 250, 165);
     }
   }
 
   function gameLoop() {
     update();
-    draw();
+
+    if (gameState === "menu") {
+      drawMenu();
+    } else {
+      drawGame();
+    }
+
     requestAnimationFrame(gameLoop);
   }
 
