@@ -19,7 +19,7 @@
   const groundY = 240;
 
   const player = {
-    x: 120,
+    x: 260,
     y: groundY - 40,
     width: 40,
     height: 40,
