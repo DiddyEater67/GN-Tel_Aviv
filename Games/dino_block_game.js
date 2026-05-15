@@ -8,12 +8,7 @@
 
   document.body.style.margin = "0";
   document.body.style.background = "black";
-  document.body.style.display = "flex";
-  document.body.style.justifyContent = "center";
-  document.body.style.alignItems = "center";
-  document.body.style.height = "100vh";
   document.body.style.overflow = "hidden";
-
   document.body.appendChild(canvas);
 
   const groundY = 240;
@@ -46,14 +41,14 @@
 
   let currentDifficulty = null;
 
-  const buttonWidth = 220;
-  const buttonHeight = 45;
-  const centerX = canvas.width / 2 - buttonWidth / 2;
+  const menuButtonWidth = 220;
+  const menuButtonHeight = 45;
+  const menuButtonX = (canvas.width - menuButtonWidth) / 2;
 
   const buttons = [
-    { text: "Easy", x: centerX, y: 120, w: buttonWidth, h: buttonHeight },
-    { text: "Medium", x: centerX, y: 180, w: buttonWidth, h: buttonHeight },
-    { text: "Hard", x: centerX, y: 240, w: buttonWidth, h: buttonHeight }
+    { text: "Easy", x: menuButtonX, y: 120, w: menuButtonWidth, h: menuButtonHeight },
+    { text: "Medium", x: menuButtonX, y: 180, w: menuButtonWidth, h: menuButtonHeight },
+    { text: "Hard", x: menuButtonX, y: 240, w: menuButtonWidth, h: menuButtonHeight }
   ];
 
   const obstacles = [];
@@ -197,20 +192,21 @@
     }
   }
 
-  function drawCenteredText(text, y, size) {
-    ctx.font = `${size}px Arial`;
-    const width = ctx.measureText(text).width;
-    ctx.fillText(text, canvas.width / 2 - width / 2, y);
-  }
-
   function drawMenu() {
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     ctx.fillStyle = "white";
 
-    drawCenteredText("BLOCK RUNNER", 70, 52);
-    drawCenteredText("Choose Difficulty", 105, 22);
+    ctx.font = "52px Arial";
+    const titleText = "BLOCK RUNNER";
+    const titleWidth = ctx.measureText(titleText).width;
+    ctx.fillText(titleText, (canvas.width - titleWidth) / 2, 70);
+
+    ctx.font = "22px Arial";
+    const difficultyText = "Choose Difficulty";
+    const difficultyWidth = ctx.measureText(difficultyText).width;
+    ctx.fillText(difficultyText, (canvas.width - difficultyWidth) / 2, 100);
 
     buttons.forEach((btn) => {
       ctx.fillStyle = "#222";
@@ -220,7 +216,14 @@
       ctx.strokeRect(btn.x, btn.y, btn.w, btn.h);
 
       ctx.fillStyle = "white";
-      drawCenteredText(btn.text, btn.y + 30, 24);
+      ctx.font = "24px Arial";
+
+      const buttonTextWidth = ctx.measureText(btn.text).width;
+      ctx.fillText(
+        btn.text,
+        btn.x + (btn.w - buttonTextWidth) / 2,
+        btn.y + 30
+      );
     });
   }
 
@@ -245,8 +248,11 @@
     ctx.fillText(`Time: ${survivedSeconds}s`, 15, 30);
 
     if (gameOver) {
-      drawCenteredText("GAME OVER", 120, 42);
-      drawCenteredText("Press UP ARROW to return to menu", 165, 22);
+      ctx.font = "42px Arial";
+      ctx.fillText("GAME OVER", 300, 120);
+
+      ctx.font = "22px Arial";
+      ctx.fillText("Press UP ARROW to return to menu", 250, 165);
     }
   }
 
