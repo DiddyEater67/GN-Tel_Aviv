@@ -1,3 +1,5 @@
+
+index.html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1276,6 +1278,13 @@
                         <button id="resetParticleSize" style="background: var(--reset-color); color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-size: 0.8em; white-space: nowrap;">Default</button>
                     </div>
                 </div>
+                <div class="settings-option">
+                    <label for="particleSpeedSlider">Particle Speed</label>
+                    <div style="display: flex; align-items: center; gap: 10px; flex: 1.5; justify-content: flex-end;">
+                        <input type="range" id="particleSpeedSlider" min="0.1" max="5" step="0.1" value="1" style="width: 100px; cursor: pointer;">
+                        <button id="resetParticleSpeed" style="background: var(--reset-color); color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-size: 0.8em; white-space: nowrap;">Default</button>
+                    </div>
+                </div>
             </div>
 
             <div id="clockTab" class="tab-content">
@@ -2108,6 +2117,7 @@
         let particleColorState = 0; // 0: Hex Picker, 1: Rainbow
         let particleShapeState = 0;
         let particleSizeMultiplier = 1;
+        let particleSpeedMultiplier = 1;
         let rainbowHue = 0;
         let selectedParticleColor = '#5dade2';
         const maxParticles = 100;
@@ -2146,15 +2156,15 @@
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
                 this.size = (Math.random() * 4 + 1) * particleSizeMultiplier;
-                this.baseSpeedX = (Math.random() - 0.5) * 0.4;
-                this.baseSpeedY = (Math.random() - 0.5) * 0.4;
+                this.baseSpeedX = (Math.random() - 0.5) * 0.4 * particleSpeedMultiplier;
+                this.baseSpeedY = (Math.random() - 0.5) * 0.4 * particleSpeedMultiplier;
                 this.popping = false;
                 this.popProgress = 0;
-                if (particleModeState === 1) { this.y = canvas.height + Math.random() * 20; this.baseSpeedY = -Math.random() * 1.5 - 0.5; this.baseSpeedX = (Math.random() - 0.5) * 0.5; }
-                else if (particleModeState === 2) { this.y = -Math.random() * 20; this.baseSpeedY = Math.random() * 1 + 0.5; this.baseSpeedX = (Math.random() - 0.5) * 0.5; }
-                else if (particleModeState === 3) { this.x = -Math.random() * 20; this.baseSpeedX = Math.random() * 2 + 1; this.baseSpeedY = (Math.random() - 0.5) * 0.2; }
-                else if (particleModeState === 4) { this.y = -Math.random() * 20; this.baseSpeedY = Math.random() * 5 + 5; this.baseSpeedX = 2; }
-                else if (particleModeState === 5) { this.y = canvas.height + Math.random() * 50; this.size = (Math.random() * 10 + 2) * particleSizeMultiplier; this.baseSpeedY = -Math.random() * 1 - 0.5; this.baseSpeedX = (Math.random() - 0.5) * 0.5; this.popThreshold = Math.random() * (canvas.height * 0.8); }
+                if (particleModeState === 1) { this.y = canvas.height + Math.random() * 20; this.baseSpeedY = (-Math.random() * 1.5 - 0.5) * particleSpeedMultiplier; this.baseSpeedX = (Math.random() - 0.5) * 0.5 * particleSpeedMultiplier; }
+                else if (particleModeState === 2) { this.y = -Math.random() * 20; this.baseSpeedY = (Math.random() * 1 + 0.5) * particleSpeedMultiplier; this.baseSpeedX = (Math.random() - 0.5) * 0.5 * particleSpeedMultiplier; }
+                else if (particleModeState === 3) { this.x = -Math.random() * 20; this.baseSpeedX = (Math.random() * 2 + 1) * particleSpeedMultiplier; this.baseSpeedY = (Math.random() - 0.5) * 0.2 * particleSpeedMultiplier; }
+                else if (particleModeState === 4) { this.y = -Math.random() * 20; this.baseSpeedY = (Math.random() * 5 + 5) * particleSpeedMultiplier; this.baseSpeedX = 2 * particleSpeedMultiplier; }
+                else if (particleModeState === 5) { this.y = canvas.height + Math.random() * 50; this.size = (Math.random() * 10 + 2) * particleSizeMultiplier; this.baseSpeedY = (-Math.random() * 1 - 0.5) * particleSpeedMultiplier; this.baseSpeedX = (Math.random() - 0.5) * 0.5 * particleSpeedMultiplier; this.popThreshold = Math.random() * (canvas.height * 0.8); }
                 this.speedX = this.baseSpeedX; this.speedY = this.baseSpeedY; this.alpha = Math.random() * 0.4 + 0.1;
             }
             update() {
@@ -2288,6 +2298,22 @@
             particles.forEach(p => p.init());
         });
 
+        const particleSpeedSlider = document.getElementById('particleSpeedSlider');
+        const resetParticleSpeed = document.getElementById('resetParticleSpeed');
+
+        particleSpeedSlider.addEventListener('input', (e) => {
+            particleSpeedMultiplier = parseFloat(e.target.value);
+            localStorage.setItem('gn_particleSpeedMultiplier', particleSpeedMultiplier);
+            particles.forEach(p => p.init());
+        });
+
+        resetParticleSpeed.addEventListener('click', () => {
+            particleSpeedMultiplier = 1;
+            particleSpeedSlider.value = 1;
+            localStorage.setItem('gn_particleSpeedMultiplier', 1);
+            particles.forEach(p => p.init());
+        });
+
         // Load saved particle settings
         const savedShape = localStorage.getItem('gn_particleShape');
         if (savedShape !== null) {
@@ -2314,6 +2340,11 @@
         if (savedSizeMultiplier !== null) {
             particleSizeMultiplier = parseFloat(savedSizeMultiplier);
             particleSizeSlider.value = savedSizeMultiplier;
+        }
+        const savedSpeedMultiplier = localStorage.getItem('gn_particleSpeedMultiplier');
+        if (savedSpeedMultiplier !== null) {
+            particleSpeedMultiplier = parseFloat(savedSpeedMultiplier);
+            particleSpeedSlider.value = savedSpeedMultiplier;
         }
 
         // Theme Logic
