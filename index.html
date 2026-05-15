@@ -1239,14 +1239,14 @@
                 <div class="settings-option">
                     <label for="particleReactionSelect">Particle Reactions</label>
                     <select id="particleReactionSelect" style="background: var(--input-bg); color: var(--input-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px; cursor: pointer;">
-                        <option value="0">Push</option>
+                        <option value="0" selected>Push</option>
                         <option value="1">Pull</option>
                     </select>
                 </div>
                 <div class="settings-option">
                     <label for="mouseMovementSelect">Mouse Movement</label>
                     <select id="mouseMovementSelect" style="background: var(--input-bg); color: var(--input-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px; cursor: pointer;">
-                        <option value="0">Normal</option>
+                        <option value="0" selected>Normal</option>
                         <option value="1">When Clicked</option>
                     </select>
                 </div>
@@ -2441,7 +2441,7 @@
         } else {
             particleReactionState = 0; // Default to Push
         }
-        particleReactionSelect.value = particleReactionState;
+        particleReactionSelect.value = particleReactionState.toString();
 
         const savedMouseMov = localStorage.getItem('gn_mouseMovement');
         if (savedMouseMov !== null) {
@@ -2449,7 +2449,7 @@
         } else {
             mouseMovementState = 0; // Default to Normal
         }
-        mouseMovementSelect.value = mouseMovementState;
+        mouseMovementSelect.value = mouseMovementState.toString();
 
         // Theme Logic
         const darkModeToggle = document.getElementById('darkModeToggle');
