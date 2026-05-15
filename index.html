@@ -1241,7 +1241,6 @@
                     <select id="particleReactionSelect" style="background: var(--input-bg); color: var(--input-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px; cursor: pointer;">
                         <option value="0">Push</option>
                         <option value="1">Pull</option>
-                        <option value="2">Circle</option>
                     </select>
                 </div>
                 <div class="settings-option">
@@ -2213,11 +2212,6 @@
                         } else if (particleReactionState === 1) { // Pull
                             this.speedX += directionX * force * 0.2; 
                             this.speedY += directionY * force * 0.2; 
-                        } else if (particleReactionState === 2) { // Circle
-                            this.speedX += -directionY * force * 0.5;
-                            this.speedY += directionX * force * 0.5;
-                            this.speedX += directionX * force * 0.1;
-                            this.speedY += directionY * force * 0.1;
                         }
                     }
                     else { this.speedX += (this.baseSpeedX - this.speedX) * 0.05; this.speedY += (this.baseSpeedY - this.speedY) * 0.05; }
