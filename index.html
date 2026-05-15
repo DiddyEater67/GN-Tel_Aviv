@@ -1,5 +1,3 @@
-
-index.html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1285,6 +1283,13 @@ index.html
                         <button id="resetParticleSpeed" style="background: var(--reset-color); color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-size: 0.8em; white-space: nowrap;">Default</button>
                     </div>
                 </div>
+                <div class="settings-option">
+                    <label for="particleCountInput">Particle Amount</label>
+                    <div style="display: flex; align-items: center; gap: 10px; flex: 1.5; justify-content: flex-end;">
+                        <input type="number" id="particleCountInput" min="1" max="400" value="100" style="width: 100px; background: var(--input-bg); color: var(--input-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px;">
+                        <button id="resetParticleCount" style="background: var(--reset-color); color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-size: 0.8em; white-space: nowrap;">Default</button>
+                    </div>
+                </div>
             </div>
 
             <div id="clockTab" class="tab-content">
@@ -2120,7 +2125,7 @@ index.html
         let particleSpeedMultiplier = 1;
         let rainbowHue = 0;
         let selectedParticleColor = '#5dade2';
-        const maxParticles = 100;
+        let maxParticles = 100;
 
         const modeIcons = ['🔵', '🔥', '❄️', '💨', '🌧️', '🫧', '🚫'];
         const colorIcons = ['🎨', '🌈'];
@@ -2314,6 +2319,26 @@ index.html
             particles.forEach(p => p.init());
         });
 
+        const particleCountInput = document.getElementById('particleCountInput');
+        const resetParticleCount = document.getElementById('resetParticleCount');
+
+        particleCountInput.addEventListener('change', (e) => {
+            let val = parseInt(e.target.value);
+            if (isNaN(val) || val < 1) val = 1;
+            if (val > 400) val = 400;
+            e.target.value = val;
+            maxParticles = val;
+            localStorage.setItem('gn_maxParticles', maxParticles);
+            if (particlesEnabled) createParticles();
+        });
+
+        resetParticleCount.addEventListener('click', () => {
+            maxParticles = 100;
+            particleCountInput.value = 100;
+            localStorage.setItem('gn_maxParticles', 100);
+            if (particlesEnabled) createParticles();
+        });
+
         // Load saved particle settings
         const savedShape = localStorage.getItem('gn_particleShape');
         if (savedShape !== null) {
@@ -2345,6 +2370,11 @@ index.html
         if (savedSpeedMultiplier !== null) {
             particleSpeedMultiplier = parseFloat(savedSpeedMultiplier);
             particleSpeedSlider.value = savedSpeedMultiplier;
+        }
+        const savedMaxParticles = localStorage.getItem('gn_maxParticles');
+        if (savedMaxParticles !== null) {
+            maxParticles = parseInt(savedMaxParticles);
+            particleCountInput.value = maxParticles;
         }
 
         // Theme Logic
