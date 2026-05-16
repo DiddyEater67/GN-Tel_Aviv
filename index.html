@@ -92,20 +92,17 @@
         }
 
         .modern-circular-btn {
-            width: 150px;
-            height: 150px;
+            width: 180px;
+            height: 180px;
             border-radius: 50%;
             border: 4px solid var(--accent-color);
             background: var(--box-bg);
-            color: var(--accent-color);
-            font-size: 1.2em;
-            font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 20px var(--shadow);
+            box-shadow: 0 0 15px var(--shadow);
             outline: none;
             user-select: none;
             position: relative;
@@ -113,14 +110,13 @@
         }
 
         .modern-circular-btn:hover {
-            transform: scale(1.05);
-            background: var(--accent-color);
-            color: white;
-            box-shadow: 0 0 30px var(--accent-color);
+            transform: scale(1.02);
         }
 
-        .modern-circular-btn:active {
+        .modern-circular-btn.pressed {
             transform: scale(0.95);
+            background: var(--accent-color);
+            box-shadow: 0 0 40px var(--accent-color);
         }
 
         .modern-circular-btn::after {
@@ -1548,13 +1544,12 @@
     </div>
 
     <div id="newPage" class="page">
-        <div class="container blank-container">
-            <h1><strong>Action Page</strong></h1>
-            <p>Click the button or press Space to interact.</p>
-            <div class="circular-btn-container">
-                <div class="click-count" id="actionCount">0</div>
-                <button id="actionBtn" class="modern-circular-btn">PRESS ME</button>
+        <div class="container blank-container" style="display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative;">
+            <div class="circular-btn-container" style="margin-top: 0;">
+                <div class="click-count" id="actionCount" style="margin-bottom: 20px;">0</div>
+                <button id="actionBtn" class="modern-circular-btn"></button>
             </div>
+            <button id="actionResetBtn" class="reset-btn" style="position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);">RESET</button>
         </div>
     </div>
 
@@ -2227,6 +2222,7 @@
 
         // New Page Logic
         const actionBtn = document.getElementById('actionBtn');
+        const actionResetBtn = document.getElementById('actionResetBtn');
         const actionCountDisplay = document.getElementById('actionCount');
         let actionCount = 0;
         let isSpaceDown = false;
@@ -2236,19 +2232,28 @@
             actionCountDisplay.textContent = actionCount;
             
             // Visual feedback
-            actionBtn.style.transform = 'scale(0.95)';
+            actionBtn.classList.add('pressed');
             setTimeout(() => {
-                actionBtn.style.transform = '';
+                actionBtn.classList.remove('pressed');
             }, 100);
         }
 
+        actionBtn.addEventListener('mousedown', () => actionBtn.classList.add('pressed'));
+        actionBtn.addEventListener('mouseup', () => actionBtn.classList.remove('pressed'));
+        actionBtn.addEventListener('mouseleave', () => actionBtn.classList.remove('pressed'));
+
         actionBtn.addEventListener('click', (e) => {
             handleAction();
-            actionBtn.blur(); // Prevent focus ring from staying
+            actionBtn.blur();
+        });
+
+        actionResetBtn.addEventListener('click', () => {
+            actionCount = 0;
+            actionCountDisplay.textContent = '0';
         });
 
         window.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' && currentPage === 1) { // New page is index 1
+            if (e.code === 'Space' && currentPage === 1) {
                 if (!isSpaceDown) {
                     e.preventDefault();
                     isSpaceDown = true;
