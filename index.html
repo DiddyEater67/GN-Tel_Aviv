@@ -1248,7 +1248,7 @@
                         <option value="2">None</option>
                     </select>
                 </div>
-                <div class="settings-option">
+                <div class="settings-option" id="mouseMovementOption">
                     <label for="mouseMovementSelect">Mouse Movement</label>
                     <select id="mouseMovementSelect" style="background: var(--input-bg); color: var(--input-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px; cursor: pointer;">
                         <option value="0" selected>Normal</option>
@@ -2504,8 +2504,18 @@
         const particleReactionSelect = document.getElementById('particleReactionSelect');
         const mouseMovementSelect = document.getElementById('mouseMovementSelect');
 
+        function updateMouseMovementVisibility() {
+            const mouseMovementOption = document.getElementById('mouseMovementOption');
+            if (particleReactionState === 2) {
+                mouseMovementOption.style.display = 'none';
+            } else {
+                mouseMovementOption.style.display = 'flex';
+            }
+        }
+
         particleReactionSelect.addEventListener('change', (e) => {
             particleReactionState = parseInt(e.target.value);
+            updateMouseMovementVisibility();
             localStorage.setItem('gn_particleReaction', particleReactionState);
         });
 
@@ -2522,6 +2532,7 @@
             localStorage.setItem('gn_particleReaction', particleReactionState);
         }
         particleReactionSelect.value = particleReactionState.toString();
+        updateMouseMovementVisibility();
 
         const savedMouseMov = localStorage.getItem('gn_mouseMovement');
         if (savedMouseMov !== null) {
