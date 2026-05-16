@@ -82,6 +82,76 @@
             background: transparent;
         }
 
+        .circular-btn-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .modern-circular-btn {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 4px solid var(--accent-color);
+            background: var(--box-bg);
+            color: var(--accent-color);
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px var(--shadow);
+            outline: none;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modern-circular-btn:hover {
+            transform: scale(1.05);
+            background: var(--accent-color);
+            color: white;
+            box-shadow: 0 0 30px var(--accent-color);
+        }
+
+        .modern-circular-btn:active {
+            transform: scale(0.95);
+        }
+
+        .modern-circular-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        .modern-circular-btn:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+
+        @keyframes ripple {
+            0% { transform: scale(0, 0); opacity: 0.5; }
+            100% { transform: scale(40, 40); opacity: 0; }
+        }
+
+        .click-count {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--h1-color);
+        }
+
         .shuffle-notification {
             position: fixed;
             top: 50%;
@@ -1479,8 +1549,12 @@
 
     <div id="newPage" class="page">
         <div class="container blank-container">
-            <h1><strong>New Page</strong></h1>
-            <p>This is a new page added between the Main Page and the Number Guessing Game.</p>
+            <h1><strong>Action Page</strong></h1>
+            <p>Click the button or press Space to interact.</p>
+            <div class="circular-btn-container">
+                <div class="click-count" id="actionCount">0</div>
+                <button id="actionBtn" class="modern-circular-btn">PRESS ME</button>
+            </div>
         </div>
     </div>
 
@@ -2149,6 +2223,44 @@
             let next = (currentPage + 1) % pages.length;
             showPage(next);
             startMusic();
+        });
+
+        // New Page Logic
+        const actionBtn = document.getElementById('actionBtn');
+        const actionCountDisplay = document.getElementById('actionCount');
+        let actionCount = 0;
+        let isSpaceDown = false;
+
+        function handleAction() {
+            actionCount++;
+            actionCountDisplay.textContent = actionCount;
+            
+            // Visual feedback
+            actionBtn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                actionBtn.style.transform = '';
+            }, 100);
+        }
+
+        actionBtn.addEventListener('click', (e) => {
+            handleAction();
+            actionBtn.blur(); // Prevent focus ring from staying
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && currentPage === 1) { // New page is index 1
+                if (!isSpaceDown) {
+                    e.preventDefault();
+                    isSpaceDown = true;
+                    handleAction();
+                }
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.code === 'Space') {
+                isSpaceDown = false;
+            }
         });
 
         // Keyboard navigation
