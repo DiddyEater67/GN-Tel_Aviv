@@ -1237,6 +1237,10 @@
 
             <div id="particlesTab" class="tab-content">
                 <div class="settings-option">
+                    <label for="particleToggle">Particles</label>
+                    <div id="particleToggle" class="toggle-switch active"></div>
+                </div>
+                <div class="settings-option">
                     <label for="particleReactionSelect">Particle Reactions</label>
                     <select id="particleReactionSelect" style="background: var(--input-bg); color: var(--input-text); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px; cursor: pointer;">
                         <option value="0" selected="selected">Push</option>
@@ -1270,7 +1274,6 @@
                         <option value="3">💨 Wind</option>
                         <option value="4">🌧️ Rain</option>
                         <option value="5">🫧 Bubbles</option>
-                        <option value="6">🚫 Off</option>
                     </select>
                 </div>
                 <div class="settings-option">
@@ -2090,10 +2093,12 @@
             currentPage = index;
             window.scrollTo(0, 0);
             // Disable particles on video player page (page 8, which is at index 6) for better performance
+            const savedParticlesEnabled = localStorage.getItem('gn_particlesEnabled');
+            const userPref = savedParticlesEnabled !== null ? (savedParticlesEnabled === 'true') : true;
             if (index === 6) {
                 particlesEnabled = false;
             } else {
-                particlesEnabled = true;
+                particlesEnabled = userPref;
             }
         }
 
@@ -2298,17 +2303,24 @@
             localStorage.setItem('gn_particleShape', particleShapeState);
         });
 
+        // Particle Toggle Logic
+        const particleToggle = document.getElementById('particleToggle');
+        particleToggle.addEventListener('click', () => {
+            particlesEnabled = !particlesEnabled;
+            particleToggle.classList.toggle('active', particlesEnabled);
+            if (particlesEnabled) {
+                particles = [];
+                createParticles();
+            }
+            localStorage.setItem('gn_particlesEnabled', particlesEnabled);
+        });
+
         // Particle Mode Logic
         const particleModeSelect = document.getElementById('particleModeSelect');
         particleModeSelect.addEventListener('change', (e) => {
             particleModeState = parseInt(e.target.value);
-            if (particleModeState === 6) {
-                particlesEnabled = false;
-            } else {
-                particlesEnabled = true;
-                particles = [];
-                createParticles();
-            }
+            particles = [];
+            createParticles();
             localStorage.setItem('gn_particleMode', particleModeState);
         });
 
@@ -2415,11 +2427,16 @@
             particleShapeState = parseInt(savedShape);
             particleShapeSelect.value = savedShape;
         }
+        const savedParticlesEnabled = localStorage.getItem('gn_particlesEnabled');
+        if (savedParticlesEnabled !== null) {
+            particlesEnabled = (savedParticlesEnabled === 'true');
+            particleToggle.classList.toggle('active', particlesEnabled);
+        }
+
         const savedMode = localStorage.getItem('gn_particleMode');
         if (savedMode !== null) {
             particleModeState = parseInt(savedMode);
             particleModeSelect.value = savedMode;
-            if (particleModeState === 6) particlesEnabled = false;
         }
         const savedPColor = localStorage.getItem('gn_particleColor');
         if (savedPColor) {
