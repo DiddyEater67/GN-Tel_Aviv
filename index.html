@@ -1320,6 +1320,10 @@
                     <div class="toggle-switch active" id="clockToggle"></div>
                 </div>
                 <div class="settings-option">
+                    <label for="lockClockToggle">Lock Clock</label>
+                    <div class="toggle-switch" id="lockClockToggle"></div>
+                </div>
+                <div class="settings-option">
                     <label for="clockColorPicker">Clock Color</label>
                     <input type="color" id="clockColorPicker" value="#5dade2" style="width: 40px; height: 30px; padding: 0; border: none; background: none; cursor: pointer;">
                 </div>
@@ -1808,8 +1812,10 @@
         let isDragging = false;
         let offsetX = 0;
         let offsetY = 0;
+        let clockLocked = false;
 
         clock.addEventListener('mousedown', (e) => {
+            if (clockLocked) return;
             isDragging = true;
             offsetX = e.clientX - clock.getBoundingClientRect().left;
             offsetY = e.clientY - clock.getBoundingClientRect().top;
@@ -1831,6 +1837,7 @@
         const settingsOverlay = document.getElementById('settingsOverlay');
         const closeSettingsBtn = document.getElementById('closeSettingsBtn');
         const clockToggle = document.getElementById('clockToggle');
+        const lockClockToggle = document.getElementById('lockClockToggle');
         let clockVisible = true;
 
         settingsBtn.addEventListener('click', () => {
@@ -1872,6 +1879,14 @@
             clockVisible = !clockVisible;
             clockToggle.classList.toggle('active');
             clock.style.display = clockVisible ? 'flex' : 'none';
+            localStorage.setItem('gn_clockVisible', clockVisible);
+        });
+
+        lockClockToggle.addEventListener('click', () => {
+            clockLocked = !clockLocked;
+            lockClockToggle.classList.toggle('active');
+            clock.style.cursor = clockLocked ? 'default' : 'grab';
+            localStorage.setItem('gn_clockLocked', clockLocked);
         });
 
         // Clock Color Picker
@@ -1924,6 +1939,20 @@
         if (savedClockFont) {
             clock.style.fontFamily = savedClockFont + ', Courier New, monospace';
             clockFontSelect.value = savedClockFont;
+        }
+
+        const savedClockVisible = localStorage.getItem('gn_clockVisible');
+        if (savedClockVisible !== null) {
+            clockVisible = (savedClockVisible === 'true');
+            clockToggle.classList.toggle('active', clockVisible);
+            clock.style.display = clockVisible ? 'flex' : 'none';
+        }
+
+        const savedClockLocked = localStorage.getItem('gn_clockLocked');
+        if (savedClockLocked !== null) {
+            clockLocked = (savedClockLocked === 'true');
+            lockClockToggle.classList.toggle('active', clockLocked);
+            clock.style.cursor = clockLocked ? 'default' : 'grab';
         }
 
         // Alarm Sound Selection
