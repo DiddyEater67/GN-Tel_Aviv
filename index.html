@@ -2314,39 +2314,56 @@
         let clickTimes = [];
         let customSound = null;
 
-        // Sound definitions
-        const sounds = {
-            sound1: new Audio('https://www.soundjay.com/buttons/sounds/button-37.mp3'),
-            sound2: new Audio('https://www.soundjay.com/buttons/sounds/button-09.mp3'),
-            sound3: new Audio('https://www.soundjay.com/buttons/sounds/button-10.mp3')
-        };
+        
+        // --- Synthesized Sounds for Button Clicker ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-        soundSelect.addEventListener('change', () => {
-            if (soundSelect.value === 'upload') {
-                soundUpload.click();
+        function playSynthSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            const now = audioCtx.currentTime;
+            
+            if (type === 'sound1') { // Pop
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.1);
+                gain.gain.setValueAtTime(0.5, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } else if (type === 'sound2') { // Click
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(150, now);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } else if (type === 'sound3') { // Blip
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
             }
-        });
-
-        soundUpload.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    customSound = new Audio(event.target.result);
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+        }
 
         function playButtonSound() {
             const val = soundSelect.value;
-            let audio = null;
-            if (val === 'upload' && customSound) audio = customSound;
-            else if (sounds[val]) audio = sounds[val];
-            
-            if (audio) {
-                audio.currentTime = 0;
-                audio.play().catch(() => {});
+            if (val === 'upload' && customSound) {
+                customSound.currentTime = 0;
+                customSound.play().catch(() => {});
+            } else if (val.startsWith('sound')) {
+                playSynthSound(val);
+            }
+        }
+    );
             }
         }
 
