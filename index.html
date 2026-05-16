@@ -1477,6 +1477,13 @@
         </div>
     </div>
 
+    <div id="newPage" class="page">
+        <div class="container blank-container">
+            <h1><strong>New Page</strong></h1>
+            <p>This is a new page added between the Main Page and the Number Guessing Game.</p>
+        </div>
+    </div>
+
     <div id="page2" class="page">
         <div class="container">
             <h1><strong>Number Guessing Game</strong></h1>
@@ -2122,10 +2129,10 @@
             pages.forEach((p, i) => { p.classList.toggle('active', i === index); });
             currentPage = index;
             window.scrollTo(0, 0);
-            // Disable particles on video player page (page 8, which is at index 6) for better performance
+            // Disable particles on video player page (page 8, which is at index 7) for better performance
             const savedParticlesEnabled = localStorage.getItem('gn_particlesEnabled');
             const userPref = savedParticlesEnabled !== null ? (savedParticlesEnabled === 'true') : true;
-            if (index === 6) {
+            if (index === 7) {
                 particlesEnabled = false;
             } else {
                 particlesEnabled = userPref;
