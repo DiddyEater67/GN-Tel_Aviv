@@ -2316,17 +2316,16 @@
 
         
         // --- Synthesized Sounds for Button Clicker ---
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
         function playSynthSound(type) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
+            const ctx = (typeof getAudioContext === 'function') ? getAudioContext() : new (window.AudioContext || window.webkitAudioContext)();
+            if (ctx.state === 'suspended') ctx.resume();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
             
             osc.connect(gain);
-            gain.connect(audioCtx.destination);
+            gain.connect(ctx.destination);
             
-            const now = audioCtx.currentTime;
+            const now = ctx.currentTime;
             
             if (type === 'sound1') { // Pop
                 osc.type = 'sine';
