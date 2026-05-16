@@ -2314,6 +2314,19 @@
         let clickTimes = [];
         let customSound = null;
 
+        soundSelect.addEventListener('change', () => {
+            if (soundSelect.value === 'upload') {
+                soundUpload.click();
+            }
+        });
+
+        soundUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                customSound = new Audio(url);
+            }
+        });
         
         // --- Synthesized Sounds for Button Clicker ---
         function playSynthSound(type) {
