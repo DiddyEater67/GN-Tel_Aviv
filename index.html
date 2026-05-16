@@ -146,6 +146,97 @@
             font-size: 2em;
             font-weight: bold;
             color: var(--h1-color);
+            position: relative;
+            display: inline-block;
+            min-width: 100px;
+        }
+
+        @keyframes rollUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+        }
+
+        .roll-number {
+            position: absolute;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--accent-color);
+            pointer-events: none;
+            animation: rollUp 0.6s ease-out forwards;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 0;
+        }
+
+        @keyframes floatAway {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--float-x), var(--float-y)) scale(0.5);
+            }
+        }
+
+        .float-plus-one {
+            position: fixed;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--accent-color);
+            pointer-events: none;
+            animation: floatAway 0.8s ease-out forwards;
+            text-shadow: 0 0 10px var(--accent-color);
+        }
+
+        #cpsCounter {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            font-size: 1.1em;
+            color: var(--accent-color);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 1px solid var(--accent-color);
+            z-index: 100;
+            font-family: 'Digital', 'Courier New', Courier, monospace;
+        }
+
+        #soundDropdown {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            padding: 10px 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        #soundDropdown:hover {
+            background: rgba(0, 0, 0, 0.7);
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+
+        #soundDropdown option {
+            background: var(--bg-color);
+            color: var(--accent-color);
+        }
+
+        #uploadSoundInput {
+            display: none;
         }
 
         .shuffle-notification {
@@ -1554,6 +1645,16 @@
                 <button id="actionBtn" class="modern-circular-btn"></button>
             </div>
             <button id="actionResetBtn" class="reset-btn" style="position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);">RESET</button>
+            <div id="cpsCounter">0.0 CPS</div>
+            <select id="soundDropdown">
+                <option value="none">Sound: None</option>
+                <option value="sound1">Sound: Beep 1</option>
+                <option value="sound2">Sound: Beep 2</option>
+                <option value="sound3">Sound: Beep 3</option>
+                <option value="upload">Sound: Upload</option>
+            </select>
+            <input type="file" id="uploadSoundInput" accept="audio/*">
+            <audio id="clickSound" preload="auto"></audio>
         </div>
     </div>
 
@@ -2224,16 +2325,124 @@
             startMusic();
         });
 
-        // New Page Logic
+        // New Page Logic - Button Clicker
         const actionBtn = document.getElementById('actionBtn');
         const actionResetBtn = document.getElementById('actionResetBtn');
         const actionCountDisplay = document.getElementById('actionCount');
+        const cpsCounter = document.getElementById('cpsCounter');
+        const soundDropdown = document.getElementById('soundDropdown');
+        const uploadSoundInput = document.getElementById('uploadSoundInput');
+        const clickSound = document.getElementById('clickSound');
+        
         let actionCount = 0;
         let isSpaceDown = false;
-
-        function handleAction() {
+        let clickTimestamps = [];
+        let currentSound = 'none';
+        let uploadedSoundUrl = null;
+        
+        // Predefined sounds (data URIs for beeps)
+        const sounds = {
+            sound1: 'data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQIAAAAAAA==',
+            sound2: 'data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQIAAAAAAA==',
+            sound3: 'data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQIAAAAAAA=='
+        };
+        
+        // Create simple beep sounds using Web Audio API
+        function playBeep(frequency = 800, duration = 100) {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = frequency;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration / 1000);
+            } catch (e) {
+                console.log('Audio context error:', e);
+            }
+        }
+        
+        function playClickSound() {
+            if (currentSound === 'none') return;
+            
+            if (currentSound === 'sound1') {
+                playBeep(800, 100);
+            } else if (currentSound === 'sound2') {
+                playBeep(600, 150);
+            } else if (currentSound === 'sound3') {
+                playBeep(1000, 80);
+            } else if (currentSound === 'upload' && uploadedSoundUrl) {
+                clickSound.src = uploadedSoundUrl;
+                clickSound.currentTime = 0;
+                clickSound.play().catch(e => console.log('Play error:', e));
+            }
+        }
+        
+        function createFloatingPlus(e) {
+            const floatDiv = document.createElement('div');
+            floatDiv.className = 'float-plus-one';
+            floatDiv.textContent = '+1';
+            
+            const rect = actionBtn.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            
+            floatDiv.style.left = x + 'px';
+            floatDiv.style.top = y + 'px';
+            
+            const randomX = (Math.random() - 0.5) * 100;
+            const randomY = -100 - Math.random() * 50;
+            
+            floatDiv.style.setProperty('--float-x', randomX + 'px');
+            floatDiv.style.setProperty('--float-y', randomY + 'px');
+            
+            document.body.appendChild(floatDiv);
+            
+            setTimeout(() => floatDiv.remove(), 800);
+        }
+        
+        function updateCPS() {
+            const now = Date.now();
+            clickTimestamps = clickTimestamps.filter(t => now - t < 1000);
+            const cps = clickTimestamps.length;
+            cpsCounter.textContent = cps.toFixed(1) + ' CPS';
+        }
+        
+        function handleAction(e) {
             actionCount++;
-            actionCountDisplay.textContent = actionCount;
+            
+            // Update display with rolling animation
+            const oldCount = actionCount - 1;
+            const rollDiv = document.createElement('div');
+            rollDiv.className = 'roll-number';
+            rollDiv.textContent = actionCount;
+            actionCountDisplay.style.position = 'relative';
+            actionCountDisplay.appendChild(rollDiv);
+            
+            setTimeout(() => {
+                actionCountDisplay.textContent = actionCount;
+                rollDiv.remove();
+            }, 600);
+            
+            // Create floating +1
+            if (e && e.type !== 'keydown') {
+                createFloatingPlus(e);
+            }
+            
+            // Play sound
+            playClickSound();
+            
+            // Track CPS
+            clickTimestamps.push(Date.now());
+            updateCPS();
             
             // Visual feedback
             actionBtn.classList.add('pressed');
@@ -2247,21 +2456,46 @@
         actionBtn.addEventListener('mouseleave', () => actionBtn.classList.remove('pressed'));
 
         actionBtn.addEventListener('click', (e) => {
-            handleAction();
+            handleAction(e);
             actionBtn.blur();
         });
 
         actionResetBtn.addEventListener('click', () => {
             actionCount = 0;
             actionCountDisplay.textContent = '0';
+            clickTimestamps = [];
+            cpsCounter.textContent = '0.0 CPS';
         });
+        
+        // Sound dropdown
+        soundDropdown.addEventListener('change', (e) => {
+            currentSound = e.target.value;
+            if (currentSound === 'upload') {
+                uploadSoundInput.click();
+            }
+        });
+        
+        uploadSoundInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    uploadedSoundUrl = event.target.result;
+                    currentSound = 'upload';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // CPS update interval
+        setInterval(updateCPS, 100);
 
         window.addEventListener('keydown', (e) => {
             if (e.code === 'Space' && currentPage === 1) {
                 if (!isSpaceDown) {
                     e.preventDefault();
                     isSpaceDown = true;
-                    handleAction();
+                    handleAction(e);
                 }
             }
         });
