@@ -1544,12 +1544,12 @@
     </div>
 
     <div id="newPage" class="page">
-        <div class="container blank-container" style="display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative;">
-            <div style="text-align: center; margin-bottom: 30px;">
+        <div class="container blank-container" style="display: flex; flex-direction: column; justify-content: flex-start; align-items: center; position: relative; padding-top: 40px;">
+            <div style="text-align: center; margin-bottom: 30px; position: absolute; top: 40px;">
                 <h1 style="margin: 0;"><strong>Button clicker</strong></h1>
                 <p style="margin: 5px 0 0 0; color: var(--p-color); font-size: 0.9em;">Simple button clicker</p>
             </div>
-            <div class="circular-btn-container" style="margin-top: 0;">
+            <div class="circular-btn-container" style="margin-top: 0; position: absolute; top: 50%; transform: translateY(-50%);">
                 <div class="click-count" id="actionCount" style="margin-bottom: 20px;">0</div>
                 <button id="actionBtn" class="modern-circular-btn"></button>
             </div>
