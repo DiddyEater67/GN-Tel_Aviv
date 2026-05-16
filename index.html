@@ -1244,6 +1244,70 @@
             display: block;
         }
 
+    
+        /* Rolling animation for numbers */
+        .click-count {
+            display: inline-flex;
+            overflow: hidden;
+            height: 1.2em;
+            line-height: 1.2em;
+        }
+        .digit-container {
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+        }
+        .digit {
+            height: 1.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Floating +1 animation */
+        .plus-one {
+            position: absolute;
+            color: var(--accent-color);
+            font-weight: bold;
+            font-size: 1.5em;
+            pointer-events: none;
+            z-index: 1000;
+            animation: floatAway 0.8s ease-out forwards;
+            user-select: none;
+        }
+        @keyframes floatAway {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-100px); opacity: 0; }
+        }
+
+        /* CPS Display */
+        #cpsDisplay {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 1.2em;
+            color: var(--p-color);
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        /* Sound Dropdown */
+        .sound-dropdown-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+        .sound-select {
+            background: var(--input-bg);
+            color: var(--input-text);
+            border: 1px solid var(--border-color);
+            padding: 5px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            outline: none;
+        }
+    
     </style>
 </head>
 <body>
@@ -1545,6 +1609,18 @@
 
     <div id="newPage" class="page">
         <div class="container blank-container" style="display: flex; flex-direction: column; justify-content: flex-start; align-items: center; position: relative; padding-top: 40px;">
+            <div id="cpsDisplay">CPS: 0.0</div>
+            <div class="sound-dropdown-container">
+                <select id="buttonSoundSelect" class="sound-select">
+                    <option value="none">Sound: None</option>
+                    <option value="sound1">Sound: Pop</option>
+                    <option value="sound2">Sound: Click</option>
+                    <option value="sound3">Sound: Blip</option>
+                    <option value="upload">Upload Sound...</option>
+                </select>
+                <input type="file" id="soundUpload" style="display: none;" accept="audio/*">
+            </div>
+    
             <div style="text-align: center; margin-bottom: 30px; position: absolute; top: 40px;">
                 <h1 style="margin: 0;"><strong>Button clicker</strong></h1>
                 <p style="margin: 5px 0 0 0; color: var(--p-color); font-size: 0.9em;">Simple button clicker</p>
@@ -2225,52 +2301,148 @@
         });
 
         // New Page Logic
+
+        // --- Button Clicker Enhanced Logic ---
+        const actionCountDisplay = document.getElementById('actionCount');
         const actionBtn = document.getElementById('actionBtn');
         const actionResetBtn = document.getElementById('actionResetBtn');
-        const actionCountDisplay = document.getElementById('actionCount');
+        const cpsDisplay = document.getElementById('cpsDisplay');
+        const soundSelect = document.getElementById('buttonSoundSelect');
+        const soundUpload = document.getElementById('soundUpload');
+        
         let actionCount = 0;
-        let isSpaceDown = false;
+        let clickTimes = [];
+        let customSound = null;
 
-        function handleAction() {
-            actionCount++;
-            actionCountDisplay.textContent = actionCount;
+        // Sound definitions
+        const sounds = {
+            sound1: new Audio('https://www.soundjay.com/buttons/sounds/button-37.mp3'),
+            sound2: new Audio('https://www.soundjay.com/buttons/sounds/button-09.mp3'),
+            sound3: new Audio('https://www.soundjay.com/buttons/sounds/button-10.mp3')
+        };
+
+        soundSelect.addEventListener('change', () => {
+            if (soundSelect.value === 'upload') {
+                soundUpload.click();
+            }
+        });
+
+        soundUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    customSound = new Audio(event.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function playButtonSound() {
+            const val = soundSelect.value;
+            let audio = null;
+            if (val === 'upload' && customSound) audio = customSound;
+            else if (sounds[val]) audio = sounds[val];
             
-            // Visual feedback
-            actionBtn.classList.add('pressed');
-            setTimeout(() => {
-                actionBtn.classList.remove('pressed');
-            }, 100);
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play().catch(() => {});
+            }
         }
 
-        actionBtn.addEventListener('mousedown', () => actionBtn.classList.add('pressed'));
-        actionBtn.addEventListener('mouseup', () => actionBtn.classList.remove('pressed'));
-        actionBtn.addEventListener('mouseleave', () => actionBtn.classList.remove('pressed'));
+        function updateRollingCount(num) {
+            const numStr = num.toString();
+            // Ensure display has enough digit containers
+            while (actionCountDisplay.children.length < numStr.length) {
+                const container = document.createElement('div');
+                container.className = 'digit-container';
+                for (let i = 0; i <= 9; i++) {
+                    const d = document.createElement('div');
+                    d.className = 'digit';
+                    d.textContent = i;
+                    container.appendChild(d);
+                }
+                actionCountDisplay.appendChild(container);
+            }
+            // Remove extra containers if needed
+            while (actionCountDisplay.children.length > numStr.length) {
+                actionCountDisplay.removeChild(actionCountDisplay.firstChild);
+            }
+
+            const containers = actionCountDisplay.children;
+            for (let i = 0; i < numStr.length; i++) {
+                const digit = parseInt(numStr[i]);
+                containers[i].style.transform = `translateY(-${digit * 1.2}em)`;
+            }
+        }
+
+        function createPlusOne(e) {
+            const plusOne = document.createElement('div');
+            plusOne.className = 'plus-one';
+            plusOne.textContent = '+1';
+            
+            // Position near click or center of button
+            const rect = actionBtn.getBoundingClientRect();
+            let x, y;
+            if (e && e.clientX) {
+                x = e.clientX;
+                y = e.clientY;
+            } else {
+                x = rect.left + rect.width / 2;
+                y = rect.top + rect.height / 2;
+            }
+            
+            plusOne.style.left = `${x - 10}px`;
+            plusOne.style.top = `${y - 20}px`;
+            document.body.appendChild(plusOne);
+            
+            setTimeout(() => plusOne.remove(), 800);
+        }
+
+        function updateCPS() {
+            const now = Date.now();
+            clickTimes = clickTimes.filter(t => now - t < 1000);
+            cpsDisplay.textContent = `CPS: ${clickTimes.length.toFixed(1)}`;
+        }
+        setInterval(updateCPS, 100);
+
+        function handleAction(e) {
+            actionCount++;
+            clickTimes.push(Date.now());
+            updateRollingCount(actionCount);
+            createPlusOne(e);
+            playButtonSound();
+            
+            actionBtn.classList.add('pressed');
+            setTimeout(() => actionBtn.classList.remove('pressed'), 100);
+        }
 
         actionBtn.addEventListener('click', (e) => {
-            handleAction();
+            handleAction(e);
             actionBtn.blur();
         });
 
         actionResetBtn.addEventListener('click', () => {
             actionCount = 0;
-            actionCountDisplay.textContent = '0';
+            updateRollingCount(0);
         });
 
+        // Initialize display
+        updateRollingCount(0);
+
+        // Spacebar support
+        let isSpaceDown = false;
         window.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' && currentPage === 1) {
-                if (!isSpaceDown) {
-                    e.preventDefault();
-                    isSpaceDown = true;
-                    handleAction();
-                }
+            if (e.code === 'Space' && currentPage === 1 && !isSpaceDown) {
+                e.preventDefault();
+                isSpaceDown = true;
+                handleAction();
             }
         });
-
         window.addEventListener('keyup', (e) => {
-            if (e.code === 'Space') {
-                isSpaceDown = false;
-            }
+            if (e.code === 'Space') isSpaceDown = false;
         });
+    
 
         // Keyboard navigation
         window.addEventListener('keydown', (e) => {
