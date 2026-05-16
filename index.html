@@ -1771,6 +1771,7 @@
                 <input type="file" id="musicFileInput" accept="audio/mpeg" multiple style="display: none;">
                 <div class="music-info">
                     <div class="music-title" id="playerTitle">Loading Playlist...</div>
+                    <div id="playerArtist" style="font-size: 1.1em; color: var(--accent-color); margin-bottom: 5px; font-weight: 500;"></div>
                     <div id="playerStatus" style="font-size: 0.9em; color: var(--hint-color);">Ready to play</div>
                 </div>
                 <div class="progress-container">
@@ -1836,6 +1837,7 @@
     <div id="miniPlayer">
         <div class="mini-info">
             <div class="mini-title" id="miniTitle">No Track</div>
+            <div id="miniArtist" style="font-size: 0.75em; color: var(--accent-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 5px;"></div>
         </div>
         <div class="mini-progress" id="miniProgressBar">
             <div class="mini-progress-fill" id="miniProgressFill"></div>
@@ -2904,57 +2906,73 @@
         const currentTimeDisplay = document.getElementById('currentTime');
         const durationDisplay = document.getElementById('duration');
         const playerTitle = document.getElementById('playerTitle');
+        const playerArtist = document.getElementById('playerArtist');
         const playerStatus = document.getElementById('playerStatus');
+        const miniArtist = document.getElementById('miniArtist');
 
         const playlist = [
-            { title: "Default Background Ambiance", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Default%20Background%20Ambiance.mp3" },
-            { title: "Blue (lofi version)", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Blue%20(lofi%20version).mp3" },
-            { title: "Collision Chaos Bad Future", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Collision%20Chaos%20Bad%20Future.mp3" },
-            { title: "Collision Chaos", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Collision%20Chaos.mp3" },
-            { title: "Do Sum", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Do%20Sum.mp3" },
-            { title: "Fireflies (lofi version)", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Fireflies%20(lofi%20version).mp3" },
-            { title: "Five Nights at Freddys 1 Song", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Five%20Nights%20at%20Freddys%201%20Song.mp3" },
-            { title: "Heat Waves (lofi version)", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Heat%20Waves%20(lofi%20version).mp3" },
-            { title: "It Was A Good Day", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/It%20Was%20A%20Good%20Day.mp3" },
-            { title: "Jealous", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Jealous.mp3" },
-            { title: "Ol Red", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Ol%20Red.mp3" },
-            { title: "PEPPER", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/PEPPER.mp3" },
-            { title: "Star Light Zone", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Star%20Light%20Zone.mp3" },
-            { title: "Studiopolis Zone Act 1", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Studiopolis%20Zone%20Act%201.mp3" },
-            { title: "Sugar Were Goin Down", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Sugar%20Were%20Goin%20Down.mp3" },
-            { title: "Chemical Plant Zone Act 2", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Chemical%20Plant%20Zone%20Act%202.mp3" },
-            { title: "Free bird", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Free%20Bird.mp3" },
-            { title: "Stan", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Stan.mp3" },
-            { title: "Angel Island Zone Act 1", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Angel%20Island%20Zone%20Act%201.mp3" },
-            { title: "Dream on", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Dream%20On.mp3" },
-            { title: "Loser", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Loser.mp3" },
-            { title: "Midnight City", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Midnight%20City.mp3" },
-            { title: "Palmtree Panic P mix", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Palmtree%20Panic%20P%20mix.mp3" },
-            { title: "Quartz Quadrant Bad Future", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Quartz%20Quadrant%20Bad%20Future.mp3" },
-            { title: "Stardust Speedway Bad Future", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Stardust%20Speedway%20Bad%20Future.mp3" },
-            { title: "Thriller", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Thriller.mp3" },
-            { title: "ABC", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/ABC.mp3" },
-            { title: "Bad", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Bad.mp3" },
-            { title: "Black Knife", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Black%20Knife.mp3" },
-            { title: "Gangstas Paradise", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Gangstas%20Paradise.mp3" },
-            { title: "No Surprises", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/No%20Surprises.mp3" },
-            { title: "We Didnt Start the Fire", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/We%20Didnt%20Start%20the%20Fire.mp3" },
-            { title: "Young Girl A", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Young%20Girl%20A.mp3" },
-            { title: "Attack of the Killer Queen", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Attack%20of%20the%20Killer%20Queen.mp3" },
-            { title: "Death by Glamor", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Death%20by%20Glamor.mp3" },
-            { title: "Flying Battery Zone Act 1", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Flying%20Battery%20Zone%20Act%201.mp3" },
-            { title: "Ice Cap Zone Act 1", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Ice%20Cap%20Zone%20Act%201.mp3" },
-            { title: "Notion", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Notion.mp3" },
-            { title: "Palmtree Panic", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Palmtree%20Panic.mp3" },
-            { title: "Wacky Workbench Present", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Wacky%20Workbench%20Present.mp3" },
-            { title: "Nope you are too late I already died", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Nope%20you%20are%20too%20late%20I%20already%20died.mp3" },
-            { title: "Undertale", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Undertale.mp3" },
-            { title: "My Ordinary Life", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/My%20Ordinary%20Life.mp3" }
+            { title: "Default Background Ambiance", artist: "Ruben Rincón", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Default%20Background%20Ambiance.mp3" },
+            { title: "Blue (lofi version)", artist: "Eiffel 65", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Blue%20(lofi%20version).mp3" },
+            { title: "Collision Chaos Bad Future", artist: "SEGA Sound Team", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Collision%20Chaos%20Bad%20Future.mp3" },
+            { title: "Collision Chaos", artist: "SEGA Sound Team", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Collision%20Chaos.mp3" },
+            { title: "Do Sum", artist: "QKReign", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Do%20Sum.mp3" },
+            { title: "Fireflies (lofi version)", artist: "Owl City", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Fireflies%20(lofi%20version).mp3" },
+            { title: "Five Nights at Freddys 1 Song", artist: "TheLivingTombstone", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Five%20Nights%20at%20Freddys%201%20Song.mp3" },
+            { title: "Heat Waves (lofi version)", artist: "Glass Animals", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Heat%20Waves%20(lofi%20version).mp3" },
+            { title: "It Was A Good Day", artist: "Ice Cube", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/It%20Was%20A%20Good%20Day.mp3" },
+            { title: "Jealous", artist: "Eyedresss", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Jealous.mp3" },
+            { title: "Ol Red", artist: "Blake Shelton", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Ol%20Red.mp3" },
+            { title: "PEPPER", artist: "Butthole Surfurs", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/PEPPER.mp3" },
+            { title: "Star Light Zone", artist: "SEGA Sound Team", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Star%20Light%20Zone.mp3" },
+            { title: "Studiopolis Zone Act 1", artist: "Tee Lopes", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Studiopolis%20Zone%20Act%201.mp3" },
+            { title: "Sugar Were Goin Down", artist: "Fall Out Boy", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Sugar%20Were%20Goin%20Down.mp3" },
+            { title: "Chemical Plant Zone Act 2", artist: "Tee Lopes", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Chemical%20Plant%20Zone%20Act%202.mp3" },
+            { title: "Free bird", artist: "Lynyrd Skynyrd", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Free%20Bird.mp3" },
+            { title: "Stan", artist: "Eminem", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Stan.mp3" },
+            { title: "Angel Island Zone Act 1", artist: "SEGA Sound Team", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Angel%20Island%20Zone%20Act%201.mp3" },
+            { title: "Dream on", artist: "Aerosmith", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Dream%20On.mp3" },
+            { title: "Loser", artist: "Beck", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Loser.mp3" },
+            { title: "Midnight City", artist: "M83", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Midnight%20City.mp3" },
+            { title: "Palmtree Panic P mix", artist: "SEGA Sound Team", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Palmtree%20Panic%20P%20mix.mp3" },
+            { title: "Quartz Quadrant Bad Future", artist: "SEGA Sound Team", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Quartz%20Quadrant%20Bad%20Future.mp3" },
+            { title: "Stardust Speedway Bad Future", artist: "SEGA Sound Team", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Stardust%20Speedway%20Bad%20Future.mp3" },
+            { title: "Thriller", artist: "Michael Jackson", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Thriller.mp3" },
+            { title: "ABC", artist: "The Jackson 5", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/ABC.mp3" },
+            { title: "Bad", artist: "Michael Jackson", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Bad.mp3" },
+            { title: "Black Knife", artist: "Toby Fox", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Black%20Knife.mp3" },
+            { title: "Gangstas Paradise", artist: "Coolio", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Gangstas%20Paradise.mp3" },
+            { title: "No Surprises", artist: "Radiohead", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/No%20Surprises.mp3" },
+            { title: "We Didnt Start the Fire", artist: "Billy Joel", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/We%20Didnt%20Start%20the%20Fire.mp3" },
+            { title: "Young Girl A", artist: "Siinamota", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Young%20Girl%20A.mp3" },
+            { title: "Attack of the Killer Queen", artist: "Toby Fox", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Attack%20of%20the%20Killer%20Queen.mp3" },
+            { title: "Death by Glamor", artist: "Toby Fox", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Death%20by%20Glamor.mp3" },
+            { title: "Flying Battery Zone Act 1", artist: "SEGA Sound Team", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Flying%20Battery%20Zone%20Act%201.mp3" },
+            { title: "Ice Cap Zone Act 1", artist: "SEGA Sound Team", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Ice%20Cap%20Zone%20Act%201.mp3" },
+            { title: "Notion", artist: "The Rare Occasions", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Notion.mp3" },
+            { title: "Palmtree Panic", artist: "SEGA Sound Team", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Palmtree%20Panic.mp3" },
+            { title: "Wacky Workbench Present", artist: "SEGA Sound Team", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Wacky%20Workbench%20Present.mp3" },
+            { title: "Nope you are too late I already died", artist: "Wifiskeleton", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Nope%20you%20are%20too%20late%20I%20already%20died.mp3" },
+            { title: "Undertale", artist: "Toby Fox", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/Undertale.mp3" },
+            { title: "My Ordinary Life", artist: "TheLivingTombstone", url: "https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Music/My%20Ordinary%20Life.mp3" }
         ];
 
         let currentTrackIndex = 0; let isLooping = false; let isShuffling = false; let musicStarted = false;
         let originalPlaylist = [...playlist];
-        function loadTrack(index) { if (playlist.length === 0) return; currentTrackIndex = index; const track = playlist[index]; bgMusic.src = track.url; playerTitle.textContent = track.title; bgMusic.load(); if (musicStarted) bgMusic.play().catch(() => {}); updatePlayPauseIcon(); }
+        function loadTrack(index) { 
+            if (playlist.length === 0) return; 
+            currentTrackIndex = index; 
+            const track = playlist[index]; 
+            bgMusic.src = track.url; 
+            playerTitle.textContent = track.title; 
+            
+            const artistText = track.artist || "";
+            if (playerArtist) playerArtist.textContent = artistText;
+            if (miniArtist) miniArtist.textContent = artistText;
+            
+            bgMusic.load(); 
+            if (musicStarted) bgMusic.play().catch(() => {}); 
+            updatePlayPauseIcon(); 
+        }
         function updatePlayPauseIcon() { playPauseBtn.textContent = bgMusic.paused ? '▶️' : '⏸️'; }
         function startMusic() { if (musicStarted || playlist.length === 0) return; musicStarted = true; bgMusic.play().catch(() => {}); if (playerStatus) playerStatus.textContent = "🎵 Music Playing"; updatePlayPauseIcon(); }
         bgMusic.addEventListener('timeupdate', () => { if (playlist.length === 0) return; const progress = (bgMusic.currentTime / bgMusic.duration) * 100; progressFill.style.width = `${progress}%`; const curM = Math.floor(bgMusic.currentTime / 60); const curS = Math.floor(bgMusic.currentTime % 60); const durM = Math.floor(bgMusic.duration / 60) || 0; const durS = Math.floor(bgMusic.duration % 60) || 0; currentTimeDisplay.textContent = `${curM}:${curS.toString().padStart(2, '0')}`; durationDisplay.textContent = `${durM}:${durS.toString().padStart(2, '0')}`; });
@@ -3124,8 +3142,10 @@
         
         const miniObserver = new MutationObserver(() => {
             miniTitle.textContent = playerTitle.textContent;
+            miniArtist.textContent = playerArtist.textContent;
         });
         miniObserver.observe(playerTitle, { childList: true, characterData: true, subtree: true });
+        miniObserver.observe(playerArtist, { childList: true, characterData: true, subtree: true });
 
         let isMiniDragging = false;
         let miniOffsetX = 0;
