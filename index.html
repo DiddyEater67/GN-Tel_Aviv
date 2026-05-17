@@ -1626,7 +1626,7 @@
                 <p style="margin: 5px 0 0 0; color: var(--p-color); font-size: 0.9em;">Simple button clicker</p>
             </div>
             <div class="circular-btn-container" style="margin-top: 0; position: absolute; top: 50%; transform: translateY(-50%);">
-                <div class="click-count" id="actionCount" style="margin-bottom: 20px;">0</div>
+                <div class="click-count" id="actionCount" style="margin-bottom: 20px;"></div>
                 <button id="actionBtn" class="modern-circular-btn"></button>
             </div>
             <button id="actionResetBtn" class="reset-btn" style="position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);">RESET</button>
@@ -2381,24 +2381,31 @@
         function updateRollingCount(num) {
             const numStr = num.toString();
             
-            // Clear and rebuild to ensure no leading zeros from previous states
-            actionCountDisplay.innerHTML = '';
-            
-            for (let i = 0; i < numStr.length; i++) {
+            // Ensure display has enough digit containers
+            while (actionCountDisplay.children.length < numStr.length) {
                 const container = document.createElement('div');
                 container.className = 'digit-container';
-                for (let j = 0; j <= 9; j++) {
+                for (let i = 0; i <= 9; i++) {
                     const d = document.createElement('div');
                     d.className = 'digit';
-                    d.textContent = j;
+                    d.textContent = i;
                     container.appendChild(d);
                 }
                 actionCountDisplay.appendChild(container);
-                
-                // Trigger reflow for animation if needed, then set transform
+            }
+            
+            // Remove extra containers from the FRONT to avoid leading zeros
+            while (actionCountDisplay.children.length > numStr.length) {
+                actionCountDisplay.removeChild(actionCountDisplay.firstChild);
+            }
+
+            const containers = actionCountDisplay.children;
+            for (let i = 0; i < numStr.length; i++) {
                 const digit = parseInt(numStr[i]);
-                container.offsetHeight; // force reflow
-                container.style.transform = `translateY(-${digit * 1.2}em)`;
+                const targetTransform = `translateY(-${digit * 1.2}em)`;
+                if (containers[i].style.transform !== targetTransform) {
+                    containers[i].style.transform = targetTransform;
+                }
             }
         }
 
