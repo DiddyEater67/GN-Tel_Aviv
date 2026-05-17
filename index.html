@@ -2380,27 +2380,25 @@
 
         function updateRollingCount(num) {
             const numStr = num.toString();
-            // Ensure display has enough digit containers
-            while (actionCountDisplay.children.length < numStr.length) {
+            
+            // Clear and rebuild to ensure no leading zeros from previous states
+            actionCountDisplay.innerHTML = '';
+            
+            for (let i = 0; i < numStr.length; i++) {
                 const container = document.createElement('div');
                 container.className = 'digit-container';
-                for (let i = 0; i <= 9; i++) {
+                for (let j = 0; j <= 9; j++) {
                     const d = document.createElement('div');
                     d.className = 'digit';
-                    d.textContent = i;
+                    d.textContent = j;
                     container.appendChild(d);
                 }
                 actionCountDisplay.appendChild(container);
-            }
-            // Remove extra containers if needed
-            while (actionCountDisplay.children.length > numStr.length) {
-                actionCountDisplay.removeChild(actionCountDisplay.firstChild);
-            }
-
-            const containers = actionCountDisplay.children;
-            for (let i = 0; i < numStr.length; i++) {
+                
+                // Trigger reflow for animation if needed, then set transform
                 const digit = parseInt(numStr[i]);
-                containers[i].style.transform = `translateY(-${digit * 1.2}em)`;
+                container.offsetHeight; // force reflow
+                container.style.transform = `translateY(-${digit * 1.2}em)`;
             }
         }
 
