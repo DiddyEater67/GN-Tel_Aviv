@@ -1496,7 +1496,7 @@
                     </select>
                 </div>
                 <div style="padding: 15px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-                    <div style="display: flex; gap: 15px; margin-bottom: 10px;">
+                    <div style="display: flex; gap: 15px; margin-bottom: 10px; justify-content: center;">
                         <label id="alarmTabBtn" style="color: var(--text-color); font-size: 1.1em; cursor: pointer; border-bottom: 2px solid var(--accent-color);">Alarm</label>
                         <label id="stopwatchTabBtn" style="color: var(--text-color); font-size: 1.1em; cursor: pointer; opacity: 0.6;">Stopwatch</label>
                     </div>
@@ -1526,6 +1526,7 @@
                     <div id="alarmStatus" style="color: var(--hint-color); font-size: 0.9em; margin-top: 8px; text-align: center;">No alarm set</div>
                     </div>
                     <div id="stopwatchSection" style="display: none;">
+                        <div id="swDisplay" style="font-family: 'Digital', monospace; font-size: 2em; color: var(--accent-color); margin-bottom: 15px; text-align: center;">00:00.00</div>
                         <div style="display: flex; gap: 8px; justify-content: center;">
                             <button id="swStartBtn" style="background: var(--accent-color); color: white; padding: 8px 15px; border-radius: 8px; border: none; cursor: pointer; flex: 1;">Start</button>
                             <button id="swPauseBtn" style="display: none; background: var(--accent-color); color: white; padding: 8px 15px; border-radius: 8px; border: none; cursor: pointer; flex: 1;">Pause</button>
@@ -4844,6 +4845,16 @@ window.addEventListener('load', () => {
             const now = Date.now();
             stopwatchTime += now - stopwatchLastTick;
             stopwatchLastTick = now;
+            
+            const totalMs = stopwatchTime;
+            const mins = Math.floor(totalMs / 60000);
+            const secs = Math.floor((totalMs % 60000) / 1000);
+            const ms = Math.floor((totalMs % 1000) / 10);
+            const timeStr = String(mins).padStart(2, '0') + ':' + 
+                          String(secs).padStart(2, '0') + '.' + 
+                          String(ms).padStart(2, '0');
+            
+            document.getElementById('swDisplay').textContent = timeStr;
             updateClock();
         }
 
@@ -4872,6 +4883,7 @@ window.addEventListener('load', () => {
         swResetBtn.addEventListener('click', () => {
             stopwatchTime = 0;
             stopwatchLastTick = Date.now();
+            document.getElementById('swDisplay').textContent = '00:00.00';
             updateClock();
         });
 
