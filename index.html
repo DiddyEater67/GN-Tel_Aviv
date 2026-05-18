@@ -1461,7 +1461,20 @@
                 </div>
                 <div class="settings-option">
                     <label for="clockColorPicker">Clock Color</label>
-                    <input type="color" id="clockColorPicker" value="#5dade2" style="width: 40px; height: 30px; padding: 0; border: none; background: none; cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="color" id="clockColorPicker" value="#5dade2" style="width: 40px; height: 30px; padding: 0; border: none; background: none; cursor: pointer;">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <input type="checkbox" id="rainbowClockCheckbox" style="cursor: pointer;">
+                            <label for="rainbowClockCheckbox" style="font-size: 0.9em; cursor: pointer;">Rainbow</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-option" id="rainbowSpeedOption" style="display: none;">
+                    <label for="rainbowSpeedSlider">Rainbow Speed</label>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="range" id="rainbowSpeedSlider" min="1" max="20" value="5" style="width: 100px; cursor: pointer;">
+                        <button id="defaultRainbowSpeedBtn" style="background: var(--accent-color); color: white; border: none; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 0.8em;">Default</button>
+                    </div>
                 </div>
                 <div class="settings-option">
                     <label for="militaryTimeToggle">Military Time</label>
@@ -2070,14 +2083,71 @@
 
         // Clock Color Picker
         const clockColorPicker = document.getElementById('clockColorPicker');
+        const rainbowClockCheckbox = document.getElementById('rainbowClockCheckbox');
+        const rainbowSpeedOption = document.getElementById('rainbowSpeedOption');
+        const rainbowSpeedSlider = document.getElementById('rainbowSpeedSlider');
+        const defaultRainbowSpeedBtn = document.getElementById('defaultRainbowSpeedBtn');
+        
+        let rainbowActive = false;
+        let rainbowHue = 0;
+        let rainbowSpeed = 5;
+        let rainbowInterval = null;
+
+        function updateRainbow() {
+            if (!rainbowActive) return;
+            rainbowHue = (rainbowHue + (rainbowSpeed / 2)) % 360;
+            clock.style.color = `hsl(${rainbowHue}, 100%, 50%)`;
+            rainbowInterval = requestAnimationFrame(updateRainbow);
+        }
+
         clockColorPicker.addEventListener('change', (e) => {
-            clock.style.color = e.target.value;
-            localStorage.setItem('gn_clockColor', e.target.value);
+            if (!rainbowActive) {
+                clock.style.color = e.target.value;
+                localStorage.setItem('gn_clockColor', e.target.value);
+            }
         });
+
+        rainbowClockCheckbox.addEventListener('change', (e) => {
+            rainbowActive = e.target.checked;
+            rainbowSpeedOption.style.display = rainbowActive ? 'flex' : 'none';
+            localStorage.setItem('gn_rainbowClock', rainbowActive);
+            if (rainbowActive) {
+                updateRainbow();
+            } else {
+                cancelAnimationFrame(rainbowInterval);
+                clock.style.color = clockColorPicker.value;
+            }
+        });
+
+        rainbowSpeedSlider.addEventListener('input', (e) => {
+            rainbowSpeed = parseInt(e.target.value);
+            localStorage.setItem('gn_rainbowSpeed', rainbowSpeed);
+        });
+
+        defaultRainbowSpeedBtn.addEventListener('click', () => {
+            rainbowSpeed = 5;
+            rainbowSpeedSlider.value = 5;
+            localStorage.setItem('gn_rainbowSpeed', 5);
+        });
+
         const savedClockColor = localStorage.getItem('gn_clockColor');
         if (savedClockColor) {
             clock.style.color = savedClockColor;
             clockColorPicker.value = savedClockColor;
+        }
+
+        const savedRainbowActive = localStorage.getItem('gn_rainbowClock') === 'true';
+        if (savedRainbowActive) {
+            rainbowActive = true;
+            rainbowClockCheckbox.checked = true;
+            rainbowSpeedOption.style.display = 'flex';
+            updateRainbow();
+        }
+
+        const savedRainbowSpeed = localStorage.getItem('gn_rainbowSpeed');
+        if (savedRainbowSpeed) {
+            rainbowSpeed = parseInt(savedRainbowSpeed);
+            rainbowSpeedSlider.value = rainbowSpeed;
         }
 
         // Military Time Toggle
