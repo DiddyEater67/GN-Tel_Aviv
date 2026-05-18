@@ -2136,17 +2136,17 @@
             clockColorPicker.value = savedClockColor;
         }
 
-        const savedRainbowActive = localStorage.getItem('gn_rainbowClock') === 'true';
-        if (savedRainbowActive) {
+        const savedClockRainbowActive = localStorage.getItem('gn_rainbowClock') === 'true';
+        if (savedClockRainbowActive) {
             clockRainbowActive = true;
             rainbowClockCheckbox.checked = true;
             clockRainbowSpeedOption.style.display = 'flex';
             updateClockRainbow();
         }
 
-        const savedRainbowSpeed = localStorage.getItem('gn_rainbowSpeed');
-        if (savedRainbowSpeed) {
-            clockRainbowSpeed = parseInt(savedRainbowSpeed);
+        const savedClockRainbowSpeed = localStorage.getItem('gn_rainbowSpeed');
+        if (savedClockRainbowSpeed) {
+            clockRainbowSpeed = parseInt(savedClockRainbowSpeed);
             clockRainbowSpeedSlider.value = clockRainbowSpeed;
         }
 
