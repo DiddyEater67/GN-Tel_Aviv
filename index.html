@@ -190,8 +190,10 @@
             box-shadow: 0 4px 15px var(--shadow);
             pointer-events: auto;
             display: flex;
-            align-items: baseline;
-            gap: 5px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
             cursor: grab;
             user-select: none;
             transition: box-shadow 0.2s;
@@ -1315,8 +1317,11 @@
     <canvas id="visualizerCanvas"></canvas>
 
     <div id="digitalClock">
-        <span id="clockTime">00:00</span>
-        <span id="clockAmPm">AM</span>
+        <div style="display: flex; align-items: baseline; gap: 5px;">
+            <span id="clockTime">00:00</span>
+            <span id="clockAmPm">AM</span>
+        </div>
+        <div id="clockDate" style="font-size: 0.45em; opacity: 0.9; margin-top: -2px; display: block;">Jun/15/2026 Sat</div>
     </div>
     <button id="settingsBtn" title="Settings">⚙️</button>
     <div id="settingsOverlay">
@@ -1465,6 +1470,10 @@
                 <div class="settings-option">
                     <label for="showSecondsToggle">Show Seconds</label>
                     <div class="toggle-switch" id="showSecondsToggle"></div>
+                </div>
+                <div class="settings-option">
+                    <label for="showDateToggle">Show Date</label>
+                    <div class="toggle-switch active" id="showDateToggle"></div>
                 </div>
                 <div class="settings-option">
                     <label for="clockFontSelect">Clock Font</label>
@@ -1863,6 +1872,7 @@
         // Digital Clock Functionality
         let militaryTime = false;
         let showSeconds = false;
+        let showDate = true;
         let alarmTime = null;
         let alarmSound = 'bell';
         let customAlarmAudio = null;
@@ -1903,6 +1913,16 @@
             } else {
                 document.getElementById('clockAmPm').textContent = '';
             }
+
+            // Update Date
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const month = months[now.getMonth()];
+            const date = String(now.getDate()).padStart(2, '0');
+            const year = now.getFullYear();
+            const day = days[now.getDay()];
+            document.getElementById('clockDate').textContent = `${month}/${date}/${year} ${day}`;
+            document.getElementById('clockDate').style.display = showDate ? 'block' : 'none';
 
             if (alarmActive && alarmTime) {
                 const alarmHours = parseInt(alarmTime.hours);
@@ -2086,6 +2106,20 @@
         if (savedShowSeconds) {
             showSeconds = true;
             showSecondsToggle.classList.add('active');
+        }
+
+        // Show Date Toggle
+        const showDateToggle = document.getElementById('showDateToggle');
+        showDateToggle.addEventListener('click', () => {
+            showDate = !showDate;
+            showDateToggle.classList.toggle('active');
+            localStorage.setItem('gn_showDate', showDate);
+            updateClock();
+        });
+        const savedShowDate = localStorage.getItem('gn_showDate');
+        if (savedShowDate !== null) {
+            showDate = savedShowDate === 'true';
+            showDateToggle.classList.toggle('active', showDate);
         }
 
         // Clock Font Selection
