@@ -1496,8 +1496,12 @@
                     </select>
                 </div>
                 <div style="padding: 15px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-                    <label style="color: var(--text-color); font-size: 1.1em; display: block; margin-bottom: 10px;">Set Alarm</label>
-                    <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 15px; margin-bottom: 10px;">
+                        <label id="alarmTabBtn" style="color: var(--text-color); font-size: 1.1em; cursor: pointer; border-bottom: 2px solid var(--accent-color);">Alarm</label>
+                        <label id="stopwatchTabBtn" style="color: var(--text-color); font-size: 1.1em; cursor: pointer; opacity: 0.6;">Stopwatch</label>
+                    </div>
+                    <div id="alarmSection">
+                        <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
                         <input type="number" id="alarmHour" min="0" max="23" placeholder="Hour" style="width: 60px;">
                         <input type="number" id="alarmMinute" min="0" max="59" placeholder="Min" style="width: 60px;">
                         <input type="number" id="alarmSecond" min="0" max="59" placeholder="Sec" style="width: 60px;">
@@ -1520,6 +1524,15 @@
                         <button id="cancelAlarmBtn" style="background-color: var(--reset-color); color: white; padding: 8px 15px; border-radius: 8px; border: none; cursor: pointer; flex: 1;">Cancel Alarm</button>
                     </div>
                     <div id="alarmStatus" style="color: var(--hint-color); font-size: 0.9em; margin-top: 8px; text-align: center;">No alarm set</div>
+                    </div>
+                    <div id="stopwatchSection" style="display: none;">
+                        <div style="display: flex; gap: 8px; justify-content: center;">
+                            <button id="swStartBtn" style="background: var(--accent-color); color: white; padding: 8px 15px; border-radius: 8px; border: none; cursor: pointer; flex: 1;">Start</button>
+                            <button id="swPauseBtn" style="display: none; background: var(--accent-color); color: white; padding: 8px 15px; border-radius: 8px; border: none; cursor: pointer; flex: 1;">Pause</button>
+                            <button id="swResetBtn" style="background: var(--reset-color); color: white; padding: 8px 15px; border-radius: 8px; border: none; cursor: pointer; flex: 1;">Reset</button>
+                            <button id="swStopBtn" style="display: none; background: var(--reset-color); color: white; padding: 8px 15px; border-radius: 8px; border: none; cursor: pointer; flex: 1;">Stop</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1888,6 +1901,11 @@
         let customAlarmAudio = null;
         let alarmActive = false;
         let alarmAudio = null;
+        let stopwatchActive = false;
+        let stopwatchTime = 0;
+        let stopwatchInterval = null;
+        let stopwatchLastTick = 0;
+
 
         const alarmSounds = {
             bell: 'https://raw.githubusercontent.com/DiddyEater67/GN-Tel_Aviv/main/Alarms/Bell%20sound.mp3',
@@ -1896,6 +1914,18 @@
         };
 
         function updateClock() {
+            if (stopwatchActive) {
+                const totalMs = stopwatchTime;
+                const mins = Math.floor(totalMs / 60000);
+                const secs = Math.floor((totalMs % 60000) / 1000);
+                const ms = Math.floor((totalMs % 1000) / 10);
+                document.getElementById('clockTime').textContent = 
+                    String(mins).padStart(2, '0') + ':' + 
+                    String(secs).padStart(2, '0') + '.' + 
+                    String(ms).padStart(2, '0');
+                document.getElementById('clockAmPm').textContent = 'SW';
+                return;
+            }
             const now = new Date();
             const realHours = now.getHours();
             let hours = realHours;
@@ -4780,6 +4810,81 @@ window.addEventListener('load', () => {
     }
 });
 
-</script>
+
+        // Stopwatch Logic
+        const alarmTabBtn = document.getElementById('alarmTabBtn');
+        const stopwatchTabBtn = document.getElementById('stopwatchTabBtn');
+        const alarmSection = document.getElementById('alarmSection');
+        const stopwatchSection = document.getElementById('stopwatchSection');
+        
+        const swStartBtn = document.getElementById('swStartBtn');
+        const swPauseBtn = document.getElementById('swPauseBtn');
+        const swResetBtn = document.getElementById('swResetBtn');
+        const swStopBtn = document.getElementById('swStopBtn');
+
+        alarmTabBtn.addEventListener('click', () => {
+            alarmSection.style.display = 'block';
+            stopwatchSection.style.display = 'none';
+            alarmTabBtn.style.borderBottom = '2px solid var(--accent-color)';
+            alarmTabBtn.style.opacity = '1';
+            stopwatchTabBtn.style.borderBottom = 'none';
+            stopwatchTabBtn.style.opacity = '0.6';
+        });
+
+        stopwatchTabBtn.addEventListener('click', () => {
+            alarmSection.style.display = 'none';
+            stopwatchSection.style.display = 'block';
+            stopwatchTabBtn.style.borderBottom = '2px solid var(--accent-color)';
+            stopwatchTabBtn.style.opacity = '1';
+            alarmTabBtn.style.borderBottom = 'none';
+            alarmTabBtn.style.opacity = '0.6';
+        });
+
+        function updateStopwatch() {
+            const now = Date.now();
+            stopwatchTime += now - stopwatchLastTick;
+            stopwatchLastTick = now;
+            updateClock();
+        }
+
+        swStartBtn.addEventListener('click', () => {
+            stopwatchActive = true;
+            stopwatchLastTick = Date.now();
+            stopwatchInterval = setInterval(updateStopwatch, 10);
+            swStartBtn.style.display = 'none';
+            swPauseBtn.style.display = 'block';
+            swStopBtn.style.display = 'block';
+            swPauseBtn.textContent = 'Pause';
+        });
+
+        swPauseBtn.addEventListener('click', () => {
+            if (stopwatchInterval) {
+                clearInterval(stopwatchInterval);
+                stopwatchInterval = null;
+                swPauseBtn.textContent = 'Resume';
+            } else {
+                stopwatchLastTick = Date.now();
+                stopwatchInterval = setInterval(updateStopwatch, 10);
+                swPauseBtn.textContent = 'Pause';
+            }
+        });
+
+        swResetBtn.addEventListener('click', () => {
+            stopwatchTime = 0;
+            stopwatchLastTick = Date.now();
+            updateClock();
+        });
+
+        swStopBtn.addEventListener('click', () => {
+            stopwatchActive = false;
+            clearInterval(stopwatchInterval);
+            stopwatchInterval = null;
+            swStartBtn.style.display = 'block';
+            swPauseBtn.style.display = 'none';
+            swStopBtn.style.display = 'none';
+            updateClock();
+        });
+
+    </script>
 </body>
 </html>
